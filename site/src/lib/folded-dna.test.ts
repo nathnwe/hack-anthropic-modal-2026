@@ -75,7 +75,7 @@ test("fade is progressive at each omitted boundary, while marked sites remain op
   }
 });
 
-test("folded motion preserves local molecular geometry and exact accounting", () => {
+test("fluid motion keeps the promoter fixed and preserves local spacing and exact accounting", () => {
   for (const cre of record.locus.cres) {
     const d = foldedDNA(locusWindow(record, cre)!)!;
     let previous = Infinity;
@@ -86,6 +86,10 @@ test("folded motion preserves local molecular geometry and exact accounting", ()
       assert.ok(gap < previous);
       previous = gap;
       assert.ok(hazeCenter(d, p).toArray().every(Number.isFinite));
+      assert.deepEqual(
+        foldedAnchor(record.gene.tss, p, d).toArray(),
+        [0, -8, 0],
+      );
       for (const a of d.arms)
         for (let bp = a.start + 0.5; bp < a.end; bp++) {
           const f = foldedFrame(bp, p, d);
@@ -99,10 +103,6 @@ test("folded motion preserves local molecular geometry and exact accounting", ()
             const spacing = f.center.distanceTo(
               foldedFrame(bp + 1, p, d).center,
             );
-            const initial = foldedFrame(bp, 0, d).center.distanceTo(
-              foldedFrame(bp + 1, 0, d).center,
-            );
-            assert.ok(Math.abs(spacing - initial) < 1e-8);
             assert.ok(Math.abs(spacing - 0.34) < 0.004);
           }
         }
@@ -110,6 +110,24 @@ test("folded motion preserves local molecular geometry and exact accounting", ()
     assert.ok(previous > 3 && previous < 4);
     assert.equal(d.shownBp + d.omittedBp, d.end - d.start);
   }
+});
+
+test("enhancer follows a curved path and the DNA bends instead of moving as a rigid body", () => {
+  const d = foldedDNA(locusWindow(record, record.locus.cres[0])!)!;
+  const a = d.arms.find((a) => a.role === "element")!;
+  const start = foldedAnchor(a.anchor, 0, d),
+    end = foldedAnchor(a.anchor, 1, d);
+  const midpoint = foldedAnchor(a.anchor, 0.5, d);
+  assert.ok(midpoint.distanceTo(start.clone().lerp(end, 0.5)) > 3);
+  const chord = (p: number) =>
+    foldedAnchor(a.start + 2, p, d).distanceTo(foldedAnchor(a.end - 2, p, d));
+  assert.ok(Math.abs(chord(0) - chord(1)) > 2);
+  // Smooth start and settling, with no time-dependent jitter while paused.
+  assert.ok(foldedAnchor(a.anchor, 0.001, d).distanceTo(start) < 1e-5);
+  assert.ok(foldedAnchor(a.anchor, 0.999, d).distanceTo(end) < 1e-5);
+  const paused = foldedFrame(a.anchor + 30, 0.4, d).center.toArray();
+  foldedFrame(a.anchor + 30, 0.9, d);
+  assert.deepEqual(foldedFrame(a.anchor + 30, 0.4, d).center.toArray(), paused);
 });
 
 test("upstream elements, half-base midpoints and clipped flanks retain accounting", () => {
@@ -120,6 +138,10 @@ test("upstream elements, half-base midpoints and clipped flanks retain accountin
   const d = foldedDNA(w)!;
   assert.equal(d.arms[0].anchor, 127737250.5);
   assert.equal(d.arms[1].anchor, r.gene.tss);
+  for (const p of [0, 0.5, 1]) {
+    assert.deepEqual(foldedAnchor(r.gene.tss, p, d).toArray(), [0, -8, 0]);
+    assert.ok(foldedAnchor(cre.start + 250.5, p, d).y > -8);
+  }
   const clipped = foldedDNA({
     ...w,
     start: Math.floor(d.arms[0].anchor) - 10,
@@ -130,4 +152,23 @@ test("upstream elements, half-base midpoints and clipped flanks retain accountin
     clipped.end - clipped.start,
   );
   assert.equal(foldedDNA({ ...w, overlap: true }), null);
+});
+
+test("visible local helices stay separate throughout the three contact previews", () => {
+  for (const cre of record.locus.cres) {
+    const d = foldedDNA(locusWindow(record, cre)!)!;
+    for (let step = 0; step <= 20; step++) {
+      const samples = d.arms.map((a) =>
+        Array.from({ length: 64 }, (_, i) =>
+          foldedFrame(a.start + i * 2 + 0.5, step / 20, d),
+        ).filter((f) => f.fade > 0.5),
+      );
+      for (const a of samples[0])
+        for (const b of samples[1])
+          assert.ok(
+            a.center.distanceTo(b.center) > 2.4,
+            "Visible double helices intersect",
+          );
+    }
+  }
 });

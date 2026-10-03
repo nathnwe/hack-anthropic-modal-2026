@@ -1,4 +1,4 @@
-import { CatmullRomCurve3, Vector3 } from "three";
+import { Vector3 } from "three";
 import { RISE_NM, type LocusWindow } from "./dna-geometry.ts";
 
 export type FoldedArm = {
@@ -6,11 +6,9 @@ export type FoldedArm = {
   end: number;
   anchor: number;
   side: -1 | 1;
-  curve: CatmullRomCurve3;
-  origin: Vector3;
-  normals: Vector3[];
-  binormals: Vector3[];
+  role: "gene" | "element";
 };
+type ArmPose = { centers: Vector3[]; tangents: Vector3[] };
 export type FoldedDNA = {
   arms: FoldedArm[];
   omittedBp: number;
@@ -19,69 +17,126 @@ export type FoldedDNA = {
   end: number;
   separation: number;
   hazeWidth: number;
+  pose?: { progress: number; arms: ArmPose[] };
 };
 const FRAMES = 512;
-const POINTS = [
-  [-10, 7, -2],
-  [-16, 4, 0],
-  [-16, -3, 1],
-  [-11, -6, 3],
-  [-7, -3, 1],
-  [-10, 2, 0],
-  [-7, 7, -2],
-  [-2, 9, -1],
-  [1, 6, 1],
-  [0, 3, 0],
-];
+const clamp = (x: number) => Math.max(0, Math.min(1, x));
+const smooth = (x: number) => {
+  const t = clamp(x);
+  return t * t * (3 - 2 * t);
+};
+const ease = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
 
-// Local, idealised folds for explanatory viewing; no TAD is inferred. Source
-// intervals stay exact. Only the unshown genomic interval is spatially compressed.
+// Explanatory composition, not an inferred TAD or molecular-dynamics trajectory.
+// Genomic order and counts remain exact even when the enhancer is upstream.
 export function foldedDNA(locus: LocusWindow): FoldedDNA | null {
   if (locus.overlap) return null;
   const low = Math.min(locus.tss, locus.midpoint),
     high = Math.max(locus.tss, locus.midpoint);
   const flank = Math.min(64, Math.floor((high - low) / 4));
   if (flank < 8) return null;
-  const windows = [low, high].map((anchor) => ({
+  const arms = [low, high].map((anchor, index): FoldedArm => ({
     start: Math.max(locus.start, Math.floor(anchor) - flank),
     end: Math.min(locus.end, Math.floor(anchor) + flank),
     anchor,
+    side: index === 0 ? -1 : 1,
+    role: anchor === locus.tss ? "gene" : "element",
   }));
-  const omittedBp = windows[1].start - windows[0].end;
+  const omittedBp = arms[1].start - arms[0].end;
   if (omittedBp <= 0) return null;
-  const arms = windows.map((w, index): FoldedArm => {
-    const side = index === 0 ? -1 : 1;
-    let points = POINTS.map(([x, y, z]) => new Vector3(x, y, z));
-    if (side === 1)
-      points = points
-        .reverse()
-        .map((p) => new Vector3(-p.x, p.y * 0.92, -p.z + Math.sin(p.y * 0.3)));
-    const curve = new CatmullRomCurve3(points, false, "centripetal");
-    curve.arcLengthDivisions = 2048;
-    const scale = ((w.end - w.start) * RISE_NM) / curve.getLength();
-    curve.points.forEach((p) => p.multiplyScalar(scale));
-    curve.updateArcLengths();
-    const frames = curve.computeFrenetFrames(FRAMES, false);
-    return {
-      ...w,
-      side,
-      curve,
-      origin: curve.getPointAt((w.anchor - w.start) / (w.end - w.start)),
-      normals: frames.normals,
-      binormals: frames.binormals,
-    };
-  });
-  // Logarithmic visual emphasis, NOT a physical scale or evidence of compaction.
-  const emphasis = Math.max(0, Math.min(1, (Math.log10(omittedBp) - 3) / 3.5));
+  // Logarithmic display emphasis, never a physical separation estimate.
+  const emphasis = clamp((Math.log10(omittedBp) - 3) / 3.5);
   return {
     arms,
     omittedBp,
     shownBp: arms.reduce((n, a) => n + a.end - a.start, 0),
     start: arms[0].start,
     end: arms[1].end,
-    separation: 16 + emphasis * 8,
-    hazeWidth: 8 + emphasis * 5,
+    separation: 17 + emphasis * 5,
+    hazeWidth: 8 + emphasis * 4,
   };
+}
+
+function anchorPoint(arm: FoldedArm, p: number, display: FoldedDNA) {
+  if (arm.role === "gene") return new Vector3(0, -8, 0);
+  const e = ease(p);
+  // A curved approach, easing to rest above the stationary promoter.
+  return new Vector3(
+    -3 * (1 - e) - 4.5 * Math.sin(Math.PI * e),
+    -8 + display.separation * (1 - e) + 3.5 * e,
+    0.7 * (1 - e) + 1.3 * Math.sin(Math.PI * e),
+  );
+}
+
+// q is signed contour distance from the highlighted site, positive toward the
+// omitted interval. Unit tangent integration bends the strand without stretching.
+function tangent(q: number, arm: FoldedArm, p: number) {
+  const e = ease(p),
+    a = Math.abs(q),
+    bend = smooth(a / 7);
+  const wave = Math.sin(Math.PI * p) ** 2 * (1 - 0.45 * p);
+  let angle: number;
+  if (arm.role === "gene") {
+    angle = q >= 0 ? 1.25 * smooth(q / 22) : 0.28 * Math.sin(q * 0.2);
+  } else if (q >= 0) {
+    const open = -0.3 - 0.9 * smooth(q / 22);
+    const loop = 1.8 * Math.sin((Math.PI * q) / 21) - 1.2 * smooth(q / 21);
+    angle = bend * (open * (1 - e) + loop * e);
+  } else {
+    const folded = 1.15 * Math.sin(a * 0.29) + 0.9 * Math.sin(a * 0.13);
+    const settled = -0.22 - 0.22 * Math.sin(a * 0.19);
+    angle = bend * (folded * (1 - e) + settled * e);
+  }
+  // Small travelling bends are deterministic, scrub smoothly and decay to rest.
+  angle +=
+    (arm.role === "gene" ? 0.045 : 0.19) *
+    wave *
+    bend *
+    Math.sin(q * 0.43 - p * Math.PI * 5);
+  const tilt =
+    bend *
+    (0.07 * Math.sin(q * 0.22) +
+      0.1 * wave * Math.sin(q * 0.31 - p * Math.PI * 4));
+  return new Vector3(
+    Math.cos(angle) * Math.cos(tilt),
+    Math.sin(angle) * Math.cos(tilt),
+    Math.sin(tilt),
+  );
+}
+
+function pose(display: FoldedDNA, p: number) {
+  if (display.pose?.progress === p) return display.pose.arms;
+  const arms = display.arms.map((arm): ArmPose => {
+    const orientation = -arm.side;
+    const step = (arm.end - arm.start) / FRAMES;
+    const qAt = (i: number) =>
+      (arm.start + step * i - arm.anchor) * RISE_NM * orientation;
+    const centers = new Array<Vector3>(FRAMES + 1);
+    const tangents = Array.from({ length: FRAMES + 1 }, (_, i) =>
+      tangent(qAt(i), arm, p).multiplyScalar(orientation),
+    );
+    const anchorIndex = Math.floor((arm.anchor - arm.start) / step);
+    // Integrate outward on both sides of the exact anchor, including half-base sites.
+    for (const direction of [-1, 1]) {
+      let previousQ = 0;
+      let previous = anchorPoint(arm, p, display);
+      for (
+        let i = direction < 0 ? anchorIndex : anchorIndex + 1;
+        i >= 0 && i <= FRAMES;
+        i += direction
+      ) {
+        const q = qAt(i);
+        previous = previous
+          .clone()
+          .addScaledVector(tangent((q + previousQ) / 2, arm, p), q - previousQ);
+        centers[i] = previous;
+        previousQ = q;
+      }
+    }
+    return { centers, tangents };
+  });
+  display.pose = { progress: p, arms };
+  return arms;
 }
 
 export function foldedFrame(
@@ -89,40 +144,35 @@ export function foldedFrame(
   progress: number,
   display: FoldedDNA,
 ) {
-  const arm = display.arms.find(
+  const index = display.arms.findIndex(
     (a) => position >= a.start && position <= a.end,
   );
-  if (!arm)
+  if (index < 0)
     throw new Error(
       "No molecular geometry exists inside the omitted interval.",
     );
-  const t = Math.max(
-    0,
-    Math.min(1, (position - arm.start) / (arm.end - arm.start)),
-  );
-  const p = Math.max(0, Math.min(1, progress));
-  const center = arm.curve.getPointAt(t).sub(arm.origin);
-  const frame = t * FRAMES,
-    lo = Math.min(FRAMES - 1, Math.floor(frame)),
+  const arm = display.arms[index],
+    p = clamp(progress);
+  const frame = clamp((position - arm.start) / (arm.end - arm.start)) * FRAMES;
+  const lo = Math.min(FRAMES - 1, Math.floor(frame)),
     f = frame - lo;
-  const tangent = arm.curve.getTangentAt(t);
-  const normal = arm.normals[lo].clone().lerp(arm.normals[lo + 1], f);
-  normal.addScaledVector(tangent, -normal.dot(tangent)).normalize();
-  const binormal = new Vector3().crossVectors(tangent, normal).normalize();
-  const rotation = -arm.side * 0.16 * p;
-  const axis = new Vector3(0, 0, 1);
-  for (const v of [center, normal, binormal]) v.applyAxisAngle(axis, rotation);
-  // Rigid local motion preserves the helix; the haze carries the omitted span.
-  center.add(
-    new Vector3(
-      (arm.side * (display.separation * (1 - p) + 3.4 * p)) / 2,
-      -4,
-      arm.side * 0.35,
-    ),
-  );
-  const intoGap = arm.side < 0 ? arm.end - position : position - arm.start;
-  const fadeT = Math.max(0, Math.min(1, intoGap / 34));
-  const fade = fadeT * fadeT * (3 - 2 * fadeT);
+  const current = pose(display, p)[index];
+  const center =
+    position === arm.anchor
+      ? anchorPoint(arm, p, display)
+      : current.centers[lo].clone().lerp(current.centers[lo + 1], f);
+  const direction = current.tangents[lo]
+    .clone()
+    .lerp(current.tangents[lo + 1], f)
+    .normalize();
+  // Project a consistent reference normal to avoid helix flips as the curve bends.
+  const normal = new Vector3(0, 0, 1)
+    .addScaledVector(direction, -direction.z)
+    .normalize();
+  const binormal = new Vector3().crossVectors(direction, normal).normalize();
+  const inner = arm.side < 0 ? arm.end - position : position - arm.start;
+  const outer = arm.side < 0 ? position - arm.start : arm.end - position;
+  const fade = Math.min(smooth(inner / 34), smooth(outer / 14));
   return { center, normal, binormal, fade };
 }
 export function foldedAnchor(
@@ -138,5 +188,5 @@ export function hazeCenter(display: FoldedDNA, progress: number) {
   return a
     .add(b)
     .multiplyScalar(0.5)
-    .add(new Vector3(0, 1, 0));
+    .add(new Vector3(3, 0, 0));
 }

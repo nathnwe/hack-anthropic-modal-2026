@@ -150,9 +150,15 @@ examples. Neither the haze size nor the arrangement measures physical compaction
 The user-provided TAD illustration informs the fluid visual composition only.
 **No TAD boundary, chromatin conformation or real contact is inferred.** The CSV
 supplies regulatory predictions and genomic coordinates, not these structural
-measurements. The looping preview moves the local fragments together while
-preserving their geometry; it does not model nucleosomes, an intervention,
-expression effects or molecular dynamics. Its final separation is a viewing choice.
+measurements. Following the user's loop sketch, the promoter stays anchored on
+the lower strand while the enhancer approaches from above along a curved path.
+The omitted interval occupies the right-hand arc, with soft fades at the outer
+window boundaries. Unit-tangent integration bends the centrelines while preserving
+local contour spacing. Smooth easing and small, damped travelling bends make the
+seven-second transition fluid; every frame is deterministic and can be scrubbed
+or paused without jitter. The preview is not a molecular-dynamics simulation and
+does not model nucleosomes, forces, temperature, an intervention or expression
+effects. The final 3.5 nm centreline separation is an illustrative viewing choice.
 
 **Genomic span** retains the earlier full-length view: a continuous centreline,
 with one consistent nanometre scale and no internal omission. DNA resolves into
@@ -186,7 +192,8 @@ base-pair spacing at kilobase and megabase scales in both genomic directions,
 finite frames, both arms of the junction, overlap handling and invalid coordinates.
 Existing tests retain fixture contact matching, empty results, direction filtering,
 escaping and selection behavior. Folded-view tests cover exact omission accounting,
-progressive fading, stable local geometry, source order and clipped windows. Browser
+progressive fading, fixed promoter placement, non-rigid motion, local contour
+spacing, smooth endpoints, source order and clipped windows. Browser
 QA covers all three selected examples, sorting, both viewing scales and mobile layout.
 
 `npm audit --omit=dev` currently reports the upstream `http-cache-semantics`

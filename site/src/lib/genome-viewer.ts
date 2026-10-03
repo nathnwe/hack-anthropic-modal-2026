@@ -232,7 +232,7 @@ export class GenomeViewer {
       context.fillRect(0, 0, 192, 192);
     }
     this.hazeTexture = new THREE.CanvasTexture(smoke);
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
       const sprite = new THREE.Sprite(
         new THREE.SpriteMaterial({
           map: this.hazeTexture,
@@ -433,7 +433,7 @@ export class GenomeViewer {
       ? `${formatNumber(shown)} bp in two local windows · gap compressed, not to scale`
       : `${formatNumber(shown)} bp in the full span · 0 bp omitted`;
     byId("dna-fold-note").textContent = folded
-      ? "Illustrative folding, not a measured TAD or atomic structure. Coloured patches locate the reference TSS and element midpoint."
+      ? "Illustrative loop formation, not molecular dynamics or a measured TAD. Coloured patches locate the reference TSS and element midpoint."
       : "Full DNA contour at one scale; folding remains illustrative, not a measured TAD or atomic structure.";
     byId("dna-omitted-count").textContent = `${formatNumber(omitted)} bp`;
     byId("dna-omission").hidden = !folded;
@@ -458,10 +458,25 @@ export class GenomeViewer {
     const center = hazeCenter(this.cutaway, this.progress);
     this.haze.position.copy(center);
     this.haze.children.forEach((child, i) => {
+      if (i >= 3) {
+        const arm = this.cutaway!.arms[i - 3];
+        child.position
+          .copy(
+            foldedAnchor(
+              arm.side < 0 ? arm.start : arm.end,
+              this.progress,
+              this.cutaway!,
+            ),
+          )
+          .sub(center);
+        child.scale.set(6, 7, 1);
+        (child as THREE.Sprite).material.opacity = 0.4;
+        return;
+      }
       const width = this.cutaway!.hazeWidth;
       child.position.set(
-        (i - 1) * width * 0.18,
-        Math.sin(i * 2) * width * 0.1,
+        Math.sin(i * 2) * width * 0.08,
+        (i - 1) * width * 0.17,
         0,
       );
       child.scale.set(width * (1.65 - i * 0.12), width * (1.2 + i * 0.06), 1);
@@ -774,7 +789,7 @@ export class GenomeViewer {
         ? view
         : null;
     const bounds = new THREE.Box3();
-    for (const progress of [0, 1])
+    for (const progress of [0, 0.25, 0.5, 0.75, 1])
       for (const arm of this.cutaway.arms)
         for (let i = 0; i <= 64; i++)
           bounds.expandByPoint(
@@ -784,12 +799,13 @@ export class GenomeViewer {
               this.cutaway,
             ),
           );
-    const center = bounds.getCenter(new THREE.Vector3()),
+    // Same camera target for every example: the promoter stays on the lower row.
+    const center = new THREE.Vector3(1, 1, 0),
       size = bounds.getSize(new THREE.Vector3());
     // Keep the same molecular magnification across the three source examples.
     // Their compressed gaps can then look different without shrinking the DNA.
-    this.viewWidth = Math.max(26, size.x * 0.56 + 1.2);
-    this.viewHeight = Math.max(12, size.y * 0.65 + 2);
+    this.viewWidth = Math.max(27, size.x * 0.56 + 1.2);
+    this.viewHeight = 15.5;
     this.camera.near = 0.01;
     this.camera.far = 500;
     this.camera.zoom = 1;
@@ -904,7 +920,7 @@ export class GenomeViewer {
         ? Math.min(0.05, (time - this.lastTime) / 1000)
         : 0;
       this.lastTime = time;
-      this.progress = Math.min(1, this.progress + dt / 4);
+      this.progress = Math.min(1, this.progress + dt / 7);
       if (this.progress === 1) this.playing = false;
       this.rebuild();
       this.updatePlaybackUI();
@@ -936,8 +952,9 @@ export class GenomeViewer {
       const x = (point.x * 0.5 + 0.5) * width,
         y = (-point.y * 0.5 + 0.5) * height;
       const half = (label.offsetWidth || 100) / 2;
-      label.style.left = `${Math.max(half + 8, Math.min(width - half - 8, x + side * (half + 10)))}px`;
-      label.style.top = `${Math.max(22, Math.min(height - 65, y + side * 34))}px`;
+      const folded = this.viewMode === "folded";
+      label.style.left = `${Math.max(half + 8, Math.min(width - half - 8, folded ? x : x + side * (half + 10)))}px`;
+      label.style.top = `${Math.max(22, Math.min(height - 42, y + (folded ? -side * 28 : side * 34)))}px`;
     }
     const label = byId("dna-omission");
     if (this.viewMode === "folded" && this.cutaway) {
