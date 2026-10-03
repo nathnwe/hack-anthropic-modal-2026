@@ -1,0 +1,147 @@
+---
+// Full-bleed panel whose artwork is the mechanism itself: a chromatin fibre whose
+// two anchors are drawn together until an enhancer meets a promoter and the gene
+// lights up. Scroll drives the fold.
+---
+
+<div id="film-wrap" class="relative">
+  <div
+    id="film"
+    class="relative flex min-h-[80vh] w-full items-start justify-center overflow-hidden"
+    style="background:
+      radial-gradient(130% 100% at 50% 118%, #16304a 0%, transparent 58%),
+      radial-gradient(60% 55% at 14% 10%, rgba(165,76,56,0.26) 0%, transparent 62%),
+      linear-gradient(176deg, #06090d 0%, #0b1017 50%, #080c12 100%);"
+  >
+    <canvas id="loop-canvas" class="pointer-events-none absolute inset-0 h-full w-full"></canvas>
+
+    <div
+      class="pointer-events-none absolute inset-0"
+      style="background:radial-gradient(85% 65% at 50% 50%, transparent 25%, rgba(4,6,9,0.72) 100%)"
+    >
+    </div>
+
+    <div class="relative px-6 pb-24 pt-[13vh] text-center">
+      <h2 class="reveal text-[38px] font-semibold leading-[1.08] tracking-[-0.03em] text-[#f5f1e6] sm:text-[58px]">
+        Rewire the genome
+      </h2>
+      <p class="reveal reveal-delay-1 mt-5 text-[17px] leading-relaxed text-[#f5f1e6]/70 sm:text-[19px]">
+        A new in-class therapeutic platform
+      </p>
+      <a
+        href="#about"
+        class="reveal reveal-delay-2 group mt-10 inline-flex items-center gap-2.5 rounded-lg bg-[#f5f1e6] px-5 py-2.5 text-[15px] font-medium text-ink transition-opacity hover:opacity-90"
+      >
+        See the video
+        <span class="transition-transform group-hover:translate-x-1">→</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const wrap = document.getElementById('film-wrap');
+    const film = document.getElementById('film');
+    const cv = document.getElementById('loop-canvas');
+    if (!wrap || !film || !cv) return;
+    const ctx = cv.getContext('2d');
+
+    let W = 0, H = 0;
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const r = cv.getBoundingClientRect();
+      W = r.width;
+      H = r.height;
+      cv.width = Math.round(W * dpr);
+      cv.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    // The fibre: slack between two anchors is taken up until they touch.
+    function draw(p) {
+      if (!W || !H) return;
+      ctx.clearRect(0, 0, W, H);
+
+      const midY = H * 0.78; // mechanism sits below the headline, not through it
+      const reach0 = W * 0.3;
+      const reach = reach0 * (1 - p); // anchors converge
+      const ax = W * 0.5 - reach;
+      const bx = W * 0.5 + reach;
+      // The fibre between the anchors keeps its length, so as they close the slack
+      // has to bulge: the control points swing outward and up into a loop.
+      const lift = H * 0.38 * p;
+      const spread = reach0 * 0.95 * p;
+
+      const strand = (offset, colour, width) => {
+        ctx.beginPath();
+        ctx.moveTo(-40, midY + offset);
+        ctx.lineTo(ax, midY + offset);
+        ctx.bezierCurveTo(
+          ax - spread, midY - lift + offset,
+          bx + spread, midY - lift + offset,
+          bx, midY + offset
+        );
+        ctx.lineTo(W + 40, midY + offset);
+        ctx.strokeStyle = colour;
+        ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      };
+
+      strand(0, 'rgba(111,179,232,0.55)', 1.6);
+      strand(9, 'rgba(217,138,106,0.4)', 1.2);
+
+      // Anchors, and the contact flaring as they meet.
+      const dot = (x, y, r, colour) => {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = colour;
+        ctx.fill();
+      };
+
+      dot(ax, midY, 4.5, 'rgba(165,76,56,0.95)');
+      dot(bx, midY, 4.5, 'rgba(111,179,232,0.95)');
+
+      if (p > 0.6) {
+        const k = (p - 0.6) / 0.4;
+        const g = ctx.createRadialGradient(W * 0.5, midY, 0, W * 0.5, midY, 150 * k);
+        g.addColorStop(0, 'rgba(216,183,90,' + (0.5 * k).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(216,183,90,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, midY - 200, W, 400);
+      }
+    }
+
+    // Reveal uses clip-path, not width: clipping never triggers layout, so the
+    // panel can open on every scroll frame without thrashing.
+    let raf = false;
+    function frame() {
+      const r = wrap.getBoundingClientRect();
+      const p = reduce
+        ? 1
+        : Math.max(0, Math.min(1, (window.innerHeight - r.top) / (window.innerHeight * 0.95)));
+      const vw = window.innerWidth;
+      const inset = Math.max(0, (vw - Math.min(1400, vw - (vw >= 640 ? 80 : 48))) / 2) * (1 - p);
+      film.style.clipPath = `inset(0 ${inset.toFixed(1)}px round ${(16 * (1 - p)).toFixed(1)}px)`;
+      draw(p);
+      raf = false;
+    }
+
+    function onScroll() {
+      if (raf) return;
+      raf = true;
+      requestAnimationFrame(frame);
+    }
+
+    resize();
+    frame();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', () => {
+      resize();
+      frame();
+    });
+  })();
+</script>

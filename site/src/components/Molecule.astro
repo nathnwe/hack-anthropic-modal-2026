@@ -1,0 +1,151 @@
+---
+// A DNA double helix drawn in perspective and rotated by scroll. It is sticky, so
+// it stays with the reader, and it moves to the rail beside whichever section is
+// in view rather than tracing a line across the page.
+---
+
+<div id="mol-rail" class="pointer-events-none sticky top-[22vh] z-0 h-0">
+  <canvas id="molecule" class="absolute left-0 top-0"></canvas>
+</div>
+
+<script is:inline>
+  (function () {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const rail = document.getElementById('mol-rail');
+    const cv = document.getElementById('molecule');
+    if (!rail || !cv) return;
+    const ctx = cv.getContext('2d');
+    const canvas = document.getElementById('strand-canvas');
+
+    const CW = () => (window.innerWidth >= 1024 ? 150 : 96);
+    const CH = () => Math.min(540, window.innerHeight * 0.56);
+
+    let w = 0, h = 0, x = 0, targetX = 0, settled = false;
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = CW();
+      h = CH();
+      cv.style.width = w + 'px';
+      cv.style.height = h + 'px';
+      cv.width = Math.round(w * dpr);
+      cv.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    // Which rail: beside the section currently nearest the middle of the screen.
+    function railX() {
+      if (!canvas) return 0;
+      const cw = canvas.clientWidth;
+      if (window.innerWidth < 1024) return 8;
+      const mid = window.innerHeight * 0.5;
+      let side = 'left';
+      let best = Infinity;
+      canvas.querySelectorAll('[data-section]').forEach((s) => {
+        const r = s.getBoundingClientRect();
+        const d = Math.abs(r.top + r.height / 2 - mid);
+        if (d < best) {
+          best = d;
+          side = s.dataset.side || 'left';
+        }
+      });
+      return side === 'right' ? cw * 0.84 : cw * 0.055;
+    }
+
+    // Perspective projection of a helix about a vertical axis. Depth drives size
+    // and opacity, which is what makes it read as a turning molecule rather than
+    // a drawing of one.
+    function draw(rot) {
+      ctx.clearRect(0, 0, w, h);
+      const cx = w / 2;
+      const R = w * 0.3;
+      const N = 46;
+      const turns = 3.1;
+      const persp = 0.32;
+
+      const pts = [];
+      for (let i = 0; i <= N; i++) {
+        const t = i / N;
+        const y = t * h;
+        const a = t * turns * Math.PI * 2 + rot;
+        for (const phase of [0, Math.PI]) {
+          const ang = a + phase;
+          const z = Math.sin(ang); // -1 back … 1 front
+          const scale = 1 + z * persp;
+          pts.push({
+            strand: phase === 0 ? 0 : 1,
+            i,
+            x: cx + Math.cos(ang) * R * scale,
+            y,
+            z,
+          });
+        }
+      }
+
+      // Rungs first, back to front.
+      const rungs = [];
+      for (let i = 0; i <= N; i += 3) {
+        const a = pts.find((p) => p.i === i && p.strand === 0);
+        const b = pts.find((p) => p.i === i && p.strand === 1);
+        if (a && b) rungs.push({ a, b, z: (a.z + b.z) / 2 });
+      }
+      rungs
+        .sort((m, n) => m.z - n.z)
+        .forEach(({ a, b, z }) => {
+          const k = (z + 1) / 2;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = 'rgba(32,32,29,' + (0.07 + k * 0.16).toFixed(3) + ')';
+          ctx.lineWidth = 0.6 + k * 0.7;
+          ctx.stroke();
+        });
+
+      // Strands as depth-shaded segments, so the front of the turn is heavier.
+      for (const s of [0, 1]) {
+        const colour = s === 0 ? '165,76,56' : '116,140,99';
+        const strand = pts.filter((p) => p.strand === s);
+        for (let i = 0; i < strand.length - 1; i++) {
+          const p = strand[i], q = strand[i + 1];
+          const k = ((p.z + q.z) / 2 + 1) / 2;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = 'rgba(' + colour + ',' + (0.2 + k * 0.6).toFixed(3) + ')';
+          ctx.lineWidth = 0.9 + k * 1.9;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        }
+      }
+    }
+
+    let raf = false;
+    function frame() {
+      targetX = railX();
+      // Ease toward the rail so a change of side glides instead of jumping.
+      x = settled ? x + (targetX - x) * 0.12 : ((settled = true), targetX);
+      cv.style.transform = 'translateX(' + x.toFixed(1) + 'px)';
+      draw(reduce ? 0.6 : window.scrollY * 0.0022);
+      raf = false;
+      if (Math.abs(targetX - x) > 0.5) {
+        raf = true;
+        requestAnimationFrame(frame);
+      }
+    }
+
+    function onScroll() {
+      if (raf) return;
+      raf = true;
+      requestAnimationFrame(frame);
+    }
+
+    resize();
+    frame();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', () => {
+      resize();
+      settled = false;
+      frame();
+    });
+  })();
+</script>
