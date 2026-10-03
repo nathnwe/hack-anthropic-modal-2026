@@ -27,19 +27,19 @@ const path = Astro.url.pathname.replace(/\/$/, '');
       id="site-nav"
       class="fixed inset-x-0 top-0 z-50 transition-[background-color,backdrop-filter] duration-500"
     >
-      <div class="mx-auto flex max-w-6xl items-center px-6 py-5 sm:px-10">
-        <a href={`${base}/`} class="flex items-center gap-2.5 text-ink">
-          <Mark size={22} />
-          <span class="text-[15px] font-medium tracking-tight">Rewire Bio</span>
+      <div class="flex items-center px-6 py-4 sm:px-10">
+        <a href={`${base}/`} class="flex items-center gap-3 text-ink">
+          <Mark size={27} />
+          <span class="text-[19px] font-semibold tracking-[-0.03em]">Rewire Bio</span>
         </a>
 
-        <div class="ml-auto flex items-center gap-7 text-[13px]">
+        <div class="ml-auto flex items-center gap-8 text-[14px]">
           {
             landing && (
               <>
-                <a href="#about" class="hidden text-ink/55 transition-colors hover:text-ink sm:block">About</a>
-                <a href="#team" class="hidden text-ink/55 transition-colors hover:text-ink sm:block">Team</a>
-                <a href="#contact" class="hidden text-ink/55 transition-colors hover:text-ink sm:block">Contact</a>
+                <a href="#about" class="hidden text-ink/60 transition-colors hover:text-ink sm:block">About</a>
+                <a href="#team" class="hidden text-ink/60 transition-colors hover:text-ink sm:block">Team</a>
+                <a href="#contact" class="hidden text-ink/60 transition-colors hover:text-ink sm:block">Contact</a>
               </>
             )
           }
@@ -47,17 +47,14 @@ const path = Astro.url.pathname.replace(/\/$/, '');
             href={`${base}/api`}
             class:list={[
               'transition-colors hover:text-ink',
-              path === `${base}/api` ? 'text-ink' : 'text-ink/55',
+              path === `${base}/api` ? 'text-ink' : 'text-ink/60',
             ]}
           >
             API
           </a>
           <a
             href={`${base}/workbench`}
-            class:list={[
-              'transition-colors hover:text-ink',
-              path === `${base}/workbench` || path === `${base}/results` ? 'text-ink' : 'text-ink/55',
-            ]}
+            class="rounded-lg bg-ink px-4 py-2 text-[14px] font-medium text-parchment transition-opacity hover:opacity-85"
           >
             Workbench
           </a>

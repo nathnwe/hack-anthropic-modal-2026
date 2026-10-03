@@ -10,8 +10,7 @@ const steps = [
   ['Choose a method', 'A stapling strategy matched to the locus, the cell type, and whether you need it reversible.'],
 ];
 
-// Names and affiliation as given by the team. Roles follow the project split in
-// docs/plan.md — confirm before submission.
+// Names and affiliation as supplied by the team; roles follow docs/plan.md.
 const team = [
   ['Leandre Tappenden', 'University of Oxford', 'Interface — workbench and visualisation'],
   ['Nathan Ewer', 'University of Oxford', 'Pipeline — loci, contacts, candidate staples'],
@@ -21,13 +20,12 @@ const team = [
 
 <Base title="Rewire Bio" landing={true}>
   <!-- ───────────────────────── Hero ───────────────────────── -->
-  <section class="mx-auto max-w-6xl px-6 pb-28 pt-40 sm:px-10 sm:pb-40 sm:pt-52">
-    <div class="grid gap-x-16 gap-y-10 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-      <h1 class="reveal text-[40px] font-semibold leading-[1.04] tracking-[-0.035em] sm:text-[62px] lg:text-[72px]">
-        Rewiring gene dosage <span class="whitespace-nowrap">without</span> rewriting
-        the genome
+  <section class="px-6 pb-24 pt-44 sm:px-10 sm:pb-32 sm:pt-52">
+    <div class="mx-auto grid max-w-[1400px] gap-x-20 gap-y-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+      <h1 class="reveal text-[42px] font-semibold leading-[1.03] tracking-[-0.035em] sm:text-[64px] lg:text-[76px]">
+        Rewiring gene dosage without rewriting the genome
       </h1>
-      <div class="reveal reveal-delay-2 lg:pt-4">
+      <div class="reveal reveal-delay-2 lg:pt-5">
         <p class="max-w-md text-[17px] leading-[1.7] text-ink/65">
           Cells already control genes by folding DNA so that distant regulatory
           elements touch the right promoters. Rewire Bio finds which contact to alter
@@ -44,119 +42,179 @@ const team = [
     </div>
   </section>
 
+  <!-- ─────────────── Film panel: widens to full bleed on scroll ─────────────── -->
+  <div id="film-wrap" class="flex justify-center px-6 sm:px-10">
+    <div
+      id="film"
+      class="relative mx-auto flex min-h-[72vh] w-full max-w-[1400px] items-center justify-center overflow-hidden rounded-2xl"
+      style="background:
+        radial-gradient(120% 90% at 50% 120%, #1b3a5c 0%, transparent 55%),
+        radial-gradient(70% 60% at 18% 12%, rgba(165,76,56,0.30) 0%, transparent 60%),
+        linear-gradient(176deg, #070a0f 0%, #0c1118 48%, #0a0f16 100%);"
+    >
+      <!-- Chromatin loop, drawn rather than photographed -->
+      <svg
+        class="pointer-events-none absolute inset-0 h-full w-full opacity-[0.55]"
+        viewBox="0 0 1200 700"
+        preserveAspectRatio="xMidYMid slice"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#6fb3e8" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#2a6fa8" stop-opacity="0.15" />
+          </linearGradient>
+          <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stop-color="#d98a6a" stop-opacity="0.7" />
+            <stop offset="100%" stop-color="#a54c38" stop-opacity="0.1" />
+          </linearGradient>
+          <filter id="soft"><feGaussianBlur stdDeviation="14" /></filter>
+        </defs>
+        <g filter="url(#soft)" fill="none" stroke-linecap="round">
+          <path d="M-40 540 C 240 520 300 300 520 300 C 760 300 820 560 1240 500" stroke="url(#g1)" stroke-width="3" />
+          <path d="M-40 600 C 300 600 360 180 620 190 C 900 200 940 620 1240 580" stroke="url(#g2)" stroke-width="2.4" />
+        </g>
+        <g fill="none" stroke-linecap="round" opacity="0.9">
+          <path d="M-40 540 C 240 520 300 300 520 300 C 760 300 820 560 1240 500" stroke="url(#g1)" stroke-width="1.5" />
+          <path d="M-40 600 C 300 600 360 180 620 190 C 900 200 940 620 1240 580" stroke="url(#g2)" stroke-width="1.2" />
+        </g>
+      </svg>
+      <div class="pointer-events-none absolute inset-0" style="background:radial-gradient(90% 70% at 50% 50%, transparent 30%, rgba(5,7,10,0.65) 100%)"></div>
+
+      <div class="relative px-6 py-24 text-center">
+        <h2 class="reveal text-[38px] font-semibold leading-[1.08] tracking-[-0.03em] text-[#f5f1e6] sm:text-[58px]">
+          Rewire the genome
+        </h2>
+        <p class="reveal reveal-delay-1 mt-5 text-[17px] leading-relaxed text-[#f5f1e6]/70 sm:text-[19px]">
+          A new in-class therapeutic platform
+        </p>
+        <a
+          href="#about"
+          class="reveal reveal-delay-2 group mt-10 inline-flex items-center gap-2.5 rounded-lg bg-[#f5f1e6] px-5 py-2.5 text-[15px] font-medium text-ink transition-opacity hover:opacity-90"
+        >
+          See the video
+          <span class="transition-transform group-hover:translate-x-1">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- ──────────────── Strand canvas ──────────────── -->
-  <div id="strand-canvas" class="relative">
-    <!-- The helix occupies its own rail; content starts to the right of it so the
-         two never overlap. -->
-    <svg
-      id="helix"
-      class="pointer-events-none absolute left-0 top-0 h-full"
-      aria-hidden="true"
-    ></svg>
+  <div id="strand-canvas" class="relative mt-28">
+    <svg id="helix" class="pointer-events-none absolute left-0 top-0" aria-hidden="true"></svg>
 
-    <div class="mx-auto max-w-6xl pb-36 pl-[84px] pr-6 sm:pl-[132px] sm:pr-10">
-      <section data-section id="about" class="scroll-mt-28 py-24 sm:py-32">
-        <div class="flex items-baseline gap-5">
-          <span class="font-mono text-[12px] tabular-nums text-ink/30">01</span>
-          <p class="text-[11px] font-medium uppercase tracking-[0.2em] text-clay">About</p>
-        </div>
-        <h2 class="reveal mt-7 max-w-2xl text-[28px] font-medium leading-[1.22] tracking-[-0.025em] sm:text-[36px]">
-          A design system for 3D genome engineering
-        </h2>
-        <div class="reveal reveal-delay-1 mt-8 grid max-w-4xl gap-x-14 gap-y-6 text-[16px] leading-[1.75] text-ink/60 lg:grid-cols-2">
-          <p>
-            Many disease genes are hard to drug directly. Gene and epigenetic therapies
-            usually rewrite sequence or add new regulatory instructions, which carries
-            off-target risk and a long regulatory road.
+    <!-- Below lg the strand stays on a left rail, so content is padded clear of it.
+         At lg it weaves between rails and the sections sit opposite each turn. -->
+    <div class="mx-auto max-w-[1400px] pb-36 pl-[76px] pr-6 sm:pl-[84px] sm:pr-10 lg:px-10">
+      <!-- helix runs left here, so content sits right -->
+      <section data-section data-side="left" id="about" class="scroll-mt-28 py-24 sm:py-32">
+        <div class="ml-auto max-w-2xl lg:w-[64%]">
+          <div class="flex items-baseline gap-5">
+            <span class="font-mono text-[12px] tabular-nums text-ink/30">01</span>
+            <p class="text-[11px] font-medium uppercase tracking-[0.2em] text-clay">About</p>
+          </div>
+          <h2 class="reveal mt-7 text-[28px] font-medium leading-[1.22] tracking-[-0.025em] sm:text-[36px]">
+            A design system for 3D genome engineering
+          </h2>
+          <div class="reveal reveal-delay-1 mt-8 space-y-5 text-[16px] leading-[1.75] text-ink/60">
+            <p>
+              Many disease genes are hard to drug directly. Gene and epigenetic
+              therapies usually rewrite sequence or add new regulatory instructions,
+              which carries off-target risk and a long regulatory road.
+            </p>
+            <p>
+              Three-dimensional organisation is a quieter lever. Bringing an enhancer
+              into contact with a promoter — or breaking that contact — changes
+              expression using machinery the cell already runs, and it is reversible.
+            </p>
+          </div>
+
+          <ol class="mt-14 grid gap-x-12 gap-y-9 sm:grid-cols-2">
+            {
+              steps.map(([title, body], i) => (
+                <li class:list={['reveal', `reveal-delay-${Math.min(i + 1, 3)}`]}>
+                  <h3 class="text-[16px] font-medium tracking-[-0.01em]">
+                    <span class="mr-2.5 font-mono text-[12px] text-ink/30">0{i + 1}</span>
+                    {title}
+                  </h3>
+                  <p class="mt-2 text-[15px] leading-[1.7] text-ink/55">{body}</p>
+                </li>
+              ))
+            }
+          </ol>
+
+          <p class="reveal mt-16 text-[19px] leading-[1.6] tracking-[-0.01em] text-ink/75 sm:text-[21px]">
+            Every prediction here is in silico and unvalidated. Effect sizes are the
+            weakest link, so we report ordinal tiers rather than numbers that imply
+            precision — and show the risks a staple creates alongside the benefit it
+            promises.
           </p>
-          <p>
-            Three-dimensional organisation is a quieter lever. Bringing an enhancer into
-            contact with a promoter — or breaking that contact — changes expression using
-            machinery the cell already runs, and it is reversible.
-          </p>
         </div>
-
-        <ol class="mt-16 grid max-w-4xl gap-x-14 gap-y-10 sm:grid-cols-2">
-          {
-            steps.map(([title, body], i) => (
-              <li class:list={['reveal', `reveal-delay-${Math.min(i + 1, 3)}`]}>
-                <h3 class="text-[16px] font-medium tracking-[-0.01em]">
-                  <span class="mr-2.5 font-mono text-[12px] text-ink/30">0{i + 1}</span>
-                  {title}
-                </h3>
-                <p class="mt-2 text-[15px] leading-[1.7] text-ink/55">{body}</p>
-              </li>
-            ))
-          }
-        </ol>
-
-        <p class="reveal mt-20 max-w-3xl text-[20px] leading-[1.6] tracking-[-0.01em] text-ink/75 sm:text-[22px]">
-          Every prediction here is in silico and unvalidated. Effect sizes are the
-          weakest link, so we report ordinal tiers rather than numbers that imply
-          precision — and show the risks a staple creates alongside the benefit it
-          promises.
-        </p>
       </section>
 
-      <section data-section id="team" class="scroll-mt-28 py-24 sm:py-32">
-        <div class="flex items-baseline gap-5">
-          <span class="font-mono text-[12px] tabular-nums text-ink/30">02</span>
-          <p class="text-[11px] font-medium uppercase tracking-[0.2em] text-clay">Team</p>
+      <!-- helix crosses to the right, so content sits left -->
+      <section data-section data-side="right" id="team" class="scroll-mt-28 py-24 sm:py-32">
+        <div class="mr-auto max-w-2xl lg:w-[64%]">
+          <div class="flex items-baseline gap-5">
+            <span class="font-mono text-[12px] tabular-nums text-ink/30">02</span>
+            <p class="text-[11px] font-medium uppercase tracking-[0.2em] text-clay">Team</p>
+          </div>
+          <h2 class="reveal mt-7 text-[28px] font-medium leading-[1.22] tracking-[-0.025em] sm:text-[36px]">
+            Built at Anthropic × Modal 2026
+          </h2>
+          <ul class="mt-12">
+            {
+              team.map(([name, org, role], i) => (
+                <li
+                  class:list={[
+                    'reveal',
+                    `reveal-delay-${Math.min(i + 1, 3)}`,
+                    'grid gap-x-10 gap-y-1 py-7 sm:grid-cols-[minmax(0,14rem)_minmax(0,1fr)]',
+                    i > 0 ? 'hairline border-t' : '',
+                  ]}
+                >
+                  <div>
+                    <p class="text-[17px] font-medium tracking-[-0.01em]">{name}</p>
+                    <p class="mt-0.5 text-[13px] text-ink/40">{org}</p>
+                  </div>
+                  <p class="text-[15px] leading-[1.7] text-ink/55 sm:pt-0.5">{role}</p>
+                </li>
+              ))
+            }
+          </ul>
         </div>
-        <h2 class="reveal mt-7 text-[28px] font-medium leading-[1.22] tracking-[-0.025em] sm:text-[36px]">
-          Built at Anthropic × Modal 2026
-        </h2>
-
-        <ul class="mt-14 max-w-4xl">
-          {
-            team.map(([name, org, role], i) => (
-              <li
-                class:list={[
-                  'reveal',
-                  `reveal-delay-${Math.min(i + 1, 3)}`,
-                  'grid gap-x-10 gap-y-1 py-7 sm:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]',
-                  i > 0 ? 'hairline border-t' : '',
-                ]}
-              >
-                <div>
-                  <p class="text-[17px] font-medium tracking-[-0.01em]">{name}</p>
-                  <p class="mt-0.5 text-[13px] text-ink/40">{org}</p>
-                </div>
-                <p class="text-[15px] leading-[1.7] text-ink/55 sm:pt-0.5">{role}</p>
-              </li>
-            ))
-          }
-        </ul>
       </section>
 
-      <section data-section id="contact" class="scroll-mt-28 py-24 sm:py-32">
-        <div class="flex items-baseline gap-5">
-          <span class="font-mono text-[12px] tabular-nums text-ink/30">03</span>
-          <p class="text-[11px] font-medium uppercase tracking-[0.2em] text-clay">Contact</p>
-        </div>
-        <h2 class="reveal mt-7 max-w-2xl text-[28px] font-medium leading-[1.22] tracking-[-0.025em] sm:text-[36px]">
-          Talk to us
-        </h2>
-        <p class="reveal reveal-delay-1 mt-7 max-w-xl text-[16px] leading-[1.75] text-ink/60">
-          We are looking for collaborators with locus-level experimental capacity. The
-          predictions here need testing before they mean anything.
-        </p>
-        <div class="reveal reveal-delay-2 mt-10 flex flex-wrap items-center gap-x-10 gap-y-3 text-[15px]">
-          <a
-            href={`${base}/workbench`}
-            class="group inline-flex items-center gap-2 text-clay transition-colors hover:text-ink"
-          >
-            Open the Workbench
-            <span class="transition-transform group-hover:translate-x-1">→</span>
-          </a>
-          <a
-            href="https://github.com/nathnwe/hack-anthropic-modal-2026"
-            class="text-ink/50 transition-colors hover:text-ink"
-            target="_blank"
-            rel="noopener"
-          >
-            GitHub
-          </a>
+      <section data-section data-side="left" id="contact" class="scroll-mt-28 py-24 sm:py-32">
+        <div class="ml-auto max-w-2xl lg:w-[64%]">
+          <div class="flex items-baseline gap-5">
+            <span class="font-mono text-[12px] tabular-nums text-ink/30">03</span>
+            <p class="text-[11px] font-medium uppercase tracking-[0.2em] text-clay">Contact</p>
+          </div>
+          <h2 class="reveal mt-7 text-[28px] font-medium leading-[1.22] tracking-[-0.025em] sm:text-[36px]">
+            Talk to us
+          </h2>
+          <p class="reveal reveal-delay-1 mt-7 text-[16px] leading-[1.75] text-ink/60">
+            We are looking for collaborators with locus-level experimental capacity. The
+            predictions here need testing before they mean anything.
+          </p>
+          <div class="reveal reveal-delay-2 mt-10 flex flex-wrap items-center gap-x-10 gap-y-3 text-[15px]">
+            <a
+              href={`${base}/workbench`}
+              class="group inline-flex items-center gap-2 text-clay transition-colors hover:text-ink"
+            >
+              Open the Workbench
+              <span class="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+            <a
+              href="https://github.com/nathnwe/hack-anthropic-modal-2026"
+              class="text-ink/50 transition-colors hover:text-ink"
+              target="_blank"
+              rel="noopener"
+            >
+              GitHub
+            </a>
+          </div>
         </div>
       </section>
     </div>
@@ -165,87 +223,140 @@ const team = [
   <script is:inline>
     (function () {
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ── Film panel widens to full bleed ──
+      const film = document.getElementById('film');
+      const wrap = document.getElementById('film-wrap');
+      function sizeFilm() {
+        if (!film || !wrap) return;
+        const vw = window.innerWidth;
+        const inset = Math.min(1400, vw - (vw >= 640 ? 80 : 48));
+        const r = wrap.getBoundingClientRect();
+        const p = reduce
+          ? 1
+          : Math.max(0, Math.min(1, (window.innerHeight - r.top) / (window.innerHeight * 0.95)));
+        const w = inset + (vw - inset) * p;
+        film.style.width = w + 'px';
+        film.style.maxWidth = 'none';
+        film.style.borderRadius = (16 * (1 - p)).toFixed(1) + 'px';
+      }
+
+      // ── Weaving double helix ──
       const canvas = document.getElementById('strand-canvas');
       const svg = document.getElementById('helix');
-      if (!canvas || !svg) return;
-
       const NS = 'http://www.w3.org/2000/svg';
       let strandA, strandB, rungs = [], nodes = [], lenA = 0, lenB = 0, H = 0;
 
-      // The helix lives in a fixed-width rail at the left edge of the canvas, so it
-      // never runs under the text. A node sits on the strand beside each section.
-      function build() {
-        H = canvas.clientHeight;
-        const W = window.innerWidth >= 640 ? 92 : 60;
-        if (!H) return;
+      const smooth = (t) => t * t * (3 - 2 * t);
 
+      function build() {
+        if (!canvas || !svg) return;
+        const W = canvas.clientWidth;
+        H = canvas.scrollHeight;
+        if (!W || !H) return;
+
+        // Explicit px size on both the attributes and the style: a viewBox whose
+        // height no longer matches the element stretches the whole figure.
         svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
         svg.setAttribute('width', W);
         svg.setAttribute('height', H);
+        svg.style.width = W + 'px';
+        svg.style.height = H + 'px';
         svg.innerHTML = '';
         rungs = [];
         nodes = [];
 
-        const cx = W / 2;
-        const amp = W * 0.28;
+        const wide = W >= 1024;
+        const railL = wide ? W * 0.11 : 34;
+        const railR = wide ? W * 0.89 : 34;
+        const amp = wide ? 30 : 20;
         const period = 300;
         const step = 4;
 
+        // Control points: the strand sits on a rail beside each section and crosses
+        // the page in the gaps between them, never over the text.
+        const canvasTop = canvas.getBoundingClientRect().top + window.scrollY;
+        const pts = [];
+        canvas.querySelectorAll('[data-section]').forEach((sec) => {
+          const r = sec.getBoundingClientRect();
+          const top = r.top + window.scrollY - canvasTop;
+          const rail = sec.dataset.side === 'right' ? railR : railL;
+          pts.push({ y: top + r.height * 0.25, x: rail });
+          pts.push({ y: top + r.height * 0.75, x: rail });
+        });
+        if (!pts.length) return;
+        pts.unshift({ y: 0, x: pts[0].x });
+        pts.push({ y: H, x: pts[pts.length - 1].x });
+
+        function centre(y) {
+          for (let i = 0; i < pts.length - 1; i++) {
+            const a = pts[i], b = pts[i + 1];
+            if (y >= a.y && y <= b.y) {
+              if (a.x === b.x) return a.x;
+              const t = smooth((y - a.y) / Math.max(b.y - a.y, 1));
+              return a.x + (b.x - a.x) * t;
+            }
+          }
+          return pts[pts.length - 1].x;
+        }
+
         let dA = '', dB = '';
         for (let y = 0; y <= H; y += step) {
+          const c = centre(y);
           const p = (y / period) * Math.PI * 2;
-          dA += (y === 0 ? 'M' : 'L') + (cx + Math.sin(p) * amp).toFixed(1) + ' ' + y;
-          dB += (y === 0 ? 'M' : 'L') + (cx + Math.sin(p + Math.PI) * amp).toFixed(1) + ' ' + y;
+          dA += (y === 0 ? 'M' : 'L') + (c + Math.sin(p) * amp).toFixed(1) + ' ' + y;
+          dB += (y === 0 ? 'M' : 'L') + (c + Math.sin(p + Math.PI) * amp).toFixed(1) + ' ' + y;
         }
 
         const gap = period / 8;
         for (let y = gap; y < H; y += gap) {
+          const c = centre(y);
           const p = (y / period) * Math.PI * 2;
           const depth = Math.abs(Math.cos(p));
           const r = document.createElementNS(NS, 'line');
-          r.setAttribute('x1', (cx + Math.sin(p) * amp).toFixed(1));
+          r.setAttribute('x1', (c + Math.sin(p) * amp).toFixed(1));
           r.setAttribute('y1', y);
-          r.setAttribute('x2', (cx + Math.sin(p + Math.PI) * amp).toFixed(1));
+          r.setAttribute('x2', (c + Math.sin(p + Math.PI) * amp).toFixed(1));
           r.setAttribute('y2', y);
           r.setAttribute('stroke', '#20201d');
           r.setAttribute('stroke-width', (0.5 + depth * 0.4).toFixed(2));
           r.setAttribute('stroke-linecap', 'round');
           r.dataset.y = y;
-          r.dataset.target = (0.07 + depth * 0.11).toFixed(3);
+          r.dataset.target = (0.07 + depth * 0.1).toFixed(3);
           r.style.opacity = '0';
           svg.appendChild(r);
           rungs.push(r);
         }
 
         const mk = (d, stroke, opacity) => {
-          const p = document.createElementNS(NS, 'path');
-          p.setAttribute('d', d);
-          p.setAttribute('fill', 'none');
-          p.setAttribute('stroke', stroke);
-          p.setAttribute('stroke-width', '1.5');
-          p.setAttribute('stroke-linecap', 'round');
-          p.setAttribute('opacity', opacity);
-          svg.appendChild(p);
-          return p;
+          const el = document.createElementNS(NS, 'path');
+          el.setAttribute('d', d);
+          el.setAttribute('fill', 'none');
+          el.setAttribute('stroke', stroke);
+          el.setAttribute('stroke-width', '1.5');
+          el.setAttribute('stroke-linecap', 'round');
+          el.setAttribute('opacity', opacity);
+          svg.appendChild(el);
+          return el;
         };
-        strandA = mk(dA, '#a54c38', '0.55');
-        strandB = mk(dB, '#748c63', '0.6');
+        strandA = mk(dA, '#a54c38', '0.5');
+        strandB = mk(dB, '#748c63', '0.55');
 
-        // A marker on the strand level with each section heading.
-        const canvasTop = canvas.getBoundingClientRect().top + window.scrollY;
         canvas.querySelectorAll('[data-section]').forEach((sec) => {
-          const y = sec.getBoundingClientRect().top + window.scrollY - canvasTop + 110;
+          const r = sec.getBoundingClientRect();
+          const y = r.top + window.scrollY - canvasTop + 120;
           if (y < 0 || y > H) return;
+          const c = centre(y);
           const p = (y / period) * Math.PI * 2;
-          const c = document.createElementNS(NS, 'circle');
-          c.setAttribute('cx', (cx + Math.sin(p) * amp).toFixed(1));
-          c.setAttribute('cy', y.toFixed(1));
-          c.setAttribute('r', '3.4');
-          c.setAttribute('fill', '#a54c38');
-          c.dataset.y = y;
-          c.style.opacity = '0';
-          svg.appendChild(c);
-          nodes.push(c);
+          const dot = document.createElementNS(NS, 'circle');
+          dot.setAttribute('cx', (c + Math.sin(p) * amp).toFixed(1));
+          dot.setAttribute('cy', y.toFixed(1));
+          dot.setAttribute('r', '3.4');
+          dot.setAttribute('fill', '#a54c38');
+          dot.dataset.y = y;
+          dot.style.opacity = '0';
+          svg.appendChild(dot);
+          nodes.push(dot);
         });
 
         lenA = strandA.getTotalLength();
@@ -264,6 +375,7 @@ const team = [
       }
 
       function update() {
+        if (!canvas) return;
         const rect = canvas.getBoundingClientRect();
         const travelled = window.innerHeight * 0.8 - rect.top;
         const progress = Math.max(0, Math.min(1, travelled / Math.max(rect.height, 1)));
@@ -293,18 +405,33 @@ const team = [
         if (ticking) return;
         ticking = true;
         requestAnimationFrame(() => {
+          sizeFilm();
           update();
           ticking = false;
         });
       }
 
+      sizeFilm();
       build();
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', () => {
+        sizeFilm();
         clearTimeout(window.__rb);
         window.__rb = setTimeout(build, 180);
       });
-      setTimeout(build, 700);
+
+      // Content reveals change the canvas height; rebuild when it actually changes
+      // rather than guessing with a timeout.
+      if (canvas && 'ResizeObserver' in window) {
+        let last = 0;
+        new ResizeObserver(() => {
+          const h = canvas.scrollHeight;
+          if (Math.abs(h - last) > 4) {
+            last = h;
+            build();
+          }
+        }).observe(canvas);
+      }
     })();
   </script>
 </Base>
