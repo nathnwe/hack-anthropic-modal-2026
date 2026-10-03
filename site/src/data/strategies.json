@@ -1,0 +1,68 @@
+{
+  "_note": "Stapling strategy catalogue supplied by the team. Qualitative assessments are the team's own; no per-locus claims are made here.",
+  "strategies": [
+    {
+      "id": "cloud9",
+      "name": "CLOuD9-style inducible dCas dimerization",
+      "how": "Two orthogonal dCas proteins carry complementary dimerization domains; a small molecule makes them bind.",
+      "mammalian": "yes",
+      "switchable": "yes",
+      "attraction": "Very intuitive and programmable",
+      "issue": "Two large Cas proteins; delivery"
+    },
+    {
+      "id": "ladl",
+      "name": "LADL optogenetic looping",
+      "how": "dCas9 anchors loci; a CRY2/CIBN interaction induced with blue light brings them together.",
+      "mammalian": "yes",
+      "switchable": "strong",
+      "attraction": "Excellent temporal control",
+      "issue": "Light delivery clinically awkward"
+    },
+    {
+      "id": "bivalent",
+      "name": "Direct bivalent dCas / leucine zippers",
+      "how": "Two DNA-bound dCas proteins are constitutively physically linked.",
+      "mammalian": "bacterial",
+      "switchable": "no",
+      "attraction": "Mechanistically very simple",
+      "issue": "Less control; large payload"
+    },
+    {
+      "id": "bpcl",
+      "name": "BPCL bioorthogonal \"click\" bridge",
+      "how": "CRISPR-targeted adaptors undergo selective chemical coupling between loci.",
+      "mammalian": "yes",
+      "switchable": "yes",
+      "attraction": "Can create multiple independent loops/hubs",
+      "issue": "Complex chemistry; less therapeutically mature"
+    },
+    {
+      "id": "ldb1",
+      "name": "Recruit a natural looping factor such as LDB1",
+      "how": "A DNA binder recruits a protein already capable of engaging a distal enhancer complex.",
+      "mammalian": "yes",
+      "switchable": "not_inherent",
+      "attraction": "Reuses endogenous machinery",
+      "issue": "Context-specific; requires compatible native machinery"
+    },
+    {
+      "id": "ctcf",
+      "name": "CTCF/cohesin engineering",
+      "how": "Recruit architectural proteins or manipulate loop-extrusion anchors to reshape topology.",
+      "mammalian": "concept",
+      "switchable": "depends",
+      "attraction": "Exploits native 3D-genome machinery",
+      "issue": "Much less direct or predictable"
+    },
+    {
+      "id": "zf_tale",
+      "name": "ZF/TALE-based tethering",
+      "how": "Custom protein DNA binders replace CRISPR targeting.",
+      "mammalian": "yes",
+      "switchable": "depends",
+      "attraction": "Smaller; no guide RNA requirement",
+      "issue": "New protein engineering for every locus"
+    }
+  ]
+}

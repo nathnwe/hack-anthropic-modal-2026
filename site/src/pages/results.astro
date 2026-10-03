@@ -1,0 +1,526 @@
+---
+import Base from '../layouts/Base.astro';
+import catalogue from '../data/strategies.json';
+
+const records = Object.values(
+  import.meta.glob('../../public/data/*.json', { eager: true, import: 'default' })
+) as any[];
+
+const genes = records.sort((a, b) => a.gene.symbol.localeCompare(b.gene.symbol));
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const evidenceLabel: Record<string, string> = {
+  yes: 'Mammalian',
+  strong: 'Strong',
+  bacterial: 'Bacterial only',
+  concept: 'Proof of concept',
+  no: 'No',
+  depends: 'Depends',
+  not_inherent: 'Not inherently',
+};
+---
+
+<Base title="Results — Rewire Bio">
+  <style>
+    .viz {
+      --gene: #3987e5;
+      --cre: #d95926;
+      --axis: #334155;
+    }
+  </style>
+
+  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <!-- Query summary -->
+    <div class="flex flex-wrap items-end justify-between gap-4 border-b border-slate-800 pb-5">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">Results</p>
+        <h1 class="mt-1.5 flex flex-wrap items-baseline gap-2.5">
+          <span id="gene-title" class="font-mono text-2xl font-semibold text-white"></span>
+          <span id="intent-title" class="text-sm text-slate-400"></span>
+        </h1>
+        <p id="disease-line" class="mt-1 text-sm text-slate-500"></p>
+      </div>
+      <div class="flex items-center gap-3">
+        <select
+          id="gene-select"
+          class="rounded-md border border-slate-700 bg-slate-900 px-3 py-2 font-mono text-sm text-white focus:border-sky-500 focus:outline-none"
+        >
+          {genes.map((r) => <option value={r.gene.symbol}>{r.gene.symbol}</option>)}
+        </select>
+        <select
+          id="intent-select"
+          class="rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none"
+        >
+          <option value="up">Upregulate</option>
+          <option value="down">Downregulate</option>
+          <option value="off">Silence</option>
+        </select>
+        <a href={`${base}/workbench`} class="text-xs text-slate-500 hover:text-slate-300">New query</a>
+      </div>
+    </div>
+
+    <p id="intent-note" class="mt-3 hidden rounded-md border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-sm text-amber-200"></p>
+
+    <div id="illustrative-banner" class="mt-4 hidden rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3">
+      <p class="text-sm text-amber-200/90">
+        <span class="font-semibold text-amber-300">Illustrative record.</span>
+        Coordinates and scores are placeholders, not findings.
+      </p>
+    </div>
+
+    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+      <!-- Regulatory elements -->
+      <section class="rounded-xl border border-slate-800 bg-slate-900/40">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 px-4 py-3">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-slate-500">
+            Regulatory elements
+          </h2>
+          <label class="flex items-center gap-2 text-xs text-slate-500">
+            Rank by
+            <select
+              id="rank-select"
+              class="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-200 focus:border-sky-500 focus:outline-none"
+            >
+              <option value="auto">Auto (composite)</option>
+              <option value="potency">Potency</option>
+              <option value="contact">Contact strength</option>
+              <option value="achievability">Achievability</option>
+              <option value="safety" disabled>Safety — pending</option>
+            </select>
+          </label>
+        </div>
+        <p id="rank-explainer" class="border-b border-slate-800 px-4 py-2 text-xs text-slate-600"></p>
+        <ul id="cre-list" class="divide-y divide-slate-800"></ul>
+      </section>
+
+      <!-- Contact map -->
+      <section class="viz h-fit rounded-xl border border-slate-800 bg-slate-900/40 p-4">
+        <div class="flex items-baseline justify-between">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-slate-500">
+            Contacts within TAD
+          </h2>
+          <span id="tad-label" class="font-mono text-xs text-slate-600"></span>
+        </div>
+        <svg id="loop-svg" viewBox="0 0 760 250" class="mt-2 w-full" role="img"
+             aria-label="Arc diagram of enhancer–promoter contacts across the TAD"></svg>
+        <div class="mt-1 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-slate-500">
+          <span class="flex items-center gap-1.5">
+            <span class="h-2.5 w-2.5 rounded-sm" style="background:var(--gene)"></span> Promoter / TSS
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="h-2.5 w-2.5 rounded-sm" style="background:var(--cre)"></span> Regulatory element
+          </span>
+          <span>Arc thickness = contact strength</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- Candidate staples -->
+    <section class="mt-6 rounded-xl border border-slate-800 bg-slate-900/40">
+      <h2 class="border-b border-slate-800 px-4 py-3 text-xs font-semibold uppercase tracking-widest text-slate-500">
+        Candidate staples
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="text-xs uppercase tracking-wider text-slate-600">
+              <th class="px-4 py-2 font-medium">Staple</th>
+              <th class="px-4 py-2 font-medium">Anchors</th>
+              <th class="px-4 py-2 font-medium">Mode</th>
+              <th class="px-4 py-2 font-medium">Tier</th>
+              <th class="px-4 py-2 font-medium">Risks</th>
+            </tr>
+          </thead>
+          <tbody id="staple-body" class="divide-y divide-slate-800"></tbody>
+        </table>
+      </div>
+      <p id="staple-rationale" class="border-t border-slate-800 px-4 py-3 text-xs text-slate-500"></p>
+    </section>
+
+    <!-- Strategy catalogue -->
+    <section class="mt-6 rounded-xl border border-slate-800 bg-slate-900/40">
+      <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-800 px-4 py-3">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-slate-500">
+          Stapling strategies
+        </h2>
+        <span class="text-xs text-slate-600">
+          General method properties — not locus-specific predictions
+        </span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[840px] text-left text-sm">
+          <thead>
+            <tr class="text-xs uppercase tracking-wider text-slate-600">
+              <th class="px-4 py-2.5 font-medium">Strategy</th>
+              <th class="px-4 py-2.5 font-medium">How the staple works</th>
+              <th class="px-4 py-2.5 font-medium">Mammalian</th>
+              <th class="px-4 py-2.5 font-medium">Switchable</th>
+              <th class="px-4 py-2.5 font-medium">Attraction</th>
+              <th class="px-4 py-2.5 font-medium">Main issue</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800">
+            {
+              catalogue.strategies.map((s) => (
+                <tr class="align-top">
+                  <td class="px-4 py-3 text-sm font-medium text-white">{s.name}</td>
+                  <td class="px-4 py-3 text-xs leading-relaxed text-slate-400">{s.how}</td>
+                  <td class="px-4 py-3 text-xs">
+                    <span
+                      class:list={[
+                        'rounded-full border px-2 py-0.5',
+                        s.mammalian === 'yes'
+                          ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+                          : 'border-slate-600 bg-slate-800/40 text-slate-400',
+                      ]}
+                    >
+                      {evidenceLabel[s.mammalian] ?? s.mammalian}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-xs">
+                    <span
+                      class:list={[
+                        'rounded-full border px-2 py-0.5',
+                        s.switchable === 'strong'
+                          ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+                          : s.switchable === 'yes'
+                            ? 'border-sky-500/40 bg-sky-500/10 text-sky-300'
+                            : s.switchable === 'no'
+                              ? 'border-red-500/40 bg-red-500/10 text-red-300'
+                              : 'border-slate-600 bg-slate-800/40 text-slate-400',
+                      ]}
+                    >
+                      {evidenceLabel[s.switchable] ?? s.switchable}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-xs text-slate-400">{s.attraction}</td>
+                  <td class="px-4 py-3 text-xs text-slate-500">{s.issue}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script set:html={`window.__GENES__ = ${JSON.stringify(genes)};`} is:inline />
+
+  <script is:inline>
+    (function () {
+      const genes = window.__GENES__;
+      const bySymbol = Object.fromEntries(genes.map((r) => [r.gene.symbol, r]));
+      const $ = (id) => document.getElementById(id);
+      const fmt = (n) => n.toLocaleString();
+
+      const RANK_EXPLAIN = {
+        auto: 'Composite of rE2G score and modelled contact strength. Ordinal, not calibrated.',
+        potency: 'ENCODE-rE2G enhancer–gene score alone — predicted regulatory effect on this gene.',
+        contact: 'Modelled 3D contact frequency with the promoter, independent of regulatory score.',
+        achievability:
+          'Distance from the TSS — shorter spans are generally easier to staple. A proxy, not a measured success rate.',
+      };
+
+      function confidence(score) {
+        if (score >= 0.7) return { label: 'High', cls: 'text-sky-300 border-sky-500/40 bg-sky-500/10' };
+        if (score >= 0.4) return { label: 'Medium', cls: 'text-slate-300 border-slate-600 bg-slate-700/30' };
+        return { label: 'Low', cls: 'text-slate-500 border-slate-700 bg-slate-800/30' };
+      }
+
+      function contactFor(record, cre) {
+        const tss = record.gene.tss;
+        const mid = (cre.start + cre.end) / 2;
+        return (record.locus.contacts || []).find(
+          (c) =>
+            (Math.abs(c.a - tss) < 50000 && Math.abs(c.b - mid) < 50000) ||
+            (Math.abs(c.b - tss) < 50000 && Math.abs(c.a - mid) < 50000)
+        );
+      }
+
+      // Evidence strings come from the record. We linkify URLs and PMIDs and flag
+      // placeholders — we never synthesise a citation.
+      function evidenceHtml(record) {
+        const items = record.gene.evidence || [];
+        if (!items.length) return '<p class="text-xs text-slate-600">No sources recorded.</p>';
+        return (
+          '<ul class="space-y-1">' +
+          items
+            .map((e) => {
+              if (/^PLACEHOLDER/i.test(e)) {
+                return '<li class="text-xs text-amber-400/80">⚠ ' + e + '</li>';
+              }
+              const url = e.match(/https?:\/\/\S+/);
+              const pmid = e.match(/PMID[:\s]*(\d+)/i);
+              if (url) {
+                return '<li><a class="text-xs text-sky-400 underline hover:text-sky-300" target="_blank" rel="noopener" href="' + url[0] + '">' + e + '</a></li>';
+              }
+              if (pmid) {
+                return '<li><a class="text-xs text-sky-400 underline hover:text-sky-300" target="_blank" rel="noopener" href="https://pubmed.ncbi.nlm.nih.gov/' + pmid[1] + '/">' + e + '</a></li>';
+              }
+              return '<li class="text-xs text-slate-400">' + e + '</li>';
+            })
+            .join('') +
+          '</ul>'
+        );
+      }
+
+      let selectedCre = null;
+      let openCre = null;
+
+      function rankedCres(record, mode) {
+        const tss = record.gene.tss;
+        const list = [...record.locus.cres];
+        const strength = (c) => (contactFor(record, c) || {}).strength || 0;
+        const dist = (c) => Math.abs((c.start + c.end) / 2 - tss);
+
+        if (mode === 'potency') return list.sort((a, b) => b.score_rE2G - a.score_rE2G);
+        if (mode === 'contact') return list.sort((a, b) => strength(b) - strength(a));
+        if (mode === 'achievability') return list.sort((a, b) => dist(a) - dist(b));
+        return list.sort(
+          (a, b) => b.score_rE2G * (0.5 + strength(b)) - a.score_rE2G * (0.5 + strength(a))
+        );
+      }
+
+      function render() {
+        const record = bySymbol[$('gene-select').value];
+        const intent = $('intent-select').value;
+        const mode = $('rank-select').value;
+
+        $('gene-title').textContent = record.gene.symbol;
+        $('intent-title').textContent =
+          { up: 'upregulate', down: 'downregulate', off: 'silence' }[intent];
+        $('disease-line').textContent =
+          record.gene.disease + ' · ' + record.locus.cell_type;
+
+        $('illustrative-banner').classList.toggle('hidden', !record.illustrative);
+
+        const dir = record.gene.direction;
+        const clash =
+          (dir === 'too_much' && intent === 'up') ||
+          (dir === 'too_little' && (intent === 'down' || intent === 'off'));
+        $('intent-note').textContent = clash
+          ? 'This gene is pathogenic when ' +
+            (dir === 'too_much' ? 'overexpressed' : 'underexpressed') +
+            '. Your query moves expression the wrong way for the recorded disease.'
+          : '';
+        $('intent-note').classList.toggle('hidden', !clash);
+
+        $('rank-explainer').textContent = RANK_EXPLAIN[mode] || '';
+
+        // ---- Element rows ----
+        const cres = rankedCres(record, mode);
+        $('cre-list').innerHTML = cres
+          .map((cre, i) => {
+            const conf = confidence(cre.score_rE2G);
+            const contact = contactFor(record, cre);
+            const d = Math.abs((cre.start + cre.end) / 2 - record.gene.tss);
+            const open = cre.id === openCre;
+            const short = cre.id.split('_').pop();
+            return `
+              <li class="${cre.id === selectedCre ? 'bg-slate-800/50' : ''}">
+                <div class="flex items-center gap-3 px-4 py-3">
+                  <span class="w-5 shrink-0 font-mono text-xs text-slate-600">${i + 1}</span>
+                  <button data-sel="${cre.id}" class="min-w-0 flex-1 text-left">
+                    <span class="flex items-baseline gap-2">
+                      <span class="font-mono text-sm font-semibold text-white">${short}</span>
+                      <span class="font-mono text-xs text-slate-500">chr${record.gene.chrom}:${fmt(cre.start)}-${fmt(cre.end)}</span>
+                    </span>
+                    <span class="mt-0.5 block text-xs text-slate-500">
+                      ${cre.type} · ${contact ? 'TAD contact' : 'linear proximity'} · ${fmt(Math.round(d / 1000))} kb from TSS
+                    </span>
+                  </button>
+                  <span class="shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium ${conf.cls}">${conf.label}</span>
+                  <button data-info="${cre.id}"
+                    aria-expanded="${open}"
+                    title="Scoring detail and evidence"
+                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs transition ${
+                      open
+                        ? 'border-sky-500 bg-sky-500/15 text-sky-300'
+                        : 'border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-300'
+                    }">i</button>
+                </div>
+                ${
+                  open
+                    ? `<div class="border-t border-slate-800 bg-slate-950/60 px-4 py-4">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Scoring criteria</p>
+                        <dl class="mt-2.5 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+                          <div class="flex justify-between gap-3 border-b border-slate-800/70 pb-1.5">
+                            <dt class="text-xs text-slate-500">rE2G score</dt>
+                            <dd class="font-mono text-xs text-slate-200">${cre.score_rE2G.toFixed(2)}</dd>
+                          </div>
+                          <div class="flex justify-between gap-3 border-b border-slate-800/70 pb-1.5">
+                            <dt class="text-xs text-slate-500">Contact strength</dt>
+                            <dd class="font-mono text-xs text-slate-200">${contact ? contact.strength.toFixed(2) : 'none modelled'}</dd>
+                          </div>
+                          <div class="flex justify-between gap-3 border-b border-slate-800/70 pb-1.5">
+                            <dt class="text-xs text-slate-500">Distance to TSS</dt>
+                            <dd class="font-mono text-xs text-slate-200">${fmt(Math.round(d))} bp</dd>
+                          </div>
+                          <div class="flex justify-between gap-3 border-b border-slate-800/70 pb-1.5">
+                            <dt class="text-xs text-slate-500">Element type</dt>
+                            <dd class="font-mono text-xs text-slate-200">${cre.type}</dd>
+                          </div>
+                        </dl>
+                        <p class="mt-3 text-xs text-slate-600">
+                          rE2G scores are ENCODE enhancer–gene predictions; contact strength is modelled, not measured in this cell type.
+                        </p>
+                        <p class="mt-4 text-xs font-semibold uppercase tracking-widest text-slate-500">Literature</p>
+                        <div class="mt-2">${evidenceHtml(record)}</div>
+                        <p class="mt-2 text-xs text-slate-600">
+                          Sources are recorded against the gene, not this element. Element-level citations are not yet in the contract.
+                        </p>
+                      </div>`
+                    : ''
+                }
+              </li>`;
+          })
+          .join('');
+
+        $('cre-list')
+          .querySelectorAll('button[data-sel]')
+          .forEach((b) =>
+            b.addEventListener('click', () => {
+              selectedCre = selectedCre === b.dataset.sel ? null : b.dataset.sel;
+              render();
+            })
+          );
+        $('cre-list')
+          .querySelectorAll('button[data-info]')
+          .forEach((b) =>
+            b.addEventListener('click', () => {
+              openCre = openCre === b.dataset.info ? null : b.dataset.info;
+              render();
+            })
+          );
+
+        drawLoop(record);
+        drawStaples(record);
+      }
+
+      function drawLoop(record) {
+        const tad = record.locus.tad;
+        const W = 760, PAD = 40, AXIS = 190, H = 250;
+        const span = Math.max(tad.end - tad.start, 1);
+        const x = (bp) => PAD + ((bp - tad.start) / span) * (W - 2 * PAD);
+        $('tad-label').textContent = `chr${tad.chrom}:${fmt(tad.start)}-${fmt(tad.end)}`;
+
+        let out = '';
+        (record.locus.contacts || []).forEach((c) => {
+          const x1 = x(c.a), x2 = x(c.b);
+          const mid = (x1 + x2) / 2;
+          const height = Math.min(140, Math.abs(x2 - x1) * 0.55);
+          const near = record.locus.cres.find(
+            (cre) =>
+              Math.abs((cre.start + cre.end) / 2 - c.b) < 50000 ||
+              Math.abs((cre.start + cre.end) / 2 - c.a) < 50000
+          );
+          const dim = selectedCre && (!near || near.id !== selectedCre);
+          out += `<path d="M ${x1} ${AXIS} Q ${mid} ${AXIS - height} ${x2} ${AXIS}" fill="none"
+            stroke="var(--gene)" stroke-width="${1.5 + c.strength * 4}"
+            opacity="${dim ? 0.15 : 0.55}" stroke-linecap="round" />`;
+        });
+
+        out += `<line x1="${PAD}" y1="${AXIS}" x2="${W - PAD}" y2="${AXIS}" stroke="var(--axis)" stroke-width="2" />`;
+
+        record.locus.cres.forEach((cre) => {
+          const cx = x((cre.start + cre.end) / 2);
+          const sel = cre.id === selectedCre;
+          const w = Math.max(6, x(cre.end) - x(cre.start));
+          out += `<rect x="${cx - w / 2}" y="${AXIS - 7}" width="${w}" height="14" rx="3"
+            fill="var(--cre)" opacity="${sel || !selectedCre ? 1 : 0.3}" stroke="#0f172a" stroke-width="2" />`;
+          out += `<text x="${cx}" y="${AXIS + 26}" text-anchor="middle" font-size="11"
+            font-family="ui-monospace,monospace" fill="${sel ? '#e2e8f0' : '#64748b'}">${cre.id.split('_').pop()}</text>`;
+        });
+
+        const tx = x(record.gene.tss);
+        out += `<rect x="${tx - 4}" y="${AXIS - 11}" width="8" height="22" rx="2" fill="var(--gene)" stroke="#0f172a" stroke-width="2" />`;
+        out += `<text x="${tx}" y="${AXIS + 26}" text-anchor="middle" font-size="11"
+          font-family="ui-monospace,monospace" font-weight="600" fill="#e2e8f0">${record.gene.symbol}</text>`;
+        out += `<text x="${PAD}" y="${H - 8}" font-size="10" fill="#475569">${fmt(tad.start)}</text>`;
+        out += `<text x="${W - PAD}" y="${H - 8}" text-anchor="end" font-size="10" fill="#475569">${fmt(tad.end)}</text>`;
+
+        $('loop-svg').innerHTML = out;
+      }
+
+      function drawStaples(record) {
+        const tierCls = { A: 'text-emerald-300', B: 'text-amber-300', C: 'text-slate-400' };
+        const rows = (record.staples || []).map((s) => {
+          const rank = (record.ranking || []).find((r) => r.staple_id === s.id);
+          const risk = (record.risks || []).find((r) => r.staple_id === s.id);
+          const flags = risk?.flags || [];
+          return `
+            <tr class="align-top">
+              <td class="px-4 py-3 font-mono text-xs text-slate-300">${s.id.split('_').pop()}</td>
+              <td class="px-4 py-3 font-mono text-xs text-slate-500">
+                ${fmt(s.anchor_a.start)}<br />${fmt(s.anchor_b.start)}
+              </td>
+              <td class="px-4 py-3 text-xs text-slate-400">
+                ${s.mode}<span class="block text-slate-600">${s.predicted_delta.replace(/_/g, ' ')}</span>
+              </td>
+              <td class="px-4 py-3 text-sm font-semibold ${tierCls[rank?.tier] || 'text-slate-500'}">${rank?.tier ?? '—'}</td>
+              <td class="px-4 py-3 text-xs">
+                ${
+                  flags.length
+                    ? flags
+                        .map(
+                          (f) =>
+                            `<span class="mr-1.5 inline-block rounded-full border px-2 py-0.5 ${
+                              f.severity === 'high'
+                                ? 'border-red-500/40 bg-red-500/10 text-red-300'
+                                : f.severity === 'medium'
+                                  ? 'border-amber-500/40 bg-amber-500/10 text-amber-300'
+                                  : 'border-slate-700 text-slate-500'
+                            }" title="${f.detail}">${f.type}</span>`
+                        )
+                        .join('')
+                    : '<span class="text-slate-600">none recorded</span>'
+                }
+              </td>
+            </tr>`;
+        });
+
+        $('staple-body').innerHTML = rows.length
+          ? rows.join('')
+          : '<tr><td colspan="5" class="px-4 py-6 text-sm text-slate-500">No candidate staples.</td></tr>';
+
+        const first = (record.ranking || [])[0];
+        $('staple-rationale').textContent = first
+          ? 'Recommended: ' + first.method_recommendation + (first.rationale?.length ? ' — ' + first.rationale.join('; ') : '')
+          : '';
+      }
+
+      // Deep links from the workbench.
+      const params = new URLSearchParams(location.search);
+      const wanted = (params.get('gene') || '').toUpperCase();
+      if (wanted && bySymbol[wanted]) $('gene-select').value = wanted;
+      const qIntent = params.get('intent');
+      if (qIntent && ['up', 'down', 'off'].includes(qIntent)) $('intent-select').value = qIntent;
+
+      function syncUrl() {
+        const q = new URLSearchParams({
+          gene: $('gene-select').value,
+          intent: $('intent-select').value,
+          rank: $('rank-select').value,
+        });
+        history.replaceState(null, '', location.pathname + '?' + q);
+      }
+
+      const qRank = params.get('rank');
+      if (qRank) $('rank-select').value = qRank;
+
+      ['gene-select', 'intent-select', 'rank-select'].forEach((id) =>
+        $(id).addEventListener('change', () => {
+          if (id === 'gene-select') {
+            selectedCre = null;
+            openCre = null;
+          }
+          syncUrl();
+          render();
+        })
+      );
+
+      syncUrl();
+      render();
+    })();
+  </script>
+</Base>

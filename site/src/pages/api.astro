@@ -1,0 +1,91 @@
+---
+import Base from '../layouts/Base.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const records = Object.values(
+  import.meta.glob('../../public/data/*.json', { eager: true, import: 'default' })
+) as any[];
+const symbols = records.map((r) => r.gene.symbol).sort();
+
+const sections = [
+  {
+    path: '/data/<gene>.json',
+    body: 'One gene record: gene, locus, staples, risks, ranking. Conforms to contracts/schema.json.',
+  },
+];
+---
+
+<Base title="API — Rewire Bio">
+  <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">API</p>
+    <h1 class="mt-4 text-3xl font-semibold tracking-tight text-white">Data access</h1>
+    <p class="mt-3 text-slate-400">
+      Every gene record is a static JSON file validated against the project's data
+      contract. There is no server and no key — fetch the file.
+    </p>
+
+    <div class="mt-8 rounded-lg border border-amber-500/30 bg-amber-500/[0.07] p-4">
+      <p class="text-sm text-amber-200/80">
+        <span class="font-semibold text-amber-300">Current build serves fixtures.</span>
+        Records carrying <code class="font-mono text-xs">"illustrative": true</code> are
+        placeholders, not real coordinates or scores.
+      </p>
+    </div>
+
+    <section class="mt-10">
+      <h2 class="text-sm font-semibold uppercase tracking-widest text-slate-500">Endpoints</h2>
+      {
+        sections.map((s) => (
+          <div class="mt-3 rounded-lg border border-slate-800 bg-slate-900/40 p-4">
+            <p class="font-mono text-sm text-sky-300">GET {s.path}</p>
+            <p class="mt-1.5 text-sm text-slate-400">{s.body}</p>
+          </div>
+        ))
+      }
+    </section>
+
+    <section class="mt-10">
+      <h2 class="text-sm font-semibold uppercase tracking-widest text-slate-500">Available genes</h2>
+      <div class="mt-3 flex flex-wrap gap-2">
+        {
+          symbols.map((s) => (
+            <a
+              href={`${base}/data/${s.toLowerCase()}.json`}
+              class="rounded-full border border-slate-700 px-3 py-1.5 font-mono text-xs text-slate-300 transition hover:border-sky-500/60 hover:text-white"
+            >
+              {s.toLowerCase()}.json
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="mt-10">
+      <h2 class="text-sm font-semibold uppercase tracking-widest text-slate-500">Example</h2>
+      <pre class="mt-3 overflow-x-auto rounded-lg border border-slate-800 bg-slate-950 p-4 text-xs text-slate-300"><code>{`const res = await fetch('${base}/data/myc.json');
+const record = await res.json();
+
+record.gene.symbol;        // "MYC"
+record.gene.direction;     // "too_much" | "too_little"
+record.locus.cres;         // regulatory elements with rE2G scores
+record.locus.contacts;     // modelled promoter contacts
+record.staples;            // candidate anchor pairs
+record.risks;              // per-staple flags
+record.ranking;            // score, tier, rationale, method`}</code></pre>
+    </section>
+
+    <section class="mt-10">
+      <h2 class="text-sm font-semibold uppercase tracking-widest text-slate-500">Schema</h2>
+      <p class="mt-2 text-sm text-slate-400">
+        The authoritative definition lives in
+        <a
+          href="https://github.com/nathnwe/hack-anthropic-modal-2026/blob/main/contracts/schema.json"
+          class="text-sky-400 underline hover:text-sky-300"
+          target="_blank"
+          rel="noopener">contracts/schema.json</a
+        >. Records are validated in CI on every change.
+      </p>
+    </section>
+  </div>
+</Base>
