@@ -1,0 +1,62 @@
+---
+import { strategies } from "../data/strategies";
+---
+
+<section id="methods" class="results-section methods-section">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">04 / Method library</p>
+      <h2>Ways to make a connection.</h2>
+    </div>
+    <span class="tag">7 approaches</span>
+  </div>
+  <p class="section-description">
+    Method-level research, separate from the gene record. Attractions and issues
+    are qualitative design considerations; these are not validated interventions
+    for your selected target.
+  </p>
+  <div
+    class="table-scroll"
+    role="region"
+    aria-label="Stapling strategies comparison, scroll horizontally on small screens"
+    tabindex="0"
+  >
+    <table class="strategies-table">
+      <caption class="sr-only">
+        Stapling strategies, mammalian evidence, switchability and design
+        tradeoffs
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Strategy</th>
+          <th scope="col">Mammalian evidence</th>
+          <th scope="col">Switchability</th>
+          <th scope="col">Main attraction</th>
+          <th scope="col">Main issue</th>
+        </tr>
+      </thead>
+      <tbody>
+        {strategies.map((s) => (
+          <tr>
+            <th scope="row">
+              <strong>{s.name}</strong>
+              <span class="small muted">{s.mechanism}</span>
+              <a
+                class="source-link"
+                href={s.source}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {s.citation} ↗
+              </a>
+            </th>
+            <td>{s.evidence}</td>
+            <td>{s.switchability}</td>
+            <td>{s.attraction}</td>
+            <td>{s.issue}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</section>

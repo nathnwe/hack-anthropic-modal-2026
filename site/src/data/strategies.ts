@@ -1,0 +1,77 @@
+// Method-level literature, independent of illustrative gene records. Attractions
+// and issues are qualitative design considerations, not efficacy predictions.
+export const strategies = [
+  {
+    name: "CLOuD9",
+    mechanism: "Inducible dCas dimerization",
+    evidence: "Human cell lines",
+    switchability: "Chemical induction; persistence can depend on exposure",
+    attraction: "Programmable contact with a chemical trigger.",
+    issue: "Multiple components; reversibility must be checked in context.",
+    source: "https://www.nature.com/articles/ncomms15993",
+    citation: "Morgan et al., 2017",
+  },
+  {
+    name: "LADL",
+    mechanism: "Optogenetic looping",
+    evidence: "Mouse embryonic stem cells",
+    switchability: "Blue-light induction",
+    attraction: "Light provides temporal control of contact formation.",
+    issue:
+      "Requires light access; an induced contact does not guarantee a large expression effect.",
+    source: "https://www.nature.com/articles/s41592-019-0436-5",
+    citation: "Kim et al., 2019",
+  },
+  {
+    name: "Bivalent dCas",
+    mechanism: "Direct tether / leucine zippers",
+    evidence: "Cited demonstration is bacterial",
+    switchability: "No independent switch in the cited design",
+    attraction: "A direct physical bridge between DNA-bound proteins.",
+    issue: "Mammalian applicability is not established by this paper.",
+    source: "https://www.nature.com/articles/s41467-017-01873-x",
+    citation: "Hao et al., 2017",
+  },
+  {
+    name: "BPCL",
+    mechanism: "Bioorthogonal click bridge",
+    evidence: "Human HEK293T cells",
+    switchability: "Clickable and photocleavable adaptors",
+    attraction: "Supports independently controlled, multiway contacts.",
+    issue: "Requires engineered guide scaffolds and chemical adaptors.",
+    source: "https://pmc.ncbi.nlm.nih.gov/articles/PMC9457169/",
+    citation: "Qin et al., 2022",
+  },
+  {
+    name: "LDB1 recruitment",
+    mechanism: "Recruit a natural looping factor",
+    evidence: "Human erythroid cells",
+    switchability: "No independent switch established in the cited study",
+    attraction: "Engages an endogenous looping complex.",
+    issue: "Evidence is locus- and cell-context-specific.",
+    source: "https://pubmed.ncbi.nlm.nih.gov/25126789/",
+    citation: "Deng et al., 2014",
+  },
+  {
+    name: "CTCF / cohesin",
+    mechanism: "Architectural protein engineering",
+    evidence: "CTCF tethering in mammalian cells",
+    switchability: "Depends on the implementation",
+    attraction: "Targets existing chromatin architecture.",
+    issue:
+      "CTCF tethering evidence does not validate every cohesin-engineering strategy.",
+    source: "https://www.nature.com/articles/s41594-020-00539-5",
+    citation: "Promoter-proximal CTCF study, 2021",
+  },
+  {
+    name: "ZF / TALE tethering",
+    mechanism: "Protein-based DNA targeting",
+    evidence: "ZF–LDB1 in human erythroid cells",
+    switchability: "Depends on the attached effector",
+    attraction: "Offers a DNA-targeting approach without guide RNA.",
+    issue:
+      "Custom targeting proteins; cited evidence supports ZF–LDB1, not all TALE designs.",
+    source: "https://pubmed.ncbi.nlm.nih.gov/27405777/",
+    citation: "Forced-looping study, 2016",
+  },
+];

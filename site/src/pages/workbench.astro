@@ -1,0 +1,194 @@
+---
+import Layout from "../layouts/Layout.astro";
+import type { GeneRecord } from "../lib/records";
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const records = Object.values(
+  import.meta.glob<GeneRecord>("../../public/data/*.json", {
+    eager: true,
+    import: "default",
+  }),
+).sort((a, b) => a.gene.symbol.localeCompare(b.gene.symbol));
+---
+
+<Layout title="Workbench — Rewire Bio" page="workbench">
+  <div class="workbench-shell page-shell">
+    <div class="workbench-intro">
+      <p class="eyebrow">
+        <span class="status-dot"></span> The workbench / Research preview
+      </p>
+      <h1>
+        Start with a gene.
+        <br />
+        <em>Explore a possibility.</em>
+      </h1>
+      <p class="lead">
+        A closer look at the regulatory connections
+        <br class="desktop-break" /> that could change its expression.
+      </p>
+      <div class="mini-loop" aria-hidden="true">
+        <svg viewBox="0 0 440 180" fill="none">
+          <path d="M18 135H420" stroke="currentColor" opacity=".2" />
+          <path
+            d="M78 135C78 -10 345 -10 345 135"
+            stroke="#A54C38"
+            stroke-width="2"
+          />
+          <path
+            d="M78 135C78 50 255 50 255 135"
+            stroke="#A54C38"
+            stroke-width="1.5"
+            stroke-dasharray="4 5"
+          />
+          <rect x="69" y="126" width="18" height="18" fill="#2A6FA8" />
+          <circle cx="255" cy="135" r="6" fill="#A54C38" />
+          <circle cx="345" cy="135" r="6" fill="#A54C38" />
+          <text x="78" y="169" text-anchor="middle">
+            PROMOTER
+          </text>
+          <text x="309" y="169" text-anchor="middle">
+            REGULATORY ELEMENTS
+          </text>
+        </svg>
+        <span class="small muted">
+          Conceptual illustration · not genomic data
+        </span>
+      </div>
+      <p class="workbench-footnote">
+        Inspect the evidence. Compare the options.
+        <br />
+        Keep the unknowns in view.
+      </p>
+    </div>
+    <div class="query-panel">
+      <div class="panel-heading">
+        <span class="eyebrow">New exploration</span>
+        <span class="mono muted">01 — 02</span>
+      </div>
+      <form
+        id="query-form"
+        action={`${base}/results/`}
+        method="get"
+        data-symbols={JSON.stringify(records.map((r) => r.gene.symbol))}
+      >
+        <label class="field-label" for="gene">
+          <span class="mono">01</span> Target gene
+        </label>
+        <div class="gene-input-wrap">
+          <input
+            id="gene"
+            name="gene"
+            list="gene-options"
+            placeholder="e.g. SHANK3"
+            required
+            maxlength="60"
+            autocomplete="off"
+            spellcheck="false"
+            aria-describedby="gene-help form-error"
+          />
+          <span aria-hidden="true">↗</span>
+        </div>
+        <datalist id="gene-options">
+          {records.map((r) => (
+            <option value={r.gene.symbol} />
+          ))}
+        </datalist>
+        <p class="small muted" id="gene-help">
+          Use a gene symbol from the available examples below.
+        </p>
+        <fieldset class="direction-fieldset">
+          <legend class="field-label">
+            <span class="mono">02</span> Desired regulation
+          </legend>
+          <div class="direction-options">
+            <label>
+              <input type="radio" name="intent" value="up" checked />
+              <span>
+                <b aria-hidden="true">↑</b>Upregulate
+              </span>
+            </label>
+            <label>
+              <input type="radio" name="intent" value="down" />
+              <span>
+                <b aria-hidden="true">↓</b>Downregulate
+              </span>
+            </label>
+            <label>
+              <input type="radio" name="intent" value="off" />
+              <span>
+                <b aria-hidden="true">⊘</b>Silence
+              </span>
+            </label>
+          </div>
+        </fieldset>
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+        <button class="button dark submit-button" type="submit">
+          Explore connections <span aria-hidden="true">→</span>
+        </button>
+        <p class="small muted">
+          Opens a precomputed record. No live inference is run.
+        </p>
+      </form>
+      <div class="example-picker">
+        <span class="eyebrow">Or begin with an example</span>
+        <div class="example-buttons">
+          {records.map((r) => (
+            <button
+              type="button"
+              class="example-button"
+              data-gene={r.gene.symbol}
+              data-mode={r.gene.direction === "too_much" ? "down" : "up"}
+            >
+              {r.gene.symbol}
+              <span aria-hidden="true">↗</span>
+            </button>
+          ))}
+        </div>
+        <p id="example-status" class="small muted" aria-live="polite">
+          All {records.length} examples contain placeholder data.
+        </p>
+      </div>
+      <p class="placeholder-note">
+        <span aria-hidden="true">◇</span>
+        <span>
+          <strong>Illustrative data only.</strong> Coordinates, scores and
+          disease annotations in these examples are placeholders, not findings.
+        </span>
+      </p>
+    </div>
+  </div>
+  <script>
+    const form = document.querySelector<HTMLFormElement>("#query-form")!;
+    const input = document.querySelector<HTMLInputElement>("#gene")!;
+    const error = document.querySelector<HTMLElement>("#form-error")!;
+    const symbols: string[] = JSON.parse(form.dataset.symbols || "[]");
+    form.addEventListener("submit", (event) => {
+      input.value = input.value.trim().toUpperCase();
+      if (!symbols.includes(input.value)) {
+        event.preventDefault();
+        error.hidden = false;
+        error.textContent = `No record for “${input.value}” in this build. Try ${symbols.join(", ")}.`;
+        input.setAttribute("aria-invalid", "true");
+        input.focus();
+      }
+    });
+    input.addEventListener("input", () => {
+      error.hidden = true;
+      input.removeAttribute("aria-invalid");
+    });
+    document
+      .querySelectorAll<HTMLButtonElement>("[data-gene]")
+      .forEach((button) =>
+        button.addEventListener("click", () => {
+          input.value = button.dataset.gene!;
+          const radio = form.querySelector<HTMLInputElement>(
+            `input[value="${button.dataset.mode}"]`,
+          )!;
+          radio.checked = true;
+          error.hidden = true;
+          input.removeAttribute("aria-invalid");
+          document.querySelector("#example-status")!.textContent =
+            `${input.value} selected · illustrative record. You can change the direction before exploring.`;
+        }),
+      );
+  </script>
+</Layout>
