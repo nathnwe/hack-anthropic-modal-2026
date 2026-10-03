@@ -10,27 +10,28 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <Base title="Workbench — Rewire Bio">
-  <div class="mx-auto flex min-h-[70vh] max-w-2xl flex-col justify-center px-4 py-20 sm:px-6">
-    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">Workbench</p>
-    <h1 class="mt-4 text-3xl font-semibold tracking-tight text-white">
+  <div class="mx-auto flex min-h-[78vh] max-w-xl flex-col justify-center px-6 py-24 sm:px-10">
+    <p class="reveal text-[11px] font-medium uppercase tracking-[0.2em] text-clay">Workbench</p>
+    <h1 class="reveal reveal-delay-1 mt-5 text-[32px] font-medium leading-[1.2] tracking-[-0.025em]">
       What would you like to retune?
     </h1>
-    <p class="mt-3 text-slate-400">
-      Name a dosage-sensitive gene and the direction of change you want. We return the
-      regulatory elements in its TAD, ranked, with candidate staples and their risks.
+    <p class="reveal reveal-delay-2 mt-5 text-[16px] leading-[1.7] text-ink/55">
+      Name a dosage-sensitive gene and the direction of change you want.
     </p>
 
-    <form id="query-form" class="mt-9 space-y-4" action={`${base}/results`} method="get">
+    <form id="query-form" class="reveal reveal-delay-3 mt-12 space-y-7" action={`${base}/results`} method="get">
       <div>
-        <label for="gene" class="block text-xs font-medium text-slate-500">Gene</label>
+        <label for="gene" class="block text-[12px] font-medium uppercase tracking-[0.14em] text-ink/40">
+          Gene
+        </label>
         <input
           id="gene"
           name="gene"
           list="gene-options"
           required
           autocomplete="off"
-          placeholder="e.g. MYC"
-          class="mt-1.5 w-full rounded-md border border-slate-700 bg-slate-900 px-4 py-3 font-mono text-base text-white placeholder:text-slate-600 focus:border-sky-500 focus:outline-none"
+          placeholder="MYC"
+          class="hairline mt-2 w-full border-0 border-b bg-transparent pb-3 font-mono text-[22px] tracking-tight text-ink outline-none transition-colors placeholder:text-ink/20 focus:border-clay"
         />
         <datalist id="gene-options">
           {genes.map((r) => <option value={r.gene.symbol}>{r.gene.disease}</option>)}
@@ -38,47 +39,48 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       </div>
 
       <div>
-        <label for="intent" class="block text-xs font-medium text-slate-500">
+        <label for="intent" class="block text-[12px] font-medium uppercase tracking-[0.14em] text-ink/40">
           Regulation query
         </label>
         <select
           id="intent"
           name="intent"
-          class="mt-1.5 w-full rounded-md border border-slate-700 bg-slate-900 px-4 py-3 text-base text-white focus:border-sky-500 focus:outline-none"
+          class="hairline mt-2 w-full appearance-none border-0 border-b bg-transparent pb-3 text-[22px] tracking-tight text-ink outline-none transition-colors focus:border-clay"
         >
-          <option value="up">Upregulate — increase expression</option>
-          <option value="down">Downregulate — reduce expression</option>
-          <option value="off">Silence — switch off</option>
+          <option value="up">Upregulate</option>
+          <option value="down">Downregulate</option>
+          <option value="off">Silence</option>
         </select>
       </div>
 
       <button
         type="submit"
-        class="w-full rounded-md bg-sky-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-400"
+        class="group inline-flex items-center gap-2.5 pt-3 text-[16px] text-clay transition-colors hover:text-ink"
       >
         Run query
+        <span class="transition-transform group-hover:translate-x-1">→</span>
       </button>
 
-      <p id="form-error" class="hidden text-sm text-red-400"></p>
+      <p id="form-error" class="hidden text-[14px] text-clay"></p>
     </form>
 
-    <div class="mt-10 border-t border-slate-800 pt-6">
-      <p class="text-xs font-medium text-slate-500">Genes with records available</p>
-      <div class="mt-3 flex flex-wrap gap-2">
+    <div class="reveal reveal-delay-3 mt-20">
+      <p class="text-[12px] uppercase tracking-[0.14em] text-ink/35">Records available</p>
+      <div class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
         {
           genes.map((r) => (
             <a
               href={`${base}/results?gene=${r.gene.symbol}&intent=${r.gene.direction === 'too_much' ? 'down' : 'up'}`}
-              class="rounded-full border border-slate-700 px-3 py-1.5 font-mono text-xs text-slate-300 transition hover:border-sky-500/60 hover:text-white"
+              class="font-mono text-[14px] text-ink/50 transition-colors hover:text-clay"
             >
               {r.gene.symbol}
             </a>
           ))
         }
       </div>
-      <p class="mt-3 text-xs text-slate-600">
-        Only these genes have records in this build. Anything else returns no result rather
-        than a guess.
+      <p class="mt-4 text-[13px] leading-relaxed text-ink/35">
+        Only these genes have records in this build. Anything else returns no result
+        rather than a guess.
       </p>
     </div>
   </div>
@@ -89,10 +91,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       const known = window.__SYMBOLS__;
       const form = document.getElementById('query-form');
       const err = document.getElementById('form-error');
-
       form.addEventListener('submit', (e) => {
-        const value = document.getElementById('gene').value.trim().toUpperCase();
-        document.getElementById('gene').value = value;
+        const input = document.getElementById('gene');
+        const value = input.value.trim().toUpperCase();
+        input.value = value;
         if (!known.includes(value)) {
           e.preventDefault();
           err.textContent =

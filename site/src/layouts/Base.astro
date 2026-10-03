@@ -1,9 +1,10 @@
 ---
 import '../styles/global.css';
+import Mark from '../components/Mark.astro';
 
 interface Props {
   title: string;
-  /** Landing page shows in-page section anchors; other pages do not. */
+  /** Landing shows section anchors and a nav that fades in past the hero. */
   landing?: boolean;
 }
 
@@ -14,46 +15,53 @@ const path = Astro.url.pathname.replace(/\/$/, '');
 ---
 
 <!doctype html>
-<html lang="en" class="h-full scroll-smooth">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
     <title>{title}</title>
   </head>
-  <body class="min-h-full bg-slate-950 text-slate-200 antialiased">
-    <nav class="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur">
-      <div class="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3.5 sm:px-6">
-        <a href={`${base}/`} class="flex shrink-0 items-center gap-2.5">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <path d="M4 3v14M16 3v14" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" />
-            <path d="M4 7c6 0 6 6 12 6" stroke="#d95926" stroke-width="2" stroke-linecap="round" />
-          </svg>
-          <span class="text-[15px] font-semibold tracking-tight text-white">Rewire Bio</span>
+  <body class="bg-parchment text-ink">
+    <nav
+      id="site-nav"
+      data-landing={landing ? 'true' : 'false'}
+      class:list={[
+        'fixed inset-x-0 top-0 z-50 transition-[opacity,transform] duration-700',
+        landing ? 'pointer-events-none opacity-0' : '',
+      ]}
+    >
+      <div class="mx-auto flex max-w-6xl items-center px-6 py-5 sm:px-10">
+        <a href={`${base}/`} class="flex items-center gap-2.5 text-ink">
+          <Mark size={22} />
+          <span class="text-[15px] font-medium tracking-tight">Rewire Bio</span>
         </a>
 
-        <div class="ml-auto flex items-center gap-5 text-sm">
+        <div class="ml-auto flex items-center gap-7 text-[13px]">
           {
             landing && (
               <>
-                <a href="#about" class="hidden text-slate-400 transition hover:text-white sm:block">About</a>
-                <a href="#team" class="hidden text-slate-400 transition hover:text-white sm:block">Team</a>
-                <a href="#contact" class="hidden text-slate-400 transition hover:text-white sm:block">Contact</a>
+                <a href="#about" class="hidden text-ink/55 transition-colors hover:text-ink sm:block">About</a>
+                <a href="#team" class="hidden text-ink/55 transition-colors hover:text-ink sm:block">Team</a>
+                <a href="#contact" class="hidden text-ink/55 transition-colors hover:text-ink sm:block">Contact</a>
               </>
             )
           }
           <a
             href={`${base}/api`}
             class:list={[
-              'transition hover:text-white',
-              path === `${base}/api` ? 'text-sky-400' : 'text-slate-400',
+              'transition-colors hover:text-ink',
+              path === `${base}/api` ? 'text-ink' : 'text-ink/55',
             ]}
           >
             API
           </a>
           <a
             href={`${base}/workbench`}
-            class="rounded-md bg-sky-500 px-3.5 py-1.5 text-sm font-medium text-slate-950 transition hover:bg-sky-400"
+            class:list={[
+              'transition-colors hover:text-ink',
+              path === `${base}/workbench` || path === `${base}/results` ? 'text-ink' : 'text-ink/55',
+            ]}
           >
             Workbench
           </a>
@@ -61,13 +69,55 @@ const path = Astro.url.pathname.replace(/\/$/, '');
       </div>
     </nav>
 
-    <slot />
+    <main class={landing ? '' : 'pt-20'}>
+      <slot />
+    </main>
 
-    <footer class="border-t border-slate-800/80 py-8">
-      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 text-xs text-slate-600 sm:px-6">
-        <p>Rewire Bio — 3D genome engineering, target shortlisting.</p>
-        <p>In silico predictions, not experimentally validated.</p>
+    <footer class="mx-auto max-w-6xl px-6 pb-14 pt-20 sm:px-10">
+      <div class="flex flex-wrap items-center justify-between gap-y-2 text-[12px] text-ink/40">
+        <p>Rewire Bio — 3D genome engineering</p>
+        <p>In silico predictions, not experimentally validated</p>
       </div>
     </footer>
+
+    <script is:inline>
+      // Reveal on enter. One observer for the whole document.
+      (function () {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const items = document.querySelectorAll('.reveal');
+        if (reduce) {
+          items.forEach((el) => el.classList.add('in'));
+        } else {
+          const io = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((e) => {
+                if (e.isIntersecting) {
+                  e.target.classList.add('in');
+                  io.unobserve(e.target);
+                }
+              });
+            },
+            { rootMargin: '0px 0px -12% 0px', threshold: 0.12 }
+          );
+          items.forEach((el) => io.observe(el));
+        }
+
+        // On the landing page the nav only appears once the hero is behind you.
+        const nav = document.getElementById('site-nav');
+        if (nav && nav.dataset.landing === 'true') {
+          const onScroll = () => {
+            const past = window.scrollY > window.innerHeight * 0.65;
+            nav.classList.toggle('opacity-0', !past);
+            nav.classList.toggle('pointer-events-none', !past);
+            nav.style.backdropFilter = past ? 'blur(10px)' : '';
+            nav.style.background = past
+              ? 'color-mix(in srgb, #f2eedf 82%, transparent)'
+              : '';
+          };
+          onScroll();
+          window.addEventListener('scroll', onScroll, { passive: true });
+        }
+      })();
+    </script>
   </body>
 </html>

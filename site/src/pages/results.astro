@@ -9,7 +9,7 @@ const records = Object.values(
 const genes = records.sort((a, b) => a.gene.symbol.localeCompare(b.gene.symbol));
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-const evidenceLabel: Record<string, string> = {
+const label: Record<string, string> = {
   yes: 'Mammalian',
   strong: 'Strong',
   bacterial: 'Bacterial only',
@@ -18,70 +18,65 @@ const evidenceLabel: Record<string, string> = {
   depends: 'Depends',
   not_inherent: 'Not inherently',
 };
+
+const strong = (v: string) => v === 'yes' || v === 'strong';
 ---
 
 <Base title="Results — Rewire Bio">
   <style>
     .viz {
-      --gene: #3987e5;
-      --cre: #d95926;
-      --axis: #334155;
+      --gene: #2a6fa8;
+      --cre: #a54c38;
+      --axis: rgba(32, 32, 29, 0.22);
+    }
+    select.bare {
+      appearance: none;
+      background: transparent;
     }
   </style>
 
-  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-    <!-- Query summary -->
-    <div class="flex flex-wrap items-end justify-between gap-4 border-b border-slate-800 pb-5">
+  <div class="mx-auto max-w-6xl px-6 py-14 sm:px-10">
+    <!-- Query -->
+    <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
       <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">Results</p>
-        <h1 class="mt-1.5 flex flex-wrap items-baseline gap-2.5">
-          <span id="gene-title" class="font-mono text-2xl font-semibold text-white"></span>
-          <span id="intent-title" class="text-sm text-slate-400"></span>
+        <p class="text-[11px] font-medium uppercase tracking-[0.2em] text-clay">Results</p>
+        <h1 class="mt-3 flex flex-wrap items-baseline gap-x-3">
+          <span id="gene-title" class="font-mono text-[34px] font-medium tracking-tight"></span>
+          <span id="intent-title" class="text-[16px] text-ink/45"></span>
         </h1>
-        <p id="disease-line" class="mt-1 text-sm text-slate-500"></p>
+        <p id="disease-line" class="mt-1.5 text-[14px] text-ink/45"></p>
       </div>
-      <div class="flex items-center gap-3">
-        <select
-          id="gene-select"
-          class="rounded-md border border-slate-700 bg-slate-900 px-3 py-2 font-mono text-sm text-white focus:border-sky-500 focus:outline-none"
-        >
+
+      <div class="flex items-center gap-6 text-[14px]">
+        <select id="gene-select" class="bare hairline border-0 border-b pb-1 font-mono text-ink outline-none focus:border-clay">
           {genes.map((r) => <option value={r.gene.symbol}>{r.gene.symbol}</option>)}
         </select>
-        <select
-          id="intent-select"
-          class="rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-sky-500 focus:outline-none"
-        >
+        <select id="intent-select" class="bare hairline border-0 border-b pb-1 text-ink outline-none focus:border-clay">
           <option value="up">Upregulate</option>
           <option value="down">Downregulate</option>
           <option value="off">Silence</option>
         </select>
-        <a href={`${base}/workbench`} class="text-xs text-slate-500 hover:text-slate-300">New query</a>
+        <a href={`${base}/workbench`} class="text-ink/40 transition-colors hover:text-ink">New query</a>
       </div>
     </div>
 
-    <p id="intent-note" class="mt-3 hidden rounded-md border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-sm text-amber-200"></p>
+    <p id="intent-note" class="mt-7 hidden text-[14px] leading-relaxed text-clay"></p>
+    <p id="illustrative-banner" class="mt-7 hidden text-[14px] leading-relaxed text-ink/55">
+      <span class="font-medium text-ink">Illustrative record.</span>
+      Coordinates and scores are placeholders, not findings.
+    </p>
 
-    <div id="illustrative-banner" class="mt-4 hidden rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3">
-      <p class="text-sm text-amber-200/90">
-        <span class="font-semibold text-amber-300">Illustrative record.</span>
-        Coordinates and scores are placeholders, not findings.
-      </p>
-    </div>
-
-    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-      <!-- Regulatory elements -->
-      <section class="rounded-xl border border-slate-800 bg-slate-900/40">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 px-4 py-3">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-slate-500">
+    <div class="mt-14 grid gap-x-14 gap-y-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+      <!-- Elements -->
+      <section>
+        <div class="flex flex-wrap items-baseline justify-between gap-3">
+          <h2 class="text-[11px] font-medium uppercase tracking-[0.2em] text-ink/40">
             Regulatory elements
           </h2>
-          <label class="flex items-center gap-2 text-xs text-slate-500">
+          <label class="flex items-center gap-2 text-[13px] text-ink/40">
             Rank by
-            <select
-              id="rank-select"
-              class="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-200 focus:border-sky-500 focus:outline-none"
-            >
-              <option value="auto">Auto (composite)</option>
+            <select id="rank-select" class="bare hairline border-0 border-b pb-0.5 text-ink outline-none focus:border-clay">
+              <option value="auto">Auto</option>
               <option value="potency">Potency</option>
               <option value="contact">Contact strength</option>
               <option value="achievability">Achievability</option>
@@ -89,112 +84,105 @@ const evidenceLabel: Record<string, string> = {
             </select>
           </label>
         </div>
-        <p id="rank-explainer" class="border-b border-slate-800 px-4 py-2 text-xs text-slate-600"></p>
-        <ul id="cre-list" class="divide-y divide-slate-800"></ul>
+        <p id="rank-explainer" class="mt-3 text-[13px] leading-relaxed text-ink/40"></p>
+        <ul id="cre-list" class="mt-7"></ul>
       </section>
 
-      <!-- Contact map -->
-      <section class="viz h-fit rounded-xl border border-slate-800 bg-slate-900/40 p-4">
+      <!-- Contacts -->
+      <section class="viz h-fit">
         <div class="flex items-baseline justify-between">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-slate-500">
+          <h2 class="text-[11px] font-medium uppercase tracking-[0.2em] text-ink/40">
             Contacts within TAD
           </h2>
-          <span id="tad-label" class="font-mono text-xs text-slate-600"></span>
+          <span id="tad-label" class="font-mono text-[12px] text-ink/35"></span>
         </div>
-        <svg id="loop-svg" viewBox="0 0 760 250" class="mt-2 w-full" role="img"
+        <svg id="loop-svg" viewBox="0 0 760 250" class="mt-5 w-full" role="img"
              aria-label="Arc diagram of enhancer–promoter contacts across the TAD"></svg>
-        <div class="mt-1 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-slate-500">
-          <span class="flex items-center gap-1.5">
-            <span class="h-2.5 w-2.5 rounded-sm" style="background:var(--gene)"></span> Promoter / TSS
+        <div class="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-[12px] text-ink/40">
+          <span class="flex items-center gap-2">
+            <span class="h-2.5 w-2.5 rounded-full" style="background:var(--gene)"></span> Promoter
           </span>
-          <span class="flex items-center gap-1.5">
-            <span class="h-2.5 w-2.5 rounded-sm" style="background:var(--cre)"></span> Regulatory element
+          <span class="flex items-center gap-2">
+            <span class="h-2.5 w-2.5 rounded-full" style="background:var(--cre)"></span> Element
           </span>
           <span>Arc thickness = contact strength</span>
         </div>
       </section>
     </div>
 
-    <!-- Candidate staples -->
-    <section class="mt-6 rounded-xl border border-slate-800 bg-slate-900/40">
-      <h2 class="border-b border-slate-800 px-4 py-3 text-xs font-semibold uppercase tracking-widest text-slate-500">
+    <!-- Staples -->
+    <section class="mt-20">
+      <h2 class="text-[11px] font-medium uppercase tracking-[0.2em] text-ink/40">
         Candidate staples
       </h2>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
+      <div class="mt-6 overflow-x-auto">
+        <table class="w-full text-left">
           <thead>
-            <tr class="text-xs uppercase tracking-wider text-slate-600">
-              <th class="px-4 py-2 font-medium">Staple</th>
-              <th class="px-4 py-2 font-medium">Anchors</th>
-              <th class="px-4 py-2 font-medium">Mode</th>
-              <th class="px-4 py-2 font-medium">Tier</th>
-              <th class="px-4 py-2 font-medium">Risks</th>
+            <tr class="hairline border-b text-[11px] uppercase tracking-[0.12em] text-ink/35">
+              <th class="pb-3 pr-6 font-medium">Staple</th>
+              <th class="pb-3 pr-6 font-medium">Anchors</th>
+              <th class="pb-3 pr-6 font-medium">Mode</th>
+              <th class="pb-3 pr-6 font-medium">Tier</th>
+              <th class="pb-3 font-medium">Risks</th>
             </tr>
           </thead>
-          <tbody id="staple-body" class="divide-y divide-slate-800"></tbody>
+          <tbody id="staple-body"></tbody>
         </table>
       </div>
-      <p id="staple-rationale" class="border-t border-slate-800 px-4 py-3 text-xs text-slate-500"></p>
+      <p id="staple-rationale" class="mt-5 text-[13px] leading-relaxed text-ink/45"></p>
     </section>
 
-    <!-- Strategy catalogue -->
-    <section class="mt-6 rounded-xl border border-slate-800 bg-slate-900/40">
-      <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-800 px-4 py-3">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-slate-500">
+    <!-- Strategies -->
+    <section class="mt-20">
+      <div class="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 class="text-[11px] font-medium uppercase tracking-[0.2em] text-ink/40">
           Stapling strategies
         </h2>
-        <span class="text-xs text-slate-600">
-          General method properties — not locus-specific predictions
+        <span class="text-[12px] text-ink/35">
+          Method properties — not locus-specific predictions
         </span>
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full min-w-[840px] text-left text-sm">
+
+      <div class="mt-6 overflow-x-auto">
+        <table class="w-full min-w-[860px] text-left">
           <thead>
-            <tr class="text-xs uppercase tracking-wider text-slate-600">
-              <th class="px-4 py-2.5 font-medium">Strategy</th>
-              <th class="px-4 py-2.5 font-medium">How the staple works</th>
-              <th class="px-4 py-2.5 font-medium">Mammalian</th>
-              <th class="px-4 py-2.5 font-medium">Switchable</th>
-              <th class="px-4 py-2.5 font-medium">Attraction</th>
-              <th class="px-4 py-2.5 font-medium">Main issue</th>
+            <tr class="hairline border-b text-[11px] uppercase tracking-[0.12em] text-ink/35">
+              <th class="pb-3 pr-6 font-medium">Strategy</th>
+              <th class="pb-3 pr-6 font-medium">How the staple works</th>
+              <th class="pb-3 pr-6 font-medium">Mammalian</th>
+              <th class="pb-3 pr-6 font-medium">Switchable</th>
+              <th class="pb-3 pr-6 font-medium">Attraction</th>
+              <th class="pb-3 font-medium">Main issue</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800">
+          <tbody>
             {
               catalogue.strategies.map((s) => (
-                <tr class="align-top">
-                  <td class="px-4 py-3 text-sm font-medium text-white">{s.name}</td>
-                  <td class="px-4 py-3 text-xs leading-relaxed text-slate-400">{s.how}</td>
-                  <td class="px-4 py-3 text-xs">
-                    <span
-                      class:list={[
-                        'rounded-full border px-2 py-0.5',
-                        s.mammalian === 'yes'
-                          ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
-                          : 'border-slate-600 bg-slate-800/40 text-slate-400',
-                      ]}
-                    >
-                      {evidenceLabel[s.mammalian] ?? s.mammalian}
+                <tr class="hairline border-b align-top">
+                  <td class="py-5 pr-6 text-[14px] font-medium leading-snug">{s.name}</td>
+                  <td class="py-5 pr-6 text-[13px] leading-relaxed text-ink/55">{s.how}</td>
+                  <td class="py-5 pr-6 text-[13px]">
+                    <span class:list={[strong(s.mammalian) ? 'text-olive' : 'text-ink/40']}>
+                      {label[s.mammalian] ?? s.mammalian}
                     </span>
                   </td>
-                  <td class="px-4 py-3 text-xs">
+                  <td class="py-5 pr-6 text-[13px]">
                     <span
                       class:list={[
-                        'rounded-full border px-2 py-0.5',
                         s.switchable === 'strong'
-                          ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+                          ? 'text-olive'
                           : s.switchable === 'yes'
-                            ? 'border-sky-500/40 bg-sky-500/10 text-sky-300'
+                            ? 'text-ink/70'
                             : s.switchable === 'no'
-                              ? 'border-red-500/40 bg-red-500/10 text-red-300'
-                              : 'border-slate-600 bg-slate-800/40 text-slate-400',
+                              ? 'text-clay'
+                              : 'text-ink/40',
                       ]}
                     >
-                      {evidenceLabel[s.switchable] ?? s.switchable}
+                      {label[s.switchable] ?? s.switchable}
                     </span>
                   </td>
-                  <td class="px-4 py-3 text-xs text-slate-400">{s.attraction}</td>
-                  <td class="px-4 py-3 text-xs text-slate-500">{s.issue}</td>
+                  <td class="py-5 pr-6 text-[13px] leading-relaxed text-ink/55">{s.attraction}</td>
+                  <td class="py-5 text-[13px] leading-relaxed text-ink/40">{s.issue}</td>
                 </tr>
               ))
             }
@@ -222,9 +210,9 @@ const evidenceLabel: Record<string, string> = {
       };
 
       function confidence(score) {
-        if (score >= 0.7) return { label: 'High', cls: 'text-sky-300 border-sky-500/40 bg-sky-500/10' };
-        if (score >= 0.4) return { label: 'Medium', cls: 'text-slate-300 border-slate-600 bg-slate-700/30' };
-        return { label: 'Low', cls: 'text-slate-500 border-slate-700 bg-slate-800/30' };
+        if (score >= 0.7) return { label: 'High', cls: 'text-olive' };
+        if (score >= 0.4) return { label: 'Medium', cls: 'text-ink/55' };
+        return { label: 'Low', cls: 'text-ink/35' };
       }
 
       function contactFor(record, cre) {
@@ -237,27 +225,24 @@ const evidenceLabel: Record<string, string> = {
         );
       }
 
-      // Evidence strings come from the record. We linkify URLs and PMIDs and flag
-      // placeholders — we never synthesise a citation.
+      // Evidence comes from the record. URLs and PMIDs are linkified, placeholders
+      // flagged. We never synthesise a citation.
       function evidenceHtml(record) {
         const items = record.gene.evidence || [];
-        if (!items.length) return '<p class="text-xs text-slate-600">No sources recorded.</p>';
+        if (!items.length) return '<p class="text-[13px] text-ink/35">No sources recorded.</p>';
         return (
-          '<ul class="space-y-1">' +
+          '<ul class="space-y-1.5">' +
           items
             .map((e) => {
-              if (/^PLACEHOLDER/i.test(e)) {
-                return '<li class="text-xs text-amber-400/80">⚠ ' + e + '</li>';
-              }
+              if (/^PLACEHOLDER/i.test(e))
+                return '<li class="text-[13px] text-clay/80">' + e + '</li>';
               const url = e.match(/https?:\/\/\S+/);
               const pmid = e.match(/PMID[:\s]*(\d+)/i);
-              if (url) {
-                return '<li><a class="text-xs text-sky-400 underline hover:text-sky-300" target="_blank" rel="noopener" href="' + url[0] + '">' + e + '</a></li>';
-              }
-              if (pmid) {
-                return '<li><a class="text-xs text-sky-400 underline hover:text-sky-300" target="_blank" rel="noopener" href="https://pubmed.ncbi.nlm.nih.gov/' + pmid[1] + '/">' + e + '</a></li>';
-              }
-              return '<li class="text-xs text-slate-400">' + e + '</li>';
+              if (url)
+                return '<li><a class="text-[13px] text-clay underline underline-offset-2 hover:text-ink" target="_blank" rel="noopener" href="' + url[0] + '">' + e + '</a></li>';
+              if (pmid)
+                return '<li><a class="text-[13px] text-clay underline underline-offset-2 hover:text-ink" target="_blank" rel="noopener" href="https://pubmed.ncbi.nlm.nih.gov/' + pmid[1] + '/">' + e + '</a></li>';
+              return '<li class="text-[13px] text-ink/55">' + e + '</li>';
             })
             .join('') +
           '</ul>'
@@ -272,7 +257,6 @@ const evidenceLabel: Record<string, string> = {
         const list = [...record.locus.cres];
         const strength = (c) => (contactFor(record, c) || {}).strength || 0;
         const dist = (c) => Math.abs((c.start + c.end) / 2 - tss);
-
         if (mode === 'potency') return list.sort((a, b) => b.score_rE2G - a.score_rE2G);
         if (mode === 'contact') return list.sort((a, b) => strength(b) - strength(a));
         if (mode === 'achievability') return list.sort((a, b) => dist(a) - dist(b));
@@ -287,11 +271,8 @@ const evidenceLabel: Record<string, string> = {
         const mode = $('rank-select').value;
 
         $('gene-title').textContent = record.gene.symbol;
-        $('intent-title').textContent =
-          { up: 'upregulate', down: 'downregulate', off: 'silence' }[intent];
-        $('disease-line').textContent =
-          record.gene.disease + ' · ' + record.locus.cell_type;
-
+        $('intent-title').textContent = { up: 'upregulate', down: 'downregulate', off: 'silence' }[intent];
+        $('disease-line').textContent = record.gene.disease + ' · ' + record.locus.cell_type;
         $('illustrative-banner').classList.toggle('hidden', !record.illustrative);
 
         const dir = record.gene.direction;
@@ -304,10 +285,8 @@ const evidenceLabel: Record<string, string> = {
             '. Your query moves expression the wrong way for the recorded disease.'
           : '';
         $('intent-note').classList.toggle('hidden', !clash);
-
         $('rank-explainer').textContent = RANK_EXPLAIN[mode] || '';
 
-        // ---- Element rows ----
         const cres = rankedCres(record, mode);
         $('cre-list').innerHTML = cres
           .map((cre, i) => {
@@ -317,56 +296,50 @@ const evidenceLabel: Record<string, string> = {
             const open = cre.id === openCre;
             const short = cre.id.split('_').pop();
             return `
-              <li class="${cre.id === selectedCre ? 'bg-slate-800/50' : ''}">
-                <div class="flex items-center gap-3 px-4 py-3">
-                  <span class="w-5 shrink-0 font-mono text-xs text-slate-600">${i + 1}</span>
+              <li class="hairline border-b ${cre.id === selectedCre ? 'bg-parchment-deep/50' : ''}">
+                <div class="flex items-center gap-4 py-5">
+                  <span class="w-4 shrink-0 font-mono text-[12px] tabular-nums text-ink/25">${i + 1}</span>
                   <button data-sel="${cre.id}" class="min-w-0 flex-1 text-left">
-                    <span class="flex items-baseline gap-2">
-                      <span class="font-mono text-sm font-semibold text-white">${short}</span>
-                      <span class="font-mono text-xs text-slate-500">chr${record.gene.chrom}:${fmt(cre.start)}-${fmt(cre.end)}</span>
+                    <span class="flex flex-wrap items-baseline gap-x-3">
+                      <span class="font-mono text-[16px] font-medium">${short}</span>
+                      <span class="font-mono text-[12px] text-ink/40">chr${record.gene.chrom}:${fmt(cre.start)}-${fmt(cre.end)}</span>
                     </span>
-                    <span class="mt-0.5 block text-xs text-slate-500">
+                    <span class="mt-1 block text-[13px] text-ink/45">
                       ${cre.type} · ${contact ? 'TAD contact' : 'linear proximity'} · ${fmt(Math.round(d / 1000))} kb from TSS
                     </span>
                   </button>
-                  <span class="shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium ${conf.cls}">${conf.label}</span>
-                  <button data-info="${cre.id}"
-                    aria-expanded="${open}"
-                    title="Scoring detail and evidence"
-                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs transition ${
-                      open
-                        ? 'border-sky-500 bg-sky-500/15 text-sky-300'
-                        : 'border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-300'
+                  <span class="shrink-0 text-[13px] ${conf.cls}">${conf.label}</span>
+                  <button data-info="${cre.id}" aria-expanded="${open}" title="Scoring detail and evidence"
+                    class="hairline flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] transition-colors ${
+                      open ? 'border-clay text-clay' : 'text-ink/35 hover:text-ink'
                     }">i</button>
                 </div>
                 ${
                   open
-                    ? `<div class="border-t border-slate-800 bg-slate-950/60 px-4 py-4">
-                        <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Scoring criteria</p>
-                        <dl class="mt-2.5 grid gap-x-6 gap-y-2 sm:grid-cols-2">
-                          <div class="flex justify-between gap-3 border-b border-slate-800/70 pb-1.5">
-                            <dt class="text-xs text-slate-500">rE2G score</dt>
-                            <dd class="font-mono text-xs text-slate-200">${cre.score_rE2G.toFixed(2)}</dd>
-                          </div>
-                          <div class="flex justify-between gap-3 border-b border-slate-800/70 pb-1.5">
-                            <dt class="text-xs text-slate-500">Contact strength</dt>
-                            <dd class="font-mono text-xs text-slate-200">${contact ? contact.strength.toFixed(2) : 'none modelled'}</dd>
-                          </div>
-                          <div class="flex justify-between gap-3 border-b border-slate-800/70 pb-1.5">
-                            <dt class="text-xs text-slate-500">Distance to TSS</dt>
-                            <dd class="font-mono text-xs text-slate-200">${fmt(Math.round(d))} bp</dd>
-                          </div>
-                          <div class="flex justify-between gap-3 border-b border-slate-800/70 pb-1.5">
-                            <dt class="text-xs text-slate-500">Element type</dt>
-                            <dd class="font-mono text-xs text-slate-200">${cre.type}</dd>
-                          </div>
+                    ? `<div class="pb-7 pl-8">
+                        <p class="text-[11px] font-medium uppercase tracking-[0.16em] text-ink/35">Scoring criteria</p>
+                        <dl class="mt-4 grid gap-x-10 gap-y-3 sm:grid-cols-2">
+                          ${[
+                            ['rE2G score', cre.score_rE2G.toFixed(2)],
+                            ['Contact strength', contact ? contact.strength.toFixed(2) : 'none modelled'],
+                            ['Distance to TSS', fmt(Math.round(d)) + ' bp'],
+                            ['Element type', cre.type],
+                          ]
+                            .map(
+                              ([k, v]) =>
+                                `<div class="hairline flex justify-between gap-4 border-b pb-2">
+                                   <dt class="text-[13px] text-ink/45">${k}</dt>
+                                   <dd class="font-mono text-[13px]">${v}</dd>
+                                 </div>`
+                            )
+                            .join('')}
                         </dl>
-                        <p class="mt-3 text-xs text-slate-600">
+                        <p class="mt-4 text-[12px] leading-relaxed text-ink/35">
                           rE2G scores are ENCODE enhancer–gene predictions; contact strength is modelled, not measured in this cell type.
                         </p>
-                        <p class="mt-4 text-xs font-semibold uppercase tracking-widest text-slate-500">Literature</p>
-                        <div class="mt-2">${evidenceHtml(record)}</div>
-                        <p class="mt-2 text-xs text-slate-600">
+                        <p class="mt-7 text-[11px] font-medium uppercase tracking-[0.16em] text-ink/35">Literature</p>
+                        <div class="mt-3">${evidenceHtml(record)}</div>
+                        <p class="mt-3 text-[12px] leading-relaxed text-ink/35">
                           Sources are recorded against the gene, not this element. Element-level citations are not yet in the contract.
                         </p>
                       </div>`
@@ -376,22 +349,18 @@ const evidenceLabel: Record<string, string> = {
           })
           .join('');
 
-        $('cre-list')
-          .querySelectorAll('button[data-sel]')
-          .forEach((b) =>
-            b.addEventListener('click', () => {
-              selectedCre = selectedCre === b.dataset.sel ? null : b.dataset.sel;
-              render();
-            })
-          );
-        $('cre-list')
-          .querySelectorAll('button[data-info]')
-          .forEach((b) =>
-            b.addEventListener('click', () => {
-              openCre = openCre === b.dataset.info ? null : b.dataset.info;
-              render();
-            })
-          );
+        $('cre-list').querySelectorAll('button[data-sel]').forEach((b) =>
+          b.addEventListener('click', () => {
+            selectedCre = selectedCre === b.dataset.sel ? null : b.dataset.sel;
+            render();
+          })
+        );
+        $('cre-list').querySelectorAll('button[data-info]').forEach((b) =>
+          b.addEventListener('click', () => {
+            openCre = openCre === b.dataset.info ? null : b.dataset.info;
+            render();
+          })
+        );
 
         drawLoop(record);
         drawStaples(record);
@@ -408,93 +377,89 @@ const evidenceLabel: Record<string, string> = {
         (record.locus.contacts || []).forEach((c) => {
           const x1 = x(c.a), x2 = x(c.b);
           const mid = (x1 + x2) / 2;
-          const height = Math.min(140, Math.abs(x2 - x1) * 0.55);
+          const h = Math.min(140, Math.abs(x2 - x1) * 0.55);
           const near = record.locus.cres.find(
             (cre) =>
               Math.abs((cre.start + cre.end) / 2 - c.b) < 50000 ||
               Math.abs((cre.start + cre.end) / 2 - c.a) < 50000
           );
           const dim = selectedCre && (!near || near.id !== selectedCre);
-          out += `<path d="M ${x1} ${AXIS} Q ${mid} ${AXIS - height} ${x2} ${AXIS}" fill="none"
-            stroke="var(--gene)" stroke-width="${1.5 + c.strength * 4}"
-            opacity="${dim ? 0.15 : 0.55}" stroke-linecap="round" />`;
+          out += `<path d="M ${x1} ${AXIS} Q ${mid} ${AXIS - h} ${x2} ${AXIS}" fill="none"
+            stroke="var(--gene)" stroke-width="${1.4 + c.strength * 3.4}"
+            opacity="${dim ? 0.15 : 0.7}" stroke-linecap="round" />`;
         });
 
-        out += `<line x1="${PAD}" y1="${AXIS}" x2="${W - PAD}" y2="${AXIS}" stroke="var(--axis)" stroke-width="2" />`;
+        out += `<line x1="${PAD}" y1="${AXIS}" x2="${W - PAD}" y2="${AXIS}" stroke="var(--axis)" stroke-width="1.5" />`;
 
         record.locus.cres.forEach((cre) => {
           const cx = x((cre.start + cre.end) / 2);
           const sel = cre.id === selectedCre;
           const w = Math.max(6, x(cre.end) - x(cre.start));
-          out += `<rect x="${cx - w / 2}" y="${AXIS - 7}" width="${w}" height="14" rx="3"
-            fill="var(--cre)" opacity="${sel || !selectedCre ? 1 : 0.3}" stroke="#0f172a" stroke-width="2" />`;
+          out += `<rect x="${cx - w / 2}" y="${AXIS - 6}" width="${w}" height="12" rx="3"
+            fill="var(--cre)" opacity="${sel || !selectedCre ? 1 : 0.28}" stroke="#f2eedf" stroke-width="2" />`;
           out += `<text x="${cx}" y="${AXIS + 26}" text-anchor="middle" font-size="11"
-            font-family="ui-monospace,monospace" fill="${sel ? '#e2e8f0' : '#64748b'}">${cre.id.split('_').pop()}</text>`;
+            font-family="ui-monospace,monospace" fill="${sel ? '#20201d' : 'rgba(32,32,29,0.45)'}">${cre.id.split('_').pop()}</text>`;
         });
 
         const tx = x(record.gene.tss);
-        out += `<rect x="${tx - 4}" y="${AXIS - 11}" width="8" height="22" rx="2" fill="var(--gene)" stroke="#0f172a" stroke-width="2" />`;
+        out += `<rect x="${tx - 3.5}" y="${AXIS - 10}" width="7" height="20" rx="2" fill="var(--gene)" stroke="#f2eedf" stroke-width="2" />`;
         out += `<text x="${tx}" y="${AXIS + 26}" text-anchor="middle" font-size="11"
-          font-family="ui-monospace,monospace" font-weight="600" fill="#e2e8f0">${record.gene.symbol}</text>`;
-        out += `<text x="${PAD}" y="${H - 8}" font-size="10" fill="#475569">${fmt(tad.start)}</text>`;
-        out += `<text x="${W - PAD}" y="${H - 8}" text-anchor="end" font-size="10" fill="#475569">${fmt(tad.end)}</text>`;
-
+          font-family="ui-monospace,monospace" font-weight="600" fill="#20201d">${record.gene.symbol}</text>`;
+        out += `<text x="${PAD}" y="${H - 8}" font-size="10" fill="rgba(32,32,29,0.35)">${fmt(tad.start)}</text>`;
+        out += `<text x="${W - PAD}" y="${H - 8}" text-anchor="end" font-size="10" fill="rgba(32,32,29,0.35)">${fmt(tad.end)}</text>`;
         $('loop-svg').innerHTML = out;
       }
 
       function drawStaples(record) {
-        const tierCls = { A: 'text-emerald-300', B: 'text-amber-300', C: 'text-slate-400' };
+        const tierCls = { A: 'text-olive', B: 'text-ochre', C: 'text-ink/45' };
         const rows = (record.staples || []).map((s) => {
           const rank = (record.ranking || []).find((r) => r.staple_id === s.id);
           const risk = (record.risks || []).find((r) => r.staple_id === s.id);
           const flags = risk?.flags || [];
           return `
-            <tr class="align-top">
-              <td class="px-4 py-3 font-mono text-xs text-slate-300">${s.id.split('_').pop()}</td>
-              <td class="px-4 py-3 font-mono text-xs text-slate-500">
+            <tr class="hairline border-b align-top">
+              <td class="py-5 pr-6 font-mono text-[13px]">${s.id.split('_').pop()}</td>
+              <td class="py-5 pr-6 font-mono text-[12px] leading-relaxed text-ink/45">
                 ${fmt(s.anchor_a.start)}<br />${fmt(s.anchor_b.start)}
               </td>
-              <td class="px-4 py-3 text-xs text-slate-400">
-                ${s.mode}<span class="block text-slate-600">${s.predicted_delta.replace(/_/g, ' ')}</span>
+              <td class="py-5 pr-6 text-[13px]">
+                ${s.mode}<span class="block text-ink/40">${s.predicted_delta.replace(/_/g, ' ')}</span>
               </td>
-              <td class="px-4 py-3 text-sm font-semibold ${tierCls[rank?.tier] || 'text-slate-500'}">${rank?.tier ?? '—'}</td>
-              <td class="px-4 py-3 text-xs">
+              <td class="py-5 pr-6 text-[16px] font-medium ${tierCls[rank?.tier] || 'text-ink/35'}">${rank?.tier ?? '—'}</td>
+              <td class="py-5 text-[13px]">
                 ${
                   flags.length
                     ? flags
                         .map(
                           (f) =>
-                            `<span class="mr-1.5 inline-block rounded-full border px-2 py-0.5 ${
-                              f.severity === 'high'
-                                ? 'border-red-500/40 bg-red-500/10 text-red-300'
-                                : f.severity === 'medium'
-                                  ? 'border-amber-500/40 bg-amber-500/10 text-amber-300'
-                                  : 'border-slate-700 text-slate-500'
+                            `<span class="mr-3 ${
+                              f.severity === 'high' ? 'text-clay' : f.severity === 'medium' ? 'text-ochre' : 'text-ink/40'
                             }" title="${f.detail}">${f.type}</span>`
                         )
                         .join('')
-                    : '<span class="text-slate-600">none recorded</span>'
+                    : '<span class="text-ink/30">none recorded</span>'
                 }
               </td>
             </tr>`;
         });
-
         $('staple-body').innerHTML = rows.length
           ? rows.join('')
-          : '<tr><td colspan="5" class="px-4 py-6 text-sm text-slate-500">No candidate staples.</td></tr>';
+          : '<tr><td colspan="5" class="py-6 text-[14px] text-ink/40">No candidate staples.</td></tr>';
 
         const first = (record.ranking || [])[0];
         $('staple-rationale').textContent = first
-          ? 'Recommended: ' + first.method_recommendation + (first.rationale?.length ? ' — ' + first.rationale.join('; ') : '')
+          ? 'Recommended: ' + first.method_recommendation +
+            (first.rationale?.length ? ' — ' + first.rationale.join('; ') : '')
           : '';
       }
 
-      // Deep links from the workbench.
       const params = new URLSearchParams(location.search);
       const wanted = (params.get('gene') || '').toUpperCase();
       if (wanted && bySymbol[wanted]) $('gene-select').value = wanted;
       const qIntent = params.get('intent');
       if (qIntent && ['up', 'down', 'off'].includes(qIntent)) $('intent-select').value = qIntent;
+      const qRank = params.get('rank');
+      if (qRank) $('rank-select').value = qRank;
 
       function syncUrl() {
         const q = new URLSearchParams({
@@ -504,9 +469,6 @@ const evidenceLabel: Record<string, string> = {
         });
         history.replaceState(null, '', location.pathname + '?' + q);
       }
-
-      const qRank = params.get('rank');
-      if (qRank) $('rank-select').value = qRank;
 
       ['gene-select', 'intent-select', 'rank-select'].forEach((id) =>
         $(id).addEventListener('change', () => {

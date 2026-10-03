@@ -1,90 +1,75 @@
 ---
 import Base from '../layouts/Base.astro';
+import Mark from '../components/Mark.astro';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-// Team roster. Names/roles are placeholders for the team to fill in — no real
-// people are asserted here.
-const team = [
-  { initials: 'A', name: 'Operator A', role: 'Pipeline — loci, contacts, candidate staples' },
-  { initials: 'B', name: 'Operator B', role: 'Scoring — targets, risk, ranking' },
-  { initials: 'C', name: 'Operator C', role: 'Interface — workbench, visualisation' },
+const steps = [
+  ['Name a gene', 'A dosage-sensitive gene driving a disease, and the direction of change you want.'],
+  ['Map the neighbourhood', 'We resolve the TAD, the regulatory elements inside it, and which ones actually contact the promoter.'],
+  ['Rank the options', 'Candidate staples are scored and tiered, with secondary risks surfaced rather than buried.'],
+  ['Choose a method', 'A stapling strategy matched to the locus, the cell type, and whether you need it reversible.'],
 ];
 
-const steps = [
-  {
-    n: '01',
-    title: 'Name a gene',
-    body: 'A dosage-sensitive gene driving a disease, and whether it needs turning up or down.',
-  },
-  {
-    n: '02',
-    title: 'Map the neighbourhood',
-    body: 'We resolve the TAD, the regulatory elements inside it, and which ones actually contact the promoter.',
-  },
-  {
-    n: '03',
-    title: 'Rank the options',
-    body: 'Candidate staples are scored and tiered, with secondary risks surfaced rather than buried.',
-  },
-  {
-    n: '04',
-    title: 'Choose a method',
-    body: 'A stapling strategy matched to the locus, the cell type, and whether you need it reversible.',
-  },
+const team = [
+  ['Operator A', 'Pipeline — loci, contacts, candidate staples'],
+  ['Operator B', 'Scoring — targets, risk, ranking'],
+  ['Operator C', 'Interface — workbench, visualisation'],
 ];
 ---
 
-<Base title="Rewire Bio — 3D genome engineering" landing={true}>
-  <!-- Hero -->
-  <section class="relative overflow-hidden border-b border-slate-800/80">
-    <div
-      class="pointer-events-none absolute inset-0 opacity-[0.07]"
-      style="background-image:radial-gradient(circle at 20% 20%, #38bdf8 0, transparent 45%), radial-gradient(circle at 80% 30%, #d95926 0, transparent 40%)"
-    >
+<Base title="Rewire Bio" landing={true}>
+  <!-- ───────────────────────── Hero ───────────────────────── -->
+  <section id="hero" class="flex h-screen flex-col items-center justify-center px-6">
+    <div id="hero-inner" class="flex flex-col items-center">
+      <Mark size={72} class="text-ink" />
+      <h1 class="mt-8 text-[42px] font-medium leading-none tracking-[-0.03em] sm:text-[56px]">
+        Rewire Bio
+      </h1>
+      <p class="mt-5 max-w-sm text-center text-[15px] leading-relaxed text-ink/50">
+        Reversible control of gene dosage through 3D genome architecture.
+      </p>
     </div>
 
-    <div class="relative mx-auto max-w-6xl px-4 py-24 sm:px-6 sm:py-32">
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">
-        Reversible gene dosage control
-      </p>
-      <h1 class="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight text-white sm:text-6xl">
-        Change what a gene does
-        <span class="block text-slate-500">without changing its sequence.</span>
-      </h1>
-      <p class="mt-7 max-w-2xl text-lg leading-relaxed text-slate-400">
-        Cells already control genes by folding DNA so that distant regulatory elements
-        touch the right promoters. Rewire Bio finds which contact to alter for a given
-        disease gene — and tells you how confident it is.
-      </p>
-
-      <div class="mt-10 flex flex-wrap items-center gap-3">
-        <a
-          href={`${base}/workbench`}
-          class="rounded-md bg-sky-500 px-5 py-2.5 text-sm font-medium text-slate-950 transition hover:bg-sky-400"
-        >
-          Open the Workbench
-        </a>
-        <a
-          href="#about"
-          class="rounded-md border border-slate-700 px-5 py-2.5 text-sm font-medium text-slate-300 transition hover:border-slate-600 hover:text-white"
-        >
-          How it works
-        </a>
-      </div>
+    <div id="scroll-cue" class="absolute bottom-10 flex flex-col items-center gap-2 text-ink/30">
+      <span class="text-[11px] uppercase tracking-[0.18em]">Scroll</span>
+      <svg width="12" height="20" viewBox="0 0 12 20" fill="none" aria-hidden="true">
+        <path d="M6 1v16m0 0 4.5-4.5M6 17l-4.5-4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+      </svg>
     </div>
   </section>
 
-  <!-- About -->
-  <section id="about" class="scroll-mt-16 border-b border-slate-800/80">
-    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">About</p>
-      <h2 class="mt-4 max-w-2xl text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-        A design system for 3D genome engineering
-      </h2>
+  <!-- ──────────────── Strand canvas: one continuous surface ──────────────── -->
+  <div id="strand-canvas" class="relative">
+    <svg
+      id="helix"
+      class="pointer-events-none absolute inset-0 h-full w-full"
+      aria-hidden="true"
+      preserveAspectRatio="none"
+    ></svg>
 
-      <div class="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div class="space-y-4 text-slate-400">
+    <!-- Left padding on narrow screens keeps the strand clear of the text; on lg the
+         strand runs down the centre and sections sit either side of it. -->
+    <div class="relative mx-auto flex max-w-6xl flex-col gap-y-44 py-40 pl-20 pr-6 sm:pl-24 sm:pr-10 lg:px-10">
+      <!-- Opening statement -->
+      <section class="reveal max-w-2xl lg:self-start lg:pr-8">
+        <h2 class="text-[30px] font-medium leading-[1.2] tracking-[-0.025em] sm:text-[40px]">
+          Change what a gene does without changing its sequence.
+        </h2>
+        <p class="mt-7 text-[17px] leading-[1.75] text-ink/60">
+          Cells already control genes by folding DNA so that distant regulatory
+          elements touch the right promoters. We find which contact to alter for a
+          given disease gene — and say how confident we are.
+        </p>
+      </section>
+
+      <!-- About -->
+      <section id="about" class="max-w-2xl scroll-mt-28 lg:self-end lg:pl-8">
+        <p class="reveal text-[11px] font-medium uppercase tracking-[0.2em] text-clay">About</p>
+        <h2 class="reveal reveal-delay-1 mt-5 text-[26px] font-medium leading-[1.25] tracking-[-0.02em] sm:text-[32px]">
+          A design system for 3D genome engineering
+        </h2>
+        <div class="reveal reveal-delay-2 mt-7 space-y-5 text-[16px] leading-[1.75] text-ink/60">
           <p>
             Many disease genes are hard to drug directly. Gene and epigenetic therapies
             usually rewrite sequence or add new regulatory instructions, which carries
@@ -95,92 +80,233 @@ const steps = [
             contact with a promoter — or breaking that contact — changes expression using
             machinery the cell already runs, and it is reversible.
           </p>
-          <p>
-            The data exists. What has been missing is a way to turn it into a decision:
-            <span class="text-slate-300">
-              for this gene, in this cell type, which contact should we alter, and what
-              should we expect?
-            </span>
-          </p>
         </div>
+      </section>
 
-        <ol class="space-y-5">
+      <!-- Method -->
+      <section class="max-w-2xl lg:self-start lg:pr-8">
+        <p class="reveal text-[11px] font-medium uppercase tracking-[0.2em] text-clay">Method</p>
+        <ol class="mt-9 space-y-11">
           {
-            steps.map((s) => (
-              <li class="flex gap-4 rounded-lg border border-slate-800 bg-slate-900/40 p-4">
-                <span class="font-mono text-xs font-semibold text-sky-400">{s.n}</span>
+            steps.map(([title, body], i) => (
+              <li class:list={['reveal', `reveal-delay-${Math.min(i + 1, 3)}`, 'flex gap-6']}>
+                <span class="mt-1 font-mono text-[12px] tabular-nums text-ink/30">
+                  0{i + 1}
+                </span>
                 <div>
-                  <h3 class="text-sm font-semibold text-white">{s.title}</h3>
-                  <p class="mt-1 text-sm text-slate-500">{s.body}</p>
+                  <h3 class="text-[17px] font-medium tracking-[-0.01em]">{title}</h3>
+                  <p class="mt-2 text-[15px] leading-[1.7] text-ink/55">{body}</p>
                 </div>
               </li>
             ))
           }
         </ol>
-      </div>
+      </section>
 
-      <div class="mt-10 rounded-lg border border-amber-500/30 bg-amber-500/[0.07] p-5">
-        <h3 class="text-sm font-semibold text-amber-300">What we don't know</h3>
-        <p class="mt-1.5 max-w-3xl text-sm text-amber-100/70">
-          Every prediction here is in silico and unvalidated. Effect sizes are the weakest
-          link, so we report ordinal tiers rather than numbers that imply precision, and we
-          show the risks a staple creates alongside the benefit it promises.
+      <!-- Uncertainty -->
+      <section class="reveal max-w-2xl lg:self-end lg:pl-8">
+        <p class="text-[11px] font-medium uppercase tracking-[0.2em] text-olive">
+          What we don't know
         </p>
-      </div>
+        <p class="mt-6 text-[20px] leading-[1.6] tracking-[-0.01em] text-ink/75 sm:text-[22px]">
+          Every prediction here is in silico and unvalidated. Effect sizes are the
+          weakest link, so we report ordinal tiers rather than numbers that imply
+          precision — and show the risks a staple creates alongside the benefit it
+          promises.
+        </p>
+      </section>
+
+      <!-- Team -->
+      <section id="team" class="max-w-3xl scroll-mt-28 lg:self-start lg:pr-8">
+        <p class="reveal text-[11px] font-medium uppercase tracking-[0.2em] text-clay">Team</p>
+        <h2 class="reveal reveal-delay-1 mt-5 text-[26px] font-medium leading-[1.25] tracking-[-0.02em] sm:text-[32px]">
+          Built at Anthropic × Modal 2026
+        </h2>
+        <ul class="reveal reveal-delay-2 mt-10 space-y-7">
+          {
+            team.map(([name, role]) => (
+              <li class="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+                <span class="w-36 text-[16px] font-medium">{name}</span>
+                <span class="text-[15px] text-ink/50">{role}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="reveal reveal-delay-3 mt-8 text-[13px] text-ink/35">
+          Placeholder names — replace before submission.
+        </p>
+      </section>
+
+      <!-- Contact -->
+      <section id="contact" class="reveal max-w-2xl scroll-mt-28 lg:self-end lg:pl-8">
+        <p class="text-[11px] font-medium uppercase tracking-[0.2em] text-clay">Contact</p>
+        <h2 class="mt-5 text-[26px] font-medium leading-[1.25] tracking-[-0.02em] sm:text-[32px]">
+          Talk to us
+        </h2>
+        <p class="mt-6 text-[16px] leading-[1.75] text-ink/60">
+          We are looking for collaborators with locus-level experimental capacity. The
+          predictions here need testing before they mean anything.
+        </p>
+        <div class="mt-9 flex flex-wrap items-center gap-x-8 gap-y-3 text-[15px]">
+          <a
+            href={`${base}/workbench`}
+            class="group inline-flex items-center gap-2 text-clay transition-colors hover:text-ink"
+          >
+            Open the Workbench
+            <span class="transition-transform group-hover:translate-x-1">→</span>
+          </a>
+          <a
+            href="https://github.com/nathnwe/hack-anthropic-modal-2026"
+            class="text-ink/50 transition-colors hover:text-ink"
+            target="_blank"
+            rel="noopener"
+          >
+            GitHub
+          </a>
+        </div>
+      </section>
     </div>
-  </section>
+  </div>
 
-  <!-- Team -->
-  <section id="team" class="scroll-mt-16 border-b border-slate-800/80">
-    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Team</p>
-      <h2 class="mt-4 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-        Built at Anthropic × Modal 2026
-      </h2>
+  <script is:inline>
+    (function () {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const canvas = document.getElementById('strand-canvas');
+      const svg = document.getElementById('helix');
+      const heroInner = document.getElementById('hero-inner');
+      const cue = document.getElementById('scroll-cue');
+      if (!canvas || !svg) return;
 
-      <div class="mt-8 grid gap-4 sm:grid-cols-3">
-        {
-          team.map((m) => (
-            <div class="rounded-lg border border-slate-800 bg-slate-900/40 p-5">
-              <div class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-800 font-mono text-sm font-semibold text-sky-400">
-                {m.initials}
-              </div>
-              <h3 class="mt-4 text-sm font-semibold text-white">{m.name}</h3>
-              <p class="mt-1 text-sm text-slate-500">{m.role}</p>
-            </div>
-          ))
+      const NS = 'http://www.w3.org/2000/svg';
+      let strandA, strandB, rungs = [], lenA = 0, lenB = 0, H = 0;
+
+      // Build a double helix sized to the content it accompanies. The two strands
+      // are the same sine wave half a period apart; rungs join them, and their
+      // opacity follows the depth of the twist so the form reads as 3D.
+      function build() {
+        const W = canvas.clientWidth;
+        H = canvas.clientHeight;
+        if (!W || !H) return;
+
+        svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+        svg.setAttribute('width', W);
+        svg.setAttribute('height', H);
+        svg.innerHTML = '';
+        rungs = [];
+
+        const wide = W >= 1024;
+        const cx = wide ? W / 2 : 40;
+        const amp = wide ? Math.min(132, W * 0.1) : 20;
+        const period = 420; // px per full turn
+        const step = 5;
+
+        let dA = '', dB = '';
+        for (let y = 0; y <= H; y += step) {
+          const p = (y / period) * Math.PI * 2;
+          const xA = cx + Math.sin(p) * amp;
+          const xB = cx + Math.sin(p + Math.PI) * amp;
+          dA += (y === 0 ? 'M' : 'L') + xA.toFixed(1) + ' ' + y;
+          dB += (y === 0 ? 'M' : 'L') + xB.toFixed(1) + ' ' + y;
         }
-      </div>
-      <p class="mt-4 text-xs text-slate-600">Replace with real names and roles before submission.</p>
-    </div>
-  </section>
 
-  <!-- Contact -->
-  <section id="contact" class="scroll-mt-16">
-    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Contact</p>
-      <h2 class="mt-4 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-        Talk to us
-      </h2>
-      <p class="mt-3 max-w-xl text-slate-400">
-        We are looking for collaborators with locus-level experimental capacity — the
-        predictions here need testing before they mean anything.
-      </p>
+        // Rungs, drawn under the strands.
+        const gap = period / 10;
+        for (let y = gap; y < H; y += gap) {
+          const p = (y / period) * Math.PI * 2;
+          const xA = cx + Math.sin(p) * amp;
+          const xB = cx + Math.sin(p + Math.PI) * amp;
+          const depth = Math.abs(Math.cos(p)); // 0 at the crossing, 1 at full width
+          const r = document.createElementNS(NS, 'line');
+          r.setAttribute('x1', xA.toFixed(1));
+          r.setAttribute('y1', y);
+          r.setAttribute('x2', xB.toFixed(1));
+          r.setAttribute('y2', y);
+          r.setAttribute('stroke', '#20201d');
+          r.setAttribute('stroke-width', (0.6 + depth * 0.5).toFixed(2));
+          r.setAttribute('stroke-linecap', 'round');
+          r.dataset.y = y;
+          r.dataset.target = (0.05 + depth * 0.1).toFixed(3);
+          r.style.opacity = '0';
+          svg.appendChild(r);
+          rungs.push(r);
+        }
 
-      <div class="mt-7 flex flex-wrap gap-3">
-        <a
-          href="https://github.com/nathnwe/hack-anthropic-modal-2026"
-          class="rounded-md border border-slate-700 px-4 py-2.5 text-sm text-slate-300 transition hover:border-slate-600 hover:text-white"
-        >
-          GitHub repository
-        </a>
-        <a
-          href={`${base}/workbench`}
-          class="rounded-md bg-sky-500 px-4 py-2.5 text-sm font-medium text-slate-950 transition hover:bg-sky-400"
-        >
-          Try the Workbench
-        </a>
-      </div>
-    </div>
-  </section>
+        strandA = document.createElementNS(NS, 'path');
+        strandA.setAttribute('d', dA);
+        strandA.setAttribute('fill', 'none');
+        strandA.setAttribute('stroke', '#a54c38');
+        strandA.setAttribute('stroke-width', '1.6');
+        strandA.setAttribute('stroke-linecap', 'round');
+        strandA.setAttribute('opacity', '0.5');
+        svg.appendChild(strandA);
+
+        strandB = document.createElementNS(NS, 'path');
+        strandB.setAttribute('d', dB);
+        strandB.setAttribute('fill', 'none');
+        strandB.setAttribute('stroke', '#748c63');
+        strandB.setAttribute('stroke-width', '1.6');
+        strandB.setAttribute('stroke-linecap', 'round');
+        strandB.setAttribute('opacity', '0.55');
+        svg.appendChild(strandB);
+
+        lenA = strandA.getTotalLength();
+        lenB = strandB.getTotalLength();
+        [[strandA, lenA], [strandB, lenB]].forEach(([el, len]) => {
+          el.style.strokeDasharray = len;
+          el.style.strokeDashoffset = reduce ? 0 : len;
+        });
+
+        if (reduce) rungs.forEach((r) => (r.style.opacity = r.dataset.target));
+        else update();
+      }
+
+      // The strands draw themselves as the canvas passes through the viewport.
+      function update() {
+        const rect = canvas.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const travelled = vh * 0.82 - rect.top;
+        const progress = Math.max(0, Math.min(1, travelled / Math.max(rect.height, 1)));
+
+        if (strandA) strandA.style.strokeDashoffset = lenA * (1 - progress);
+        if (strandB) strandB.style.strokeDashoffset = lenB * (1 - progress);
+
+        const drawnTo = progress * H;
+        for (const r of rungs) {
+          const y = +r.dataset.y;
+          const o = y <= drawnTo ? +r.dataset.target : 0;
+          if (r.style.opacity !== String(o)) {
+            r.style.transition = 'opacity 420ms ease-out';
+            r.style.opacity = o;
+          }
+        }
+
+        // Hero settles away as you leave it.
+        if (heroInner) {
+          const k = Math.min(1, Math.max(0, window.scrollY / (vh * 0.75)));
+          heroInner.style.opacity = String(1 - k);
+          heroInner.style.transform = `translateY(${k * -26}px)`;
+          if (cue) cue.style.opacity = String(1 - Math.min(1, window.scrollY / 220));
+        }
+      }
+
+      let ticking = false;
+      function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          update();
+          ticking = false;
+        });
+      }
+
+      build();
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', () => {
+        clearTimeout(window.__rb);
+        window.__rb = setTimeout(build, 180);
+      });
+      // Content reveals change the canvas height; rebuild once things settle.
+      setTimeout(build, 600);
+    })();
+  </script>
 </Base>
