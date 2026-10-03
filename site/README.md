@@ -131,11 +131,13 @@ and the per-row ENCODE accessions.
 ## 3D viewer boundaries
 
 The default **Folded DNA** view opens directly on PDB-style molecular detail.
-It shows two 128 bp local windows around the reference TSS and the selected
-regulatory-element midpoint. The exact inner gap is calculated from those window
-boundaries. The DNA fades progressively over the inner 34 bp into a soft haze
-labelled with the **exact omitted count**. No molecular bonds bridge that omitted
-interval. Shown bp + omitted bp equals the source span covered by this close-up;
+It shows two 160 bp local windows around the reference TSS and the selected
+regulatory-element midpoint: 64 bp on the outer side and 96 bp toward the gap,
+giving the right-hand loop more contour and a wider arc. The exact inner gap is
+calculated from those window boundaries. The DNA fades progressively over the
+inner 34 bp into a soft haze labelled with the **exact omitted count** and no
+secondary caption. No molecular bonds bridge that omitted interval.
+Shown bp + omitted bp equals the source span covered by this close-up;
 source coordinates and counts never change during the contact preview.
 
 The local centrelines are curved, three-dimensional illustrative folds. The two
@@ -152,6 +154,9 @@ The user-provided TAD illustration informs the fluid visual composition only.
 supplies regulatory predictions and genomic coordinates, not these structural
 measurements. Following the user's loop sketch, the promoter stays anchored on
 the lower strand while the enhancer approaches from above along a curved path.
+Each hit gets a distinct starting enhancer fold seeded from its source coordinates.
+This is repeatable visual variation, not an inferred structural difference. The
+variation settles away during the approach, preserving the common final layout.
 The omitted interval occupies the right-hand arc, with soft fades at the outer
 window boundaries. Unit-tangent integration bends the centrelines while preserving
 local contour spacing. Smooth easing and small, damped travelling bends make the

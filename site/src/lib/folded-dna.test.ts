@@ -20,15 +20,17 @@ const record = k562Record(data, K562_VIEWER_IDS);
 test("three sourced examples have exact, distinct omission counts and bounded local windows", () => {
   assert.equal(record.locus.cres.length, 3);
   const expected: Record<string, number> = {
-    "K562-49": 162394,
-    "K562-51": 6006,
-    "K562-55": 1845947,
+    "K562-49": 162330,
+    "K562-51": 5942,
+    "K562-55": 1845883,
   };
   const displays = record.locus.cres
     .map((cre) => {
       const d = foldedDNA(locusWindow(record, cre)!)!;
       assert.equal(d.omittedBp, expected[cre.id]);
-      assert.equal(d.shownBp, 256);
+      assert.equal(d.shownBp, 320);
+      assert.equal(d.arms[0].end - Math.floor(d.arms[0].anchor), 96);
+      assert.equal(Math.floor(d.arms[1].anchor) - d.arms[1].start, 96);
       assert.equal(d.shownBp + d.omittedBp, d.end - d.start);
       assert.equal(d.arms[0].end + d.omittedBp, d.arms[1].start);
       assert.ok(
@@ -159,7 +161,7 @@ test("visible local helices stay separate throughout the three contact previews"
     const d = foldedDNA(locusWindow(record, cre)!)!;
     for (let step = 0; step <= 20; step++) {
       const samples = d.arms.map((a) =>
-        Array.from({ length: 64 }, (_, i) =>
+        Array.from({ length: (a.end - a.start) / 2 }, (_, i) =>
           foldedFrame(a.start + i * 2 + 0.5, step / 20, d),
         ).filter((f) => f.fade > 0.5),
       );
@@ -171,4 +173,28 @@ test("visible local helices stay separate throughout the three contact previews"
           );
     }
   }
+});
+
+test("hits retain distinct repeatable starting folds and settle into the same layout", () => {
+  const poses = record.locus.cres.map((cre) => {
+    const locus = locusWindow(record, cre)!;
+    const d = foldedDNA(locus)!;
+    const repeated = foldedDNA(locus)!;
+    const a = d.arms.find((a) => a.role === "element")!;
+    const point = a.anchor + a.side * 40;
+    const initial = foldedFrame(point, 0, d).center;
+    assert.deepEqual(
+      initial.toArray(),
+      foldedFrame(point, 0, repeated).center.toArray(),
+    );
+    assert.ok(
+      foldedAnchor(a.anchor, 0, d).y > foldedAnchor(record.gene.tss, 0, d).y,
+    );
+    return { initial, settled: foldedFrame(point, 1, d).center };
+  });
+  for (let i = 0; i < poses.length; i++)
+    for (let j = i + 1; j < poses.length; j++) {
+      assert.ok(poses[i].initial.distanceTo(poses[j].initial) > 1);
+      assert.ok(poses[i].settled.distanceTo(poses[j].settled) < 0.002);
+    }
 });

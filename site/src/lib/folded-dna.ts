@@ -9,6 +9,14 @@ export type FoldedArm = {
   role: "gene" | "element";
 };
 type ArmPose = { centers: Vector3[]; tangents: Vector3[] };
+type FoldVariation = {
+  phase: number;
+  curl: number;
+  frequency: number;
+  lean: number;
+  offsetX: number;
+  depth: number;
+};
 export type FoldedDNA = {
   arms: FoldedArm[];
   omittedBp: number;
@@ -17,6 +25,7 @@ export type FoldedDNA = {
   end: number;
   separation: number;
   hazeWidth: number;
+  variation: FoldVariation;
   pose?: { progress: number; arms: ArmPose[] };
 };
 const FRAMES = 512;
@@ -27,17 +36,45 @@ const smooth = (x: number) => {
 };
 const ease = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
 
+// Stable visual variation, seeded by source coordinates, not structural evidence.
+// Returning to a hit restores its fold instead of generating a new random pose.
+function foldVariation(locus: LocusWindow): FoldVariation {
+  let seed = 2166136261;
+  for (const char of `${locus.tss}:${locus.elementStart}:${locus.elementEnd}`)
+    seed = Math.imul(seed ^ char.charCodeAt(0), 16777619) >>> 0;
+  const random = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+  const values = Array.from({ length: 6 }, random);
+  return {
+    phase: (values[5] - 0.5) * 3.6,
+    curl: 0.75 + values[1] * 0.4,
+    frequency: 0.2 + values[2] * 0.12,
+    lean: (values[3] - 0.5) * 0.5,
+    offsetX: -5 + values[4] * 5,
+    depth: (values[0] - 0.5) * 0.2,
+  };
+}
+
 // Explanatory composition, not an inferred TAD or molecular-dynamics trajectory.
 // Genomic order and counts remain exact even when the enhancer is upstream.
 export function foldedDNA(locus: LocusWindow): FoldedDNA | null {
   if (locus.overlap) return null;
   const low = Math.min(locus.tss, locus.midpoint),
     high = Math.max(locus.tss, locus.midpoint);
-  const flank = Math.min(64, Math.floor((high - low) / 4));
-  if (flank < 8) return null;
+  const outer = Math.min(64, Math.floor((high - low) / 4));
+  const inner = Math.min(96, Math.floor((high - low) / 4));
+  if (outer < 8) return null;
   const arms = [low, high].map((anchor, index): FoldedArm => ({
-    start: Math.max(locus.start, Math.floor(anchor) - flank),
-    end: Math.min(locus.end, Math.floor(anchor) + flank),
+    start: Math.max(
+      locus.start,
+      Math.floor(anchor) - (index === 0 ? outer : inner),
+    ),
+    end: Math.min(
+      locus.end,
+      Math.floor(anchor) + (index === 0 ? inner : outer),
+    ),
     anchor,
     side: index === 0 ? -1 : 1,
     role: anchor === locus.tss ? "gene" : "element",
@@ -54,6 +91,7 @@ export function foldedDNA(locus: LocusWindow): FoldedDNA | null {
     end: arms[1].end,
     separation: 17 + emphasis * 5,
     hazeWidth: 8 + emphasis * 4,
+    variation: foldVariation(locus),
   };
 }
 
@@ -62,7 +100,7 @@ function anchorPoint(arm: FoldedArm, p: number, display: FoldedDNA) {
   const e = ease(p);
   // A curved approach, easing to rest above the stationary promoter.
   return new Vector3(
-    -3 * (1 - e) - 4.5 * Math.sin(Math.PI * e),
+    display.variation.offsetX * (1 - e) - 4.5 * Math.sin(Math.PI * e),
     -8 + display.separation * (1 - e) + 3.5 * e,
     0.7 * (1 - e) + 1.3 * Math.sin(Math.PI * e),
   );
@@ -70,20 +108,35 @@ function anchorPoint(arm: FoldedArm, p: number, display: FoldedDNA) {
 
 // q is signed contour distance from the highlighted site, positive toward the
 // omitted interval. Unit tangent integration bends the strand without stretching.
-function tangent(q: number, arm: FoldedArm, p: number) {
+function tangent(
+  q: number,
+  arm: FoldedArm,
+  p: number,
+  variation: FoldVariation,
+) {
   const e = ease(p),
     a = Math.abs(q),
     bend = smooth(a / 7);
   const wave = Math.sin(Math.PI * p) ** 2 * (1 - 0.45 * p);
+  // More contour on the right makes a wider, gentler loop at the same bp scale.
+  const rightQ = q / 1.5;
   let angle: number;
   if (arm.role === "gene") {
-    angle = q >= 0 ? 1.25 * smooth(q / 22) : 0.28 * Math.sin(q * 0.2);
+    angle = q >= 0 ? 1.25 * smooth(rightQ / 22) : 0.28 * Math.sin(q * 0.2);
   } else if (q >= 0) {
-    const open = -0.3 - 0.9 * smooth(q / 22);
-    const loop = 1.8 * Math.sin((Math.PI * q) / 21) - 1.2 * smooth(q / 21);
+    const open =
+      -0.02 -
+      0.35 * smooth(rightQ / 22) +
+      0.12 * Math.sin(q * 0.18 + variation.phase);
+    const loop =
+      1.3 * Math.sin((Math.PI * rightQ) / 21) - 1.0 * smooth(rightQ / 21);
     angle = bend * (open * (1 - e) + loop * e);
   } else {
-    const folded = 1.15 * Math.sin(a * 0.29) + 0.9 * Math.sin(a * 0.13);
+    const folded =
+      variation.curl *
+        (1.15 * Math.sin(a * variation.frequency + variation.phase) +
+          0.9 * Math.sin(a * 0.13 - variation.phase * 0.4)) +
+      variation.lean;
     const settled = -0.22 - 0.22 * Math.sin(a * 0.19);
     angle = bend * (folded * (1 - e) + settled * e);
   }
@@ -96,6 +149,9 @@ function tangent(q: number, arm: FoldedArm, p: number) {
   const tilt =
     bend *
     (0.07 * Math.sin(q * 0.22) +
+      (arm.role === "element"
+        ? variation.depth * (1 - e) * Math.sin(q * 0.19 + variation.phase)
+        : 0) +
       0.1 * wave * Math.sin(q * 0.31 - p * Math.PI * 4));
   return new Vector3(
     Math.cos(angle) * Math.cos(tilt),
@@ -113,7 +169,7 @@ function pose(display: FoldedDNA, p: number) {
       (arm.start + step * i - arm.anchor) * RISE_NM * orientation;
     const centers = new Array<Vector3>(FRAMES + 1);
     const tangents = Array.from({ length: FRAMES + 1 }, (_, i) =>
-      tangent(qAt(i), arm, p).multiplyScalar(orientation),
+      tangent(qAt(i), arm, p, display.variation).multiplyScalar(orientation),
     );
     const anchorIndex = Math.floor((arm.anchor - arm.start) / step);
     // Integrate outward on both sides of the exact anchor, including half-base sites.
@@ -128,7 +184,10 @@ function pose(display: FoldedDNA, p: number) {
         const q = qAt(i);
         previous = previous
           .clone()
-          .addScaledVector(tangent((q + previousQ) / 2, arm, p), q - previousQ);
+          .addScaledVector(
+            tangent((q + previousQ) / 2, arm, p, display.variation),
+            q - previousQ,
+          );
         centers[i] = previous;
         previousQ = q;
       }

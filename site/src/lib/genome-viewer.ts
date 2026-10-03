@@ -436,6 +436,10 @@ export class GenomeViewer {
       ? "Illustrative loop formation, not molecular dynamics or a measured TAD. Coloured patches locate the reference TSS and element midpoint."
       : "Full DNA contour at one scale; folding remains illustrative, not a measured TAD or atomic structure.";
     byId("dna-omitted-count").textContent = `${formatNumber(omitted)} bp`;
+    byId("dna-omission").setAttribute(
+      "aria-label",
+      `${formatNumber(omitted)} base pairs omitted in the compressed interval`,
+    );
     byId("dna-omission").hidden = !folded;
     this.renderer.domElement.setAttribute(
       "aria-label",

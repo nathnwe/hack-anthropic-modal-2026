@@ -2451,12 +2451,6 @@ pre code {
   font-weight: 550;
   white-space: nowrap;
 }
-.dna-omission span {
-  display: block;
-  font-size: 9px;
-  margin-top: 4px;
-  white-space: nowrap;
-}
 .genome-viewer[data-view="folded"] .dna-stage {
   background: radial-gradient(ellipse at 50% 42%, #f9faf3, #f3f3e9);
 }
@@ -2470,8 +2464,5 @@ pre code {
   }
   .dna-omission strong {
     font-size: 14px;
-  }
-  .dna-omission span {
-    font-size: 8px;
   }
 }
