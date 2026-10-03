@@ -1,21 +1,29 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import {
-  helixFrames,
+  displayFrames,
   locusWindow,
-  dnaCenter,
+  displayCenter,
+  helixDisplay,
+  helixSamples,
+  type HelixDisplay,
   type LocusWindow,
 } from "./dna-geometry";
-import { regionLabel, type CRE, type GeneRecord } from "./records";
+import {
+  formatNumber,
+  regionLabel,
+  type CRE,
+  type GeneRecord,
+} from "./records";
 
-const PAIRS = 150;
-const STEPS = PAIRS * 2;
+const STEPS = 600;
 const GENE = new THREE.Color("#2877a5");
 const ELEMENT = new THREE.Color("#ad5641");
 const STRAND_A = new THREE.Color("#9baea0");
 const STRAND_B = new THREE.Color("#c8b4ab");
 const BASE_A = new THREE.Color("#e0e3da");
 const BASE_B = new THREE.Color("#c1ccd0");
+const FADE = new THREE.Color("#f9f8f2");
 const Y_AXIS = new THREE.Vector3(0, 1, 0);
 const byId = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
@@ -31,6 +39,7 @@ export class GenomeViewer {
   private spheres: THREE.InstancedMesh;
   private bonds: THREE.InstancedMesh;
   private contact: THREE.Line;
+  private omission: THREE.Line;
   private sphereRegions: Array<"gene" | "element" | null> = [];
   private frame = 0;
   private pending = false;
@@ -39,6 +48,7 @@ export class GenomeViewer {
   private progress = 0;
   private lastTime = 0;
   private locus: LocusWindow | null = null;
+  private display: HelixDisplay | null = null;
   private record: GeneRecord | null = null;
   private cre: CRE | null = null;
   private selectedKey = "";
@@ -128,6 +138,18 @@ export class GenomeViewer {
     );
     this.contact.visible = false;
     this.model.add(this.contact);
+    this.omission = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineDashedMaterial({
+        color: 0x83887d,
+        dashSize: 0.18,
+        gapSize: 0.45,
+        transparent: true,
+        opacity: 0.45,
+      }),
+    );
+    this.omission.visible = false;
+    this.model.add(this.omission);
     this.model.rotation.z = 0.28;
     this.scene.add(this.model);
     const signal = this.abort.signal;
@@ -218,12 +240,20 @@ export class GenomeViewer {
   }
 
   update(record: GeneRecord, cre: CRE | null) {
-    const key = `${record.gene.symbol}:${cre?.id ?? "none"}`;
+    const key = JSON.stringify([
+      record.gene.symbol,
+      record.gene.chrom,
+      record.gene.tss,
+      record.locus.tad,
+      cre,
+      record.illustrative,
+    ]);
     if (key === this.selectedKey) return;
     this.selectedKey = key;
     this.record = record;
     this.cre = cre;
     this.locus = cre ? locusWindow(record, cre) : null;
+    this.display = this.locus ? helixDisplay(this.locus) : null;
     this.playing = false;
     this.progress = 0;
     byId("dna-region-info").hidden = true;
@@ -237,39 +267,47 @@ export class GenomeViewer {
       return;
     }
     this.model.visible = true;
+    this.stage.dataset.state = "ready";
     byId("dna-fallback").hidden = true;
     byId("dna-controls").hidden = false;
-    byId("dna-label-gene").textContent = `${record.gene.symbol} · promoter`;
+    byId("dna-label-gene").textContent = `${record.gene.symbol} · TSS`;
     byId("dna-label-element").textContent = cre!.id;
+    const display = this.display!;
+    byId("dna-distance").hidden = false;
+    byId("dna-separation").textContent =
+      `${formatNumber(display.separationBp)} bp apart`;
+    byId("dna-coordinate-kind").textContent = record.illustrative
+      ? "Placeholder coordinates"
+      : "Record coordinates";
+    byId("dna-gap-label").hidden = !display.gap;
+    byId("dna-gap-label").textContent =
+      `⋯ ${formatNumber(display.omittedBp)} bp omitted`;
+    byId("dna-resolution").textContent =
+      `${formatNumber(display.shownBp)} bp shown${display.gap ? ` · ${formatNumber(display.omittedBp)} bp omitted from this view` : " · no internal omission"}`;
+    this.stage.dataset.separationBp = String(display.separationBp);
+    this.stage.dataset.omittedBp = String(display.omittedBp);
     this.stage.dataset.element = cre!.id;
     this.renderer.domElement.setAttribute(
       "aria-label",
-      `Interactive 3D DNA schematic: ${record.gene.symbol} promoter and ${cre!.id}. Illustrative geometry, not a measured molecular structure.`,
+      `Interactive 3D DNA cutaway: ${record.gene.symbol} transcription start and ${cre!.id} midpoint, ${formatNumber(display.separationBp)} base pairs apart along DNA. ${formatNumber(display.omittedBp)} base pairs omitted. Three-dimensional spacing and sequence are illustrative.`,
     );
     this.setProgress(0);
+    this.resize();
   }
 
-  private region(t: number): "gene" | "element" | null {
+  private region(position: number): "gene" | "element" | null {
     if (!this.locus) return null;
-    // Enlarge display highlights so sub-kilobase intervals stay visible at this scale.
-    if (Math.abs(t - this.locus.promoter) < 0.035) return "gene";
-    if (
-      Math.abs(t - this.locus.element) <
-      Math.max(0.035, (this.locus.elementEnd - this.locus.elementStart) / 2)
-    )
-      return "element";
+    // Position markers only, not a claimed promoter or full element footprint.
+    if (Math.abs(position - this.locus.tss) <= 4) return "gene";
+    if (Math.abs(position - this.locus.midpoint) <= 4) return "element";
     return null;
   }
 
   private rebuild() {
-    if (!this.locus) return;
-    const { centers, normals, binormals } = helixFrames(
-      this.locus,
-      this.progress,
-      STEPS,
-    );
-    const strandA: THREE.Vector3[] = [],
-      strandB: THREE.Vector3[] = [];
+    if (!this.display) return;
+    const { shape } = this.display;
+    const progress = this.progress;
+    const { normals, binormals } = displayFrames(this.display, progress, STEPS);
     let sphereCount = 0,
       bondCount = 0;
     const sphere = (
@@ -300,46 +338,57 @@ export class GenomeViewer {
       this.bonds.setMatrixAt(bondCount, this.matrix);
       this.bonds.setColorAt(bondCount++, color);
     };
-    for (let i = 0; i <= STEPS; i++) {
-      const t = i / STEPS;
-      const phase = t * (PAIRS / 10.5) * Math.PI * 2;
-      const offset = (angle: number) =>
-        centers[i]
-          .clone()
-          .addScaledVector(normals[i], Math.cos(angle) * 1.05)
-          .addScaledVector(binormals[i], Math.sin(angle) * 1.05);
-      const a = offset(phase),
-        b = offset(phase + Math.PI * 0.86);
-      const region = this.region(t);
-      const aColor =
-        region === "gene" ? GENE : region === "element" ? ELEMENT : STRAND_A;
-      const bColor =
-        region === "gene" ? GENE : region === "element" ? ELEMENT : STRAND_B;
-      strandA.push(a);
-      strandB.push(b);
-      sphere(a, i % 2 ? 0.24 : 0.3, aColor, region);
-      sphere(b, i % 2 ? 0.24 : 0.3, bColor, region);
-      if (i) {
-        bond(strandA[i - 1], a, 0.19, aColor);
-        bond(strandB[i - 1], b, 0.19, bColor);
-      }
-      if (i % 2 === 0) {
-        let previous = a;
-        for (let j = 1; j <= 6; j++) {
-          const p = a.clone().lerp(b, j / 7);
-          const color =
-            region === "gene"
-              ? GENE
-              : region === "element"
-                ? ELEMENT
-                : j <= 3
-                  ? BASE_A
-                  : BASE_B;
-          sphere(p, 0.2, color, region);
-          bond(previous, p, 0.1, color);
-          previous = p;
+    for (const segment of helixSamples(this.display)) {
+      let previousA: THREE.Vector3 | null = null;
+      let previousB: THREE.Vector3 | null = null;
+      for (const sample of segment) {
+        const { t, position, fade, rung } = sample;
+        const i = Math.round(t * STEPS);
+        const center = displayCenter(t, progress, this.display);
+        const phase = ((position % 10.5) / 10.5) * Math.PI * 2;
+        const offset = (angle: number) =>
+          center
+            .clone()
+            .addScaledVector(normals[i], Math.cos(angle) * 1.05)
+            .addScaledVector(binormals[i], Math.sin(angle) * 1.05);
+        const a = offset(phase),
+          b = offset(phase + Math.PI * 0.86);
+        const region = this.region(position);
+        const faded = (color: THREE.Color) =>
+          color.clone().lerp(FADE, 1 - fade);
+        const aColor = faded(
+          region === "gene" ? GENE : region === "element" ? ELEMENT : STRAND_A,
+        );
+        const bColor = faded(
+          region === "gene" ? GENE : region === "element" ? ELEMENT : STRAND_B,
+        );
+        const taper = 0.35 + 0.65 * fade;
+        sphere(a, (rung ? 0.3 : 0.24) * taper, aColor, region);
+        sphere(b, (rung ? 0.3 : 0.24) * taper, bColor, region);
+        if (previousA && previousB) {
+          bond(previousA, a, 0.19 * taper, aColor);
+          bond(previousB, b, 0.19 * taper, bColor);
         }
-        bond(previous, b, 0.1, bColor);
+        previousA = a;
+        previousB = b;
+        if (rung) {
+          let previous = a;
+          for (let j = 1; j <= 6; j++) {
+            const p = a.clone().lerp(b, j / 7);
+            const color =
+              region === "gene"
+                ? GENE
+                : region === "element"
+                  ? ELEMENT
+                  : j <= 3
+                    ? BASE_A
+                    : BASE_B;
+            sphere(p, 0.2 * taper, faded(color), region);
+            bond(previous, p, 0.1 * taper, faded(color));
+            previous = p;
+          }
+          bond(previous, b, 0.1 * taper, bColor);
+        }
       }
     }
     this.spheres.count = sphereCount;
@@ -349,12 +398,27 @@ export class GenomeViewer {
     this.spheres.instanceColor!.needsUpdate =
       this.bonds.instanceColor!.needsUpdate = true;
     this.spheres.computeBoundingSphere();
-    const a = dnaCenter(this.locus.promoter, this.progress, this.locus);
-    const b = dnaCenter(this.locus.element, this.progress, this.locus);
+    const a = displayCenter(shape.promoter, progress, this.display);
+    const b = displayCenter(shape.element, progress, this.display);
     this.contact.geometry.dispose();
     this.contact.geometry = new THREE.BufferGeometry().setFromPoints([a, b]);
     this.contact.computeLineDistances();
     this.contact.visible = this.progress > 0.8;
+    const gap = this.display.gap;
+    this.omission.visible = Boolean(gap);
+    this.omission.geometry.dispose();
+    this.omission.geometry = new THREE.BufferGeometry().setFromPoints(
+      gap
+        ? Array.from({ length: 33 }, (_, i) =>
+            displayCenter(
+              gap.start + ((gap.end - gap.start) * i) / 32,
+              progress,
+              this.display!,
+            ),
+          )
+        : [],
+    );
+    if (gap) this.omission.computeLineDistances();
   }
 
   private setProgress(value: number) {
@@ -416,7 +480,9 @@ export class GenomeViewer {
     const width = this.stage.clientWidth,
       height = this.stage.clientHeight;
     if (!width || !height) return;
-    const halfHeight = Math.max(22, (28 * height) / width);
+    const halfHeight = this.display?.gap
+      ? Math.max(18, (18 * height) / width)
+      : Math.max(22, (28 * height) / width);
     this.camera.left = (-halfHeight * width) / height;
     this.camera.right = (halfHeight * width) / height;
     this.camera.top = halfHeight;
@@ -460,14 +526,16 @@ export class GenomeViewer {
   }
 
   private positionLabels() {
-    if (!this.locus || !this.model.visible) return;
+    if (!this.display || !this.model.visible) return;
+    const { shape, gap } = this.display;
+    const progress = this.progress;
     const width = this.stage.clientWidth,
       height = this.stage.clientHeight;
     for (const [id, t, side] of [
-      ["dna-label-gene", this.locus.promoter, -1],
-      ["dna-label-element", this.locus.element, 1],
+      ["dna-label-gene", shape.promoter, -1],
+      ["dna-label-element", shape.element, 1],
     ] as const) {
-      const point = dnaCenter(t, this.progress, this.locus);
+      const point = displayCenter(t, progress, this.display);
       this.model.localToWorld(point);
       point.project(this.camera);
       const label = byId(id);
@@ -477,6 +545,20 @@ export class GenomeViewer {
       const half = (label.offsetWidth || 110) / 2;
       label.style.left = `${Math.max(half + 8, Math.min(width - half - 8, x + side * 30))}px`;
       label.style.top = `${Math.max(18, Math.min(height - 26, y + (side === -1 ? -40 : 38)))}px`;
+    }
+    const label = byId("dna-gap-label");
+    label.hidden = !gap;
+    if (gap) {
+      const point = displayCenter(
+        (gap.start + gap.end) / 2,
+        progress,
+        this.display,
+      );
+      this.model.localToWorld(point);
+      point.project(this.camera);
+      const half = label.offsetWidth / 2;
+      label.style.left = `${Math.max(half + 8, Math.min(width - half - 8, (point.x * 0.5 + 0.5) * width))}px`;
+      label.style.top = `${Math.max(20, Math.min(height - 25, (-point.y * 0.5 + 0.5) * height - 28))}px`;
     }
   }
 
@@ -522,6 +604,9 @@ export class GenomeViewer {
     byId("dna-fallback").hidden = false;
     byId("dna-fallback-message").textContent = message;
     byId("dna-controls").hidden = true;
+    byId("dna-distance").hidden = true;
+    byId("dna-gap-label").hidden = true;
+    byId("dna-resolution").textContent = "";
     byId("dna-label-gene").hidden = byId("dna-label-element").hidden = true;
     this.stage.dataset.state = "unavailable";
   }
@@ -591,6 +676,8 @@ export class GenomeViewer {
     (this.spheres.material as THREE.Material).dispose();
     this.contact.geometry.dispose();
     (this.contact.material as THREE.Material).dispose();
+    this.omission.geometry.dispose();
+    (this.omission.material as THREE.Material).dispose();
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }

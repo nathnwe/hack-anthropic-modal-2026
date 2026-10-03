@@ -89,17 +89,27 @@ attractions/issues are qualitative design considerations.
 
 ## 3D viewer boundaries
 
-The Three.js viewer is loaded on demand on the results page. Genomic positions
-identify the two highlighted regions within a local window. The centreline,
-helix turns, beads and bonds are generated illustration geometry: no sequence,
-atomic coordinates, measured spatial distances or folding prediction is supplied.
-The gene marker denotes the supplied transcription start, not a fabricated gene
-body. Highlight widths are enlarged for visibility. Bringing the markers together
-is a hypothetical contact exploration, independent of expression direction or a
-method recommendation; it does not imply the chosen direction has a candidate.
+The Three.js viewer is loaded on demand on the results page. It shows a molecular-style
+cutaway, with one rung for each base pair displayed. The genomic separation is the
+absolute coordinate difference from the supplied transcription start to the selected
+element's midpoint (including a half-base value for odd-width intervals). It is not
+the separation between a proposed staple's binding sites. Placeholder coordinates
+remain explicitly labelled, including in the expanded viewer.
 
-The underlying DNA stays connected through the illustrative deformation. An
-invalid, overlapping or out-of-domain pair offers the 2D contact map instead.
+Short windows up to 180 bp are shown continuously. Longer windows show local stretches
+around the two markers, normally 72 bp each; a fading end and dotted arch explicitly
+omit the intervening DNA. The exact omitted count is the gap between the displayed
+intervals. Shown base pairs plus omitted base pairs equal the full cutaway span, which
+includes flanking DNA outside the two markers. These are viewing choices, not biological
+thresholds. Geometry size is bounded for megabase-scale separations. The omitted count
+and genomic separation never change during playback; the DNA is not cut or shortened.
+
+The centreline, helix turns, beads and bonds are illustration geometry: no actual
+sequence, atomic coordinates, spatial distances or folding prediction is supplied.
+The coloured markers denote the TSS and element midpoint, not their full footprints.
+Bringing the markers together is a hypothetical contact exploration, independent of
+expression direction or a method recommendation; it does not establish feasibility.
+Invalid, overlapping, mismatched-chromosome or out-of-domain pairs offer the 2D map.
 The viewer supports drag rotation, zoom/pan, keyboard controls, a contact slider
 and reduced-motion preferences. It renders on demand and pauses off screen or in
 a hidden tab. A WebGL failure retains access to the contact map. The 3D bundle is
@@ -117,7 +127,9 @@ uv run python contracts/validate.py
 Unit tests exercise missing-versus-zero contact values, exact endpoint matching,
 direction filtering, non-mutating supported sorts, viewer defaults under opposing
 rankings, source handling and HTML escaping. DNA tests cover genomic mapping,
-invalid anchors, curve continuity, approaching anchors and finite helix frames. Browser QA covers desktop and phone layouts, the full query flow,
+invalid anchors, curve continuity, approaching anchors and finite helix frames. Synthetic
+scale tests from 10 bp to 2 Mb check exact rung/omission counts in both genomic orders,
+clipped windows and odd-width elements. Browser QA covers desktop and phone layouts, the full query flow,
 unsupported genes, evidence expansion, direction changes, empty results and API
 links. Candidate tables have contained horizontal scrolling on phones; the contact map
 resizes to keep the selected element visible.

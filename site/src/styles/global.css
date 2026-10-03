@@ -2044,6 +2044,44 @@ pre code {
   border-radius: 5px;
   background: radial-gradient(ellipse at 50% 42%, #fffefb, #f3f3ea);
 }
+.dna-distance {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 2px 15px;
+  flex-shrink: 0;
+}
+.dna-distance strong {
+  display: block;
+  font-size: 19px;
+  font-weight: 550;
+  letter-spacing: -0.04em;
+}
+.dna-distance div > span {
+  display: block;
+  margin-top: 4px;
+  font-size: 9px;
+  color: var(--muted);
+}
+.dna-coordinate-kind {
+  font-size: 9px;
+  color: var(--muted);
+  text-align: right;
+  max-width: 90px;
+  padding-top: 4px;
+}
+.dna-gap-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  white-space: nowrap;
+  padding: 5px 9px;
+  background: #f9f8f2eb;
+  border-radius: 20px;
+  color: #666b61;
+  font: 10px var(--mono);
+}
 .dna-stage canvas {
   display: block;
   width: 100%;
@@ -2175,6 +2213,9 @@ pre code {
   margin-top: 10px;
   max-width: 560px;
 }
+.dna-caption > span {
+  display: block;
+}
 #contact-panel {
   padding: 0 8px 8px;
 }
@@ -2192,6 +2233,9 @@ pre code {
   border-radius: 9px;
   box-shadow: 0 0 0 100vmax #20201dbb;
   overflow-y: auto;
+}
+.viewer-section:has(.genome-viewer.is-expanded) {
+  z-index: 10;
 }
 .genome-viewer.is-expanded .dna-stage {
   height: calc(100dvh - 260px);

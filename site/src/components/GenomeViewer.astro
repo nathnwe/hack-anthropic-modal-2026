@@ -45,6 +45,13 @@
     </div>
   </div>
   <div id="dna-panel">
+    <div class="dna-distance" id="dna-distance" hidden>
+      <div>
+        <strong id="dna-separation"></strong>
+        <span>Along DNA · transcription start → element midpoint</span>
+      </div>
+      <span class="dna-coordinate-kind" id="dna-coordinate-kind"></span>
+    </div>
     <div class="dna-stage" id="dna-stage">
       <div id="dna-loading" class="dna-message" role="status">
         Preparing DNA model…
@@ -59,6 +66,7 @@
         </button>
       </div>
       <div class="dna-label dna-label-gene" id="dna-label-gene" hidden></div>
+      <div class="dna-gap-label" id="dna-gap-label" hidden></div>
       <div
         class="dna-label dna-label-element"
         id="dna-label-element"
@@ -104,15 +112,21 @@
     </div>
     <div class="dna-legend">
       <span>
-        <i class="promoter-key"></i> Gene start / promoter
+        <i class="promoter-key"></i> Transcription start
       </span>
       <span>
-        <i class="element-key"></i> Selected element
+        <i class="element-key"></i> Element midpoint
       </span>
     </div>
     <p class="dna-caption">
-      Illustrative 3D model · stylised helix, enlarged highlights. Not a
-      measured structure, sequence or intervention recommendation.
+      <span id="dna-resolution"></span>
+      <span>
+        One rung per displayed bp. Dotted gap = continuous DNA omitted, not cut.
+      </span>
+      <span>
+        Sequence, 3D spacing and motion are illustrative, not a measured
+        structure or intervention prediction.
+      </span>
     </p>
   </div>
   <div id="contact-panel" hidden>
