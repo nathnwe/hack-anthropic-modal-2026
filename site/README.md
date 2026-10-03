@@ -1,9 +1,9 @@
 # Rewire Bio — independent frontend
 
-An Astro static site on `feat/site-alt`, developed independently of `feat/site`.
-Only `site/` is changed. The landing page, workbench, results and API pages share
-a parchment/olive identity, original interwoven DNA SVG mark and responsive CSS. No deployment
-or backend inference is performed by this frontend.
+An Astro static site developed on `feat/site-alt`, independently of `feat/site`,
+and integrated into `main`. The landing page, workbench, results and API pages share
+a parchment/olive identity, original interwoven DNA SVG mark and responsive CSS.
+The frontend serves static records; it does not run backend inference.
 
 ## Run locally
 
@@ -19,6 +19,24 @@ Open `http://127.0.0.1:4322/hack-anthropic-modal-2026/`.
 The GitHub Pages base path is already configured. This worktree uses port 4322;
 the other frontend can keep using 4321. Astro 7 may run the dev server in the
 background; use its `astro dev status` command from `site/` to inspect it.
+
+## Public deployment
+
+Public URL after Pages activation: [Rewire Bio](https://nathnwe.github.io/hack-anthropic-modal-2026/).
+
+One-time setup requires a repository administrator, maintainer, or someone with
+permission to manage Pages: open **Settings → Pages → Build and deployment** and
+select **GitHub Actions** as the source. Then run **Actions → Deploy site to
+GitHub Pages → Run workflow**, selecting `main`.
+
+The workflow in `.github/workflows/pages.yml` automatically checks, builds and
+deploys changes to `site/` or that workflow when they reach `main`. Local changes
+and feature-branch pushes stay out of the public site until merged. A failed
+check or build stops deployment and leaves the previous successful site live.
+The workflow uses Node 24 and runs the type checks and frontend tests before
+building the static site. The existing contract-validation workflow is separate.
+
+The live demo uses clearly labelled illustrative records and schematic 3D geometry.
 
 ## Pages
 
@@ -124,5 +142,3 @@ Recheck the dependency before adding server rendering or deploying a server.
   BPCL, LDB1, CTCF and ZF tethering.
 - Real team names, contact details, experimental findings and verified gene
   records remain to be supplied. The GitHub project is the current contact link.
-
-No push, pull request or GitHub Pages deployment has been performed.
