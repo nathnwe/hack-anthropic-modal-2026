@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contracts/schema.json",
+  "title": "Per-gene record shared by pipeline (A), scoring (B) and site (C)",
+  "type": "object",
+  "required": ["gene", "locus", "staples", "risks", "ranking"],
+  "$defs": {
+    "region": {
+      "type": "object",
+      "required": ["chrom", "start", "end"],
+      "properties": {"chrom": {"type": "string"}, "start": {"type": "integer"}, "end": {"type": "integer"}}
+    },
+    "source": {"type": "string", "description": "Citation or URL backing the claim"}
+  },
+  "properties": {
+    "illustrative": {"type": "boolean", "description": "true = placeholder values, NOT real data"},
+    "gene": {
+      "type": "object",
+      "required": ["symbol", "chrom", "tss", "disease", "direction", "evidence"],
+      "properties": {
+        "symbol": {"type": "string"},
+        "chrom": {"type": "string"},
+        "tss": {"type": "integer"},
+        "disease": {"type": "string"},
+        "direction": {"enum": ["too_much", "too_little"]},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/source"}, "minItems": 1}
+      }
+    },
+    "locus": {
+      "type": "object",
+      "required": ["cell_type", "tad", "cres", "contacts"],
+      "properties": {
+        "cell_type": {"type": "string"},
+        "tad": {"$ref": "#/$defs/region"},
+        "cres": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "start", "end", "type", "score_rE2G"],
+            "properties": {"id": {"type": "string"}, "start": {"type": "integer"}, "end": {"type": "integer"},
+                           "type": {"enum": ["enhancer", "silencer", "insulator", "promoter"]},
+                           "score_rE2G": {"type": "number"}}
+          }
+        },
+        "contacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["a", "b", "strength"],
+            "properties": {"a": {"type": "integer"}, "b": {"type": "integer"}, "strength": {"type": "number"}}
+          }
+        }
+      }
+    },
+    "staples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "anchor_a", "anchor_b", "mode", "predicted_delta"],
+        "properties": {
+          "id": {"type": "string"},
+          "anchor_a": {"$ref": "#/$defs/region"},
+          "anchor_b": {"$ref": "#/$defs/region"},
+          "mode": {"enum": ["up", "down", "off"]},
+          "predicted_delta": {"type": "string", "description": "Qualitative tier, e.g. 'strong_down'; avoid false precision"}
+        }
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["staple_id", "flags"],
+        "properties": {
+          "staple_id": {"type": "string"},
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "severity", "detail"],
+              "properties": {"type": {"type": "string"}, "gene": {"type": "string"},
+                             "severity": {"enum": ["low", "medium", "high"]}, "detail": {"type": "string"}}
+            }
+          }
+        }
+      }
+    },
+    "ranking": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["staple_id", "score", "tier", "rationale", "method_recommendation"],
+        "properties": {
+          "staple_id": {"type": "string"},
+          "score": {"type": "number", "minimum": 0, "maximum": 100},
+          "tier": {"enum": ["A", "B", "C"]},
+          "rationale": {"type": "array", "items": {"type": "string"}},
+          "method_recommendation": {"type": "string"}
+        }
+      }
+    }
+  }
+}
