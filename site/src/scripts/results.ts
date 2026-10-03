@@ -24,6 +24,55 @@ const base = app.dataset.base || "";
 let record: GeneRecord;
 let mode: Mode;
 let activeElement: string | null = null;
+let genomeViewer: import("../lib/genome-viewer").GenomeViewer | null = null;
+let viewerLoading = false;
+let viewerFailed = false;
+
+function syncGenomeViewer() {
+  const selected =
+    record.locus.cres.find((c) => c.id === activeElement) ?? null;
+  if (genomeViewer) {
+    genomeViewer.update(record, selected);
+    return;
+  }
+  if (viewerLoading || viewerFailed) return;
+  viewerLoading = true;
+  void import("../lib/genome-viewer")
+    .then(({ GenomeViewer }) => {
+      genomeViewer = new GenomeViewer();
+      genomeViewer.update(
+        record,
+        record.locus.cres.find((c) => c.id === activeElement) ?? null,
+      );
+    })
+    .catch(() => {
+      viewerFailed = true;
+      get("dna-loading").hidden = true;
+      get("dna-fallback").hidden = false;
+      get("dna-fallback-message").textContent =
+        "This browser could not start the 3D renderer. The contact map remains available.";
+      get("genome-actions").hidden = true;
+      const switchView = (threeD: boolean) => {
+        get("dna-panel").hidden = !threeD;
+        get("contact-panel").hidden = threeD;
+        get("view-3d").setAttribute("aria-pressed", String(threeD));
+        get("view-contacts").setAttribute("aria-pressed", String(!threeD));
+        drawMap();
+      };
+      get("view-3d").addEventListener("click", () => switchView(true));
+      get("view-contacts").addEventListener("click", () => switchView(false));
+      get("dna-fallback-map").addEventListener("click", () =>
+        switchView(false),
+      );
+    })
+    .finally(() => {
+      viewerLoading = false;
+    });
+}
+window.addEventListener("pagehide", (event) => {
+  if (!event.persisted) genomeViewer?.dispose();
+});
+if (import.meta.hot) import.meta.hot.dispose(() => genomeViewer?.dispose());
 
 function evidenceMarkup() {
   return (
@@ -73,6 +122,7 @@ function renderElements() {
 }
 
 function drawMap() {
+  syncGenomeViewer();
   const { tad, cres, contacts } = record.locus;
   const svg = document.getElementById("contact-map")!;
   const selected = cres.find((c) => c.id === activeElement);

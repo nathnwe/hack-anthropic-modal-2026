@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Strategies from "../components/Strategies.astro";
+import GenomeViewer from "../components/GenomeViewer.astro";
 import type { GeneRecord } from "../lib/records";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const files = import.meta.glob<GeneRecord>("../../public/data/*.json", {
@@ -137,31 +138,33 @@ const manifest = Object.entries(files).map(([path, r]) => ({
               </span>
             </div>
             <p id="viewer-context" class="small muted"></p>
-            <div
-              class="map-scroll"
-              role="region"
-              aria-label="Selected-element contact diagram"
-              tabindex="0"
-            >
-              <svg
-                id="contact-map"
-                viewBox="0 0 880 340"
-                role="img"
-                aria-label="Contact diagram"
-              ></svg>
-            </div>
-            <div class="map-legend">
-              <span>
-                <i class="promoter-key"></i> Promoter
-              </span>
-              <span>
-                <i class="element-key"></i> Selected element
-              </span>
-              <span>
-                <i class="line-key"></i> Recorded contact
-              </span>
-            </div>
-            <p id="map-note" class="small muted"></p>
+            <GenomeViewer>
+              <div
+                class="map-scroll"
+                role="region"
+                aria-label="Selected-element contact diagram"
+                tabindex="0"
+              >
+                <svg
+                  id="contact-map"
+                  viewBox="0 0 880 340"
+                  role="img"
+                  aria-label="Contact diagram"
+                ></svg>
+              </div>
+              <div class="map-legend">
+                <span>
+                  <i class="promoter-key"></i> Promoter
+                </span>
+                <span>
+                  <i class="element-key"></i> Selected element
+                </span>
+                <span>
+                  <i class="line-key"></i> Recorded contact
+                </span>
+              </div>
+              <p id="map-note" class="small muted"></p>
+            </GenomeViewer>
             <details class="viewer-metadata">
               <summary>
                 TAD &amp; record details <span aria-hidden="true">+</span>

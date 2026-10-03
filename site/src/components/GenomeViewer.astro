@@ -1,0 +1,121 @@
+<div class="genome-viewer" id="genome-viewer">
+  <div class="genome-toolbar">
+    <div class="viewer-tabs" role="group" aria-label="Genome view">
+      <button type="button" id="view-3d" aria-pressed="true">
+        3D DNA
+      </button>
+      <button type="button" id="view-contacts" aria-pressed="false">
+        Contact map
+      </button>
+    </div>
+    <div class="genome-actions" id="genome-actions">
+      <button
+        type="button"
+        id="dna-zoom-in"
+        aria-label="Zoom in"
+        title="Zoom in"
+      >
+        +
+      </button>
+      <button
+        type="button"
+        id="dna-zoom-out"
+        aria-label="Zoom out"
+        title="Zoom out"
+      >
+        −
+      </button>
+      <button
+        type="button"
+        id="dna-reset"
+        aria-label="Reset 3D view"
+        title="Reset view"
+      >
+        ↺
+      </button>
+      <button
+        type="button"
+        id="dna-expand"
+        aria-label="Expand 3D viewer"
+        aria-pressed="false"
+        title="Expand viewer"
+      >
+        ⤢
+      </button>
+    </div>
+  </div>
+  <div id="dna-panel">
+    <div class="dna-stage" id="dna-stage">
+      <div id="dna-loading" class="dna-message" role="status">
+        Preparing DNA model…
+      </div>
+      <div id="dna-fallback" class="dna-message" role="status" hidden>
+        <strong>3D view unavailable</strong>
+        <p id="dna-fallback-message">
+          Open the contact map to explore this record.
+        </p>
+        <button type="button" id="dna-fallback-map" class="text-link">
+          Open contact map →
+        </button>
+      </div>
+      <div class="dna-label dna-label-gene" id="dna-label-gene" hidden></div>
+      <div
+        class="dna-label dna-label-element"
+        id="dna-label-element"
+        hidden
+      ></div>
+      <div
+        class="dna-region-info"
+        id="dna-region-info"
+        role="status"
+        hidden
+      ></div>
+    </div>
+    <div id="dna-controls" class="dna-controls" hidden>
+      <div class="dna-help">
+        <span>Drag to rotate · scroll to zoom</span>
+        <span>Shift + drag to pan</span>
+      </div>
+      <div class="dna-playback">
+        <button
+          type="button"
+          id="dna-play"
+          aria-label="Preview contact"
+          class="dna-play"
+        >
+          ▷ <span>Preview contact</span>
+        </button>
+        <label class="sr-only" for="dna-progress">
+          Contact preview progress
+        </label>
+        <input
+          type="range"
+          id="dna-progress"
+          min="0"
+          max="100"
+          step="1"
+          value="0"
+          aria-valuetext="Open model"
+        />
+        <output id="dna-progress-label" for="dna-progress">
+          Open model
+        </output>
+      </div>
+    </div>
+    <div class="dna-legend">
+      <span>
+        <i class="promoter-key"></i> Gene start / promoter
+      </span>
+      <span>
+        <i class="element-key"></i> Selected element
+      </span>
+    </div>
+    <p class="dna-caption">
+      Illustrative 3D model · stylised helix, enlarged highlights. Not a
+      measured structure, sequence or intervention recommendation.
+    </p>
+  </div>
+  <div id="contact-panel" hidden>
+    <slot />
+  </div>
+</div>

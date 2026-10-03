@@ -1990,3 +1990,301 @@ pre code {
     gap: 20px;
   }
 }
+
+/* Interactive molecular-style genome scene. */
+.genome-viewer {
+  margin: 22px -10px 0;
+}
+.genome-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 0 12px;
+}
+.viewer-tabs {
+  display: flex;
+  gap: 3px;
+  background: #eaeade;
+  padding: 3px;
+  border-radius: 5px;
+}
+.viewer-tabs button {
+  padding: 6px 12px;
+  font-size: 11px;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--muted);
+}
+.viewer-tabs button[aria-pressed="true"] {
+  background: #fffef8;
+  color: var(--ink);
+  box-shadow: 0 1px 4px #20201d0d;
+}
+.genome-actions {
+  display: flex;
+  gap: 7px;
+}
+.genome-actions button {
+  width: 31px;
+  height: 31px;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid var(--line);
+  font-size: 20px;
+  line-height: 1;
+}
+.genome-actions button:hover {
+  background: #52683f12;
+}
+.dna-stage {
+  position: relative;
+  height: 420px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: radial-gradient(ellipse at 50% 42%, #fffefb, #f3f3ea);
+}
+.dna-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+.dna-stage canvas:active {
+  cursor: grabbing;
+}
+.dna-stage canvas:focus-visible {
+  outline-offset: -4px;
+}
+.dna-message {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px;
+  gap: 15px;
+  font-size: 12px;
+  color: var(--muted);
+  background: #f5f5ed;
+}
+.dna-message strong {
+  color: var(--ink);
+  font-size: 17px;
+}
+.dna-message p {
+  max-width: 320px;
+  margin: 0;
+}
+.dna-message .text-link {
+  font-size: 12px;
+}
+.dna-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 5px 8px;
+  font: 10px var(--mono);
+  background: #fffef8ec;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px #20201d0a;
+  pointer-events: none;
+  white-space: nowrap;
+  border: 1px solid #d9ded6;
+}
+.dna-label-gene {
+  color: #215f8f;
+  border-left: 3px solid var(--blue);
+}
+.dna-label-element {
+  color: #93452f;
+  border-left: 3px solid var(--chart-contact);
+}
+.dna-region-info {
+  position: absolute;
+  bottom: 14px;
+  left: 12px;
+  right: 12px;
+  padding: 9px 12px;
+  background: #fffef8f2;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: 10px var(--mono);
+  pointer-events: none;
+}
+.dna-help {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0 15px;
+  font-size: 9px;
+  color: var(--muted);
+}
+.dna-playback {
+  display: grid;
+  grid-template-columns: 143px minmax(50px, 1fr) 80px;
+  align-items: center;
+  gap: 14px;
+}
+.dna-play {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid #adb8a0;
+  background: #52683f0c;
+  color: var(--accent);
+  border-radius: 4px;
+  padding: 9px 7px;
+  font-size: 14px;
+}
+.dna-play span {
+  font-size: 11px;
+}
+.dna-play:hover {
+  background: #52683f1a;
+}
+#dna-progress {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+#dna-progress-label {
+  text-align: right;
+  font-size: 10px;
+  color: var(--muted);
+}
+.dna-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 23px;
+  margin-top: 22px;
+  font-size: 10px;
+}
+.dna-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.dna-caption {
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin-top: 10px;
+  max-width: 560px;
+}
+#contact-panel {
+  padding: 0 8px 8px;
+}
+#contact-panel > p {
+  font-size: 10px;
+  margin-top: 15px;
+}
+.genome-viewer.is-expanded {
+  position: fixed;
+  inset: 20px;
+  z-index: 100;
+  margin: 0;
+  padding: 22px 30px;
+  background: var(--panel);
+  border-radius: 9px;
+  box-shadow: 0 0 0 100vmax #20201dbb;
+  overflow-y: auto;
+}
+.genome-viewer.is-expanded .dna-stage {
+  height: calc(100dvh - 260px);
+  min-height: 240px;
+}
+.genome-viewer.is-expanded .dna-playback {
+  max-width: 850px;
+  margin: 0 auto;
+}
+.genome-viewer.is-expanded .dna-legend,
+.genome-viewer.is-expanded .dna-caption {
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: center;
+  text-align: center;
+}
+.genome-viewer.is-expanded #contact-panel {
+  max-width: 1100px;
+  margin: auto;
+}
+@media (max-width: 760px) {
+  .genome-viewer {
+    margin-left: -8px;
+    margin-right: -8px;
+  }
+  .dna-stage {
+    height: 350px;
+  }
+  .dna-help {
+    font-size: 8px;
+  }
+  .dna-help span:last-child {
+    display: none;
+  }
+  .dna-playback {
+    grid-template-columns: 134px 1fr;
+    gap: 8px 12px;
+  }
+  #dna-progress-label {
+    grid-column: 2;
+    font-size: 9px;
+  }
+  .dna-label {
+    font-size: 8px;
+    padding: 4px 6px;
+  }
+  .dna-legend {
+    font-size: 9px;
+    gap: 12px;
+  }
+  .genome-viewer.is-expanded {
+    inset: 8px;
+    padding: 16px 12px;
+  }
+  .genome-viewer.is-expanded .dna-stage {
+    height: calc(100dvh - 265px);
+  }
+}
+
+.genome-viewer.is-expanded {
+  display: flex;
+  flex-direction: column;
+}
+.genome-viewer.is-expanded #dna-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.genome-viewer.is-expanded .dna-stage {
+  flex: 1;
+  height: auto;
+  min-height: 200px;
+}
+.genome-viewer.is-expanded .genome-toolbar {
+  flex-shrink: 0;
+}
+.genome-viewer.is-expanded .dna-controls,
+.genome-viewer.is-expanded .dna-legend,
+.genome-viewer.is-expanded .dna-caption {
+  flex-shrink: 0;
+}
+@media (max-width: 760px) {
+  .genome-actions {
+    gap: 4px;
+  }
+  .genome-actions button {
+    width: 27px;
+    height: 29px;
+  }
+  .viewer-tabs button {
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 10px;
+  }
+}

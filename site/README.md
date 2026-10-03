@@ -27,7 +27,9 @@ background; use its `astro dev status` command from `site/` to inspect it.
 - `/workbench/`: gene lookup and up/down query. Example buttons select a
   fixture and its corresponding direction. Unsupported genes show an error.
 - `/results/?gene=SHANK3&intent=up`: ranked elements beside a linked contact
-  viewer. The viewer starts on the top-ranked element, resets when the sort changes,
+  viewer. The default viewer is an interactive molecular-style 3D schematic with
+  rotation, zoom, expansion and a controllable contact preview. The supplied
+  contact map remains available as a separate tab. The viewer starts on the top-ranked element, resets when the sort changes,
   and follows element selection independently of whether its details stay open.
   Candidate staples and method tradeoffs expand on demand.
 - `/api/`: static JSON endpoints and contract documentation.
@@ -67,6 +69,24 @@ without verified replacement data. The method library in `src/data/strategies.ts
 has primary-paper links and is separate from locus-level predictions. Its
 attractions/issues are qualitative design considerations.
 
+## 3D viewer boundaries
+
+The Three.js viewer is loaded on demand on the results page. Genomic positions
+identify the two highlighted regions within a local window. The centreline,
+helix turns, beads and bonds are generated illustration geometry: no sequence,
+atomic coordinates, measured spatial distances or folding prediction is supplied.
+The gene marker denotes the supplied transcription start, not a fabricated gene
+body. Highlight widths are enlarged for visibility. Bringing the markers together
+is a hypothetical contact exploration, independent of expression direction or a
+method recommendation; it does not imply the chosen direction has a candidate.
+
+The underlying DNA stays connected through the illustrative deformation. An
+invalid, overlapping or out-of-domain pair offers the 2D contact map instead.
+The viewer supports drag rotation, zoom/pan, keyboard controls, a contact slider
+and reduced-motion preferences. It renders on demand and pauses off screen or in
+a hidden tab. A WebGL failure retains access to the contact map. The 3D bundle is
+larger than the build tool's 500 kB advisory threshold and is a separate lazy chunk.
+
 ## Validation
 
 ```sh
@@ -78,7 +98,8 @@ uv run python contracts/validate.py
 
 Unit tests exercise missing-versus-zero contact values, exact endpoint matching,
 direction filtering, non-mutating supported sorts, viewer defaults under opposing
-rankings, source handling and HTML escaping. Browser QA covers desktop and phone layouts, the full query flow,
+rankings, source handling and HTML escaping. DNA tests cover genomic mapping,
+invalid anchors, curve continuity, approaching anchors and finite helix frames. Browser QA covers desktop and phone layouts, the full query flow,
 unsupported genes, evidence expansion, direction changes, empty results and API
 links. Candidate tables have contained horizontal scrolling on phones; the contact map
 resizes to keep the selected element visible.
@@ -94,6 +115,7 @@ Recheck the dependency before adding server rendering or deploying a server.
 
 - Astro (MIT) provides the static build; TypeScript and Node's test runner provide
   checks. Styling uses ordinary CSS, with no UI component library.
+- Three.js and OrbitControls (MIT) provide the interactive 3D renderer and camera.
 - DM Sans and IBM Plex Mono are loaded from Google Fonts (SIL Open Font License),
   with system fallbacks when unavailable. Serif emphasis uses system Georgia.
 - The logo, conceptual diagrams and DNA thread are original SVG/CSS artwork.
