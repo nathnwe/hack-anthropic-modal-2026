@@ -1,3 +1,4 @@
+import { k562Record, type K562Dataset } from "../lib/k562";
 import {
   type GeneRecord,
   type Mode,
@@ -18,7 +19,7 @@ import {
 const get = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 const app = get("results-app");
-const manifest: { symbol: string; file: string; direction: string }[] =
+const manifest: { symbol: string; file: string; direction: string | null }[] =
   JSON.parse(app.dataset.manifest || "[]");
 const base = app.dataset.base || "";
 let record: GeneRecord;
@@ -88,9 +89,11 @@ function evidenceMarkup() {
 function renderElements() {
   const criterion = get<HTMLSelectElement>("rank-select").value;
   get("rank-explanation").textContent =
-    criterion === "re2g"
-      ? "Ordered by supplied rE2G score. This is not enhancer potency or a probability that stapling will work."
-      : "Ordered by supplied promoter-contact strength. Missing contact evidence sorts last. These values do not predict expression change.";
+    criterion === "distance"
+      ? "Ordered by distance from the reference transcript TSS to the element midpoint."
+      : criterion === "re2g"
+        ? "Ordered by supplied rE2G score. Raw scores from different models and conditions are not directly comparable. This is not enhancer potency or a probability that stapling will work."
+        : "Ordered by supplied promoter-contact strength. Missing contact evidence sorts last. These values do not predict expression change.";
   const list = sortElements(record, criterion);
   activeElement = selectedElementFor(record, criterion)?.id ?? null;
   get("element-list").innerHTML =
@@ -98,9 +101,24 @@ function renderElements() {
       .map((cre, i) => {
         const strength = contactStrength(record, cre);
         const matches = contactsFor(record, cre);
+        const distance = Math.abs((cre.start + cre.end) / 2 - record.gene.tss);
+        const condition =
+          cre.source?.annotation.split("Treatment: ")[1] ||
+          "Treatment not listed";
+        const metric =
+          criterion === "distance"
+            ? `${fmt(distance)} bp`
+            : criterion === "re2g"
+              ? cre.score_rE2G.toFixed(3)
+              : strength === null
+                ? "Not recorded"
+                : String(strength);
+        const source = cre.source
+          ? `<div><p class="eyebrow">Source record</p><p><a href="${esc(cre.source.url)}" target="_blank" rel="noopener noreferrer">${esc(cre.source.accession)} ↗</a> · CSV row ${cre.source.csv_row}</p><p>${esc(cre.source.annotation)}</p><p>${esc(cre.source.model)} · ${esc(cre.source.evidence)}</p></div>`
+          : "";
         return `<details class="element" data-element="${esc(cre.id)}" data-selected="${activeElement === cre.id}">
-      <summary><span class="element-index mono">${String(i + 1).padStart(2, "0")}</span><span class="element-name"><strong>${esc(cre.id)}</strong><span class="small muted">${esc(cre.type)} · ${fmt(cre.start)}–${fmt(cre.end)}</span></span><span class="element-metric"><span class="small muted">${criterion === "re2g" ? "rE2G score" : "Contact strength"}</span><span class="mono">${criterion === "re2g" ? esc(cre.score_rE2G) : strength === null ? "Not recorded" : esc(strength)}</span></span><span class="expand-icon" aria-hidden="true">+</span></summary>
-      <div class="element-detail"><div><p class="eyebrow">Recorded criteria ${record.illustrative ? "· placeholder" : ""}</p><dl class="criteria"><div><dt>rE2G score</dt><dd>${esc(cre.score_rE2G)} <span class="small muted">raw model score</span></dd></div><div><dt>Promoter contact</dt><dd>${strength === null ? "Not recorded" : esc(strength) + " · supplied strength"}</dd></div><div><dt>Matched contacts</dt><dd>${matches.length}</dd></div><div><dt>Potency / achievability</dt><dd>Not supplied</dd></div><div><dt>Element composite / tier</dt><dd>Not supplied (staples only)</dd></div></dl></div><div><p class="eyebrow">Gene-level literature</p><ul class="evidence-list">${evidenceMarkup()}</ul><p class="small muted">Context for the gene; not element-specific validation.</p></div></div>
+      <summary><span class="element-index mono">${String(i + 1).padStart(2, "0")}</span><span class="element-name"><strong>${esc(cre.id)}</strong><span class="small muted">${cre.source ? "Candidate" : esc(cre.type)} · ${fmt(cre.start)}–${fmt(cre.end)}${cre.source ? `<span class="source-summary">${esc(cre.source.model)} · ${esc(condition)}</span>` : ""}</span></span><span class="element-metric"><span class="small muted">${criterion === "distance" ? "TSS distance" : criterion === "re2g" ? "rE2G score" : "Contact strength"}</span><span class="mono">${esc(metric)}</span></span><span class="expand-icon" aria-hidden="true">+</span></summary>
+      <div class="element-detail">${source}<div><p class="eyebrow">Recorded criteria ${record.illustrative ? "· placeholder" : ""}</p><dl class="criteria"><div><dt>rE2G score</dt><dd>${esc(cre.score_rE2G)} <span class="small muted">raw model score</span></dd></div><div><dt>Promoter contact</dt><dd>${strength === null ? "Not recorded" : esc(strength) + " · supplied strength"}</dd></div><div><dt>Distance to reference TSS</dt><dd>${fmt(distance)} bp · midpoint</dd></div><div><dt>Matched contacts</dt><dd>${matches.length}</dd></div><div><dt>Potency / achievability</dt><dd>Not supplied</dd></div><div><dt>Element composite / tier</dt><dd>Not supplied (staples only)</dd></div></dl></div><div><p class="eyebrow">Gene-level literature</p><ul class="evidence-list">${evidenceMarkup()}</ul><p class="small muted">Context for the gene; not element-specific validation.</p></div></div>
     </details>`;
       })
       .join("") ||
@@ -129,7 +147,7 @@ function drawMap() {
   const selectedContacts = selected ? contactsFor(record, selected) : [];
   get("viewer-element").textContent = selected?.id ?? "No element supplied";
   get("viewer-context").textContent = selected
-    ? `${selected.type} · ${regionLabel({ chrom: tad.chrom, start: selected.start, end: selected.end })}`
+    ? `${selected.source ? selected.source.accession + " · " + selected.source.model : selected.type} · ${regionLabel({ chrom: tad.chrom, start: selected.start, end: selected.end })}`
     : "This record has no regulatory elements to display.";
   svg.setAttribute(
     "aria-label",
@@ -152,13 +170,20 @@ function drawMap() {
   const shown = contacts.filter((c) => inside(c.a) && inside(c.b));
   const plotCREs = cres.filter((c) => c.end >= start && c.start <= end);
   const promoterInside = inside(record.gene.tss);
-  let markup = `<title>${esc(record.gene.symbol)} contact map${selected ? ` — ${esc(selected.id)}` : ""}${record.illustrative ? " — placeholder coordinates" : ""}</title><desc>Linear positions across the supplied TAD. Square: gene promoter. Circles: regulatory elements. Arcs: supplied contacts, with strength in each arc title. Arc emphasis identifies the selected element, not likelihood.</desc>`;
+  let markup = `<title>${esc(record.gene.symbol)} contact map${selected ? ` — ${esc(selected.id)}` : ""}${record.illustrative ? " — placeholder coordinates" : ""}</title><desc>Linear positions across ${record.caseStudy ? "the displayed genomic span (not a TAD)" : "the supplied TAD"}. Square: gene promoter. Circles: regulatory elements. Arcs: supplied contacts, with strength in each arc title. Arc emphasis identifies the selected element, not likelihood.</desc>`;
   markup += `<line x1="32" y1="209" x2="${plotRight}" y2="209" stroke="currentColor" opacity=".28"/>`;
   const intervals = width < 480 ? 2 : 4;
   for (let i = 0; i <= intervals; i++) {
     const p = start + ((end - start) * i) / intervals;
     markup += `<line x1="${x(p)}" y1="203" x2="${x(p)}" y2="215" stroke="currentColor" opacity=".25"/><text x="${x(p)}" y="286" text-anchor="${i === 0 ? "start" : i === intervals ? "end" : "middle"}" class="axis-label">${fmt(Math.round(p))}</text>`;
   }
+  if (record.caseStudy)
+    plotCREs.forEach((cre) => {
+      const a = x(record.gene.tss),
+        b = x((cre.start + cre.end) / 2);
+      const peak = 209 - Math.min(190, Math.max(45, Math.abs(b - a) * 0.48));
+      markup += `<path d="M${a} 209 C${a} ${peak} ${b} ${peak} ${b} 209" fill="none" stroke="#A54C38" stroke-dasharray="4 4" stroke-width="${cre.id === activeElement ? 3 : 1}" opacity="${cre.id === activeElement ? 0.95 : 0.13}"><title>${esc(cre.id)} · predicted regulatory link, not a measured contact</title></path>`;
+    });
   shown.forEach((c) => {
     const a = x(c.a),
       b = x(c.b),
@@ -173,12 +198,13 @@ function drawMap() {
   });
   if (promoterInside)
     markup += `<rect x="${x(record.gene.tss) - 7}" y="202" width="14" height="14" fill="#2A6FA8"/><text x="${x(record.gene.tss)}" y="239" text-anchor="middle" class="promoter-label">${esc(record.gene.symbol)} promoter</text>`;
-  if (!shown.length)
+  if (!shown.length && !record.caseStudy)
     markup += `<text x="${width / 2}" y="100" text-anchor="middle" class="axis-label">No in-domain contacts supplied</text>`;
   svg.innerHTML = markup;
   const omitted = contacts.length - shown.length;
-  get("map-note").textContent =
-    `${record.illustrative ? "Illustrative coordinates. " : ""}Schematic contacts, not a predicted 3D structure. ${omitted ? `${omitted} out-of-domain contact(s) omitted. ` : ""}${!promoterInside ? "The supplied promoter is outside this TAD. " : ""}${selected && !selectedContacts.length ? "No promoter contact is recorded for this element." : ""}`;
+  get("map-note").textContent = record.caseStudy
+    ? "GRCh38, BED coordinates. Dashed arcs show predicted enhancer–gene links, not measured contacts. The displayed span is not an identified TAD."
+    : `${record.illustrative ? "Illustrative coordinates. " : ""}Schematic contacts, not a predicted 3D structure. ${omitted ? `${omitted} out-of-domain contact(s) omitted. ` : ""}${!promoterInside ? "The supplied promoter is outside this TAD. " : ""}${selected && !selectedContacts.length ? "No promoter contact is recorded for this element." : ""}`;
 }
 
 function renderStaples() {
@@ -220,15 +246,30 @@ function renderRecord() {
   get("gene-title").textContent = record.gene.symbol;
   document.title = `${record.gene.symbol} — Results — Rewire Bio`;
   get("disease-line").textContent = record.gene.disease;
-  get("record-notice").innerHTML = record.illustrative
-    ? '<span class="notice-icon" aria-hidden="true">◇</span><div><strong>Placeholder record — not a biological finding.</strong><p>Disease annotations, cell type, coordinates, scores, tiers and recommendations are illustrative. In silico and experimentally unvalidated.</p></div>'
-    : `<span class="notice-icon" aria-hidden="true">◇</span><div><strong>In silico record — experimentally unvalidated.</strong><p>${record.illustrative === undefined ? "Illustrative status is unspecified. Review source provenance before interpreting this record." : "Review the sources and limitations before interpreting any proposed intervention."}</p></div>`;
+  const k562 = record.caseStudy;
+  get("record-notice").innerHTML = k562
+    ? '<span class="notice-icon" aria-hidden="true">◇</span><div><strong>56 K562 predictions · 53 distinct intervals · 8 source exports.</strong><p>All source rows retained, including treated cells. Predicted regulatory links; physical contacts and engineering effects are unvalidated.</p></div>'
+    : record.illustrative
+      ? '<span class="notice-icon" aria-hidden="true">◇</span><div><strong>Placeholder record — not a biological finding.</strong><p>Disease annotations, cell type, coordinates, scores, tiers and recommendations are illustrative. In silico and experimentally unvalidated.</p></div>'
+      : `<span class="notice-icon" aria-hidden="true">◇</span><div><strong>In silico record — experimentally unvalidated.</strong><p>${record.illustrative === undefined ? "Illustrative status is unspecified. Review source provenance before interpreting this record." : "Review the sources and limitations before interpreting any proposed intervention."}</p></div>`;
   get("tad-label").textContent = regionLabel(record.locus.tad);
   get("map-label").textContent = record.illustrative
     ? "Placeholder schematic"
     : "Contact schematic";
   get("locus-facts").innerHTML =
     `<div><dt>Cell context</dt><dd>${isPlaceholder(record.locus.cell_type) ? "Not specified (placeholder)" : esc(record.locus.cell_type)}</dd></div><div><dt>Regulatory elements</dt><dd>${record.locus.cres.length}</dd></div><div><dt>Recorded contacts</dt><dd>${record.locus.contacts.length}</dd></div><div><dt>Data status</dt><dd>${record.illustrative ? "Placeholder" : record.illustrative === false ? "In silico" : "Provenance unspecified"}</dd></div>`;
+  if (k562) {
+    get("map-label").textContent = "Predicted links";
+    get("metadata-title").textContent = "Reference & source details";
+    get("coordinate-note").textContent =
+      `${k562.assembly} · ${k562.coordinate_system}. Reference TSS: ${k562.reference.transcript}, ${fmt(k562.reference.tss)} (0-based). ${k562.reference.note} Display bounds cover the source intervals; no TAD or contact resolution supplied.`;
+    get("locus-facts").innerHTML =
+      `<div><dt>Cell context</dt><dd>K562, multiple conditions</dd></div><div><dt>Source rows</dt><dd>56</dd></div><div><dt>Unique intervals</dt><dd>53</dd></div><div><dt>Measured contacts</dt><dd>Not supplied</dd></div>`;
+    const rank = get<HTMLSelectElement>("rank-select");
+    rank.querySelector<HTMLOptionElement>('[value="contact"]')!.disabled = true;
+    rank.value = "re2g";
+    get("elements-count").textContent = "56 source predictions";
+  }
   renderElements();
   drawMap();
   updateMode();
@@ -252,15 +293,24 @@ async function loadRecord() {
       throw new Error(
         "The requested regulation direction is not supported. Use up, down or off.",
       );
-    mode = requested || (entry.direction === "too_much" ? "down" : "up");
-    const response = await fetch(
-      `${base}/data/${encodeURIComponent(entry.file)}`,
-    );
+    mode =
+      requested ||
+      (symbol === "MYC"
+        ? "up"
+        : entry.direction === "too_much"
+          ? "down"
+          : "up");
+    const file =
+      symbol === "MYC"
+        ? "case-studies/myc-k562.json"
+        : encodeURIComponent(entry.file);
+    const response = await fetch(`${base}/data/${file}`);
     if (!response.ok)
       throw new Error(
         `The ${symbol} record could not be loaded (HTTP ${response.status}).`,
       );
-    record = await response.json();
+    const data = await response.json();
+    record = symbol === "MYC" ? k562Record(data as K562Dataset) : data;
     if (
       !record.gene ||
       record.gene.symbol !== entry.symbol ||
@@ -271,8 +321,7 @@ async function loadRecord() {
       throw new Error(
         "The returned record is incomplete or does not match this gene.",
       );
-    get<HTMLAnchorElement>("json-link").href =
-      `${base}/data/${encodeURIComponent(entry.file)}`;
+    get<HTMLAnchorElement>("json-link").href = `${base}/data/${file}`;
     renderRecord();
   } catch (error) {
     get("loading-state").hidden = true;

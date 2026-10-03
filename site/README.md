@@ -36,7 +36,7 @@ check or build stops deployment and leaves the previous successful site live.
 The workflow uses Node 24 and runs the type checks and frontend tests before
 building the static site. The existing contract-validation workflow is separate.
 
-The live demo uses clearly labelled illustrative records and schematic 3D geometry.
+MYC uses sourced K562 rE2G predictions; the other examples remain labelled fixtures. All 3D folding is illustrative.
 
 ## Pages
 
@@ -87,33 +87,71 @@ without verified replacement data. The method library in `src/data/strategies.ts
 has primary-paper links and is separate from locus-level predictions. Its
 attractions/issues are qualitative design considerations.
 
+## MYC / K562 case study
+
+`public/data/case-studies/myc-k562.json` retains all **56** K562 rows from
+`MYC_rE2G_all_cell_types_GRCh38.csv`: **53** distinct intervals and **8** source
+exports. Rows are not deduplicated, merged or treated as independent validation.
+Each has its original CSV row number, accession, URL, condition annotation, model
+variant and raw score. The input CSV SHA-256 is included. Regenerate with:
+
+```sh
+python site/scripts/import-k562.py input.csv ensembl-lookup.json
+```
+
+The second input is the saved public Ensembl response from
+`https://rest.ensembl.org/lookup/id/ENSG00000136997?expand=1;content-type=application/json`.
+The reference is canonical transcript **ENST00000621592.8**, plus strand,
+GRCh38 chr8:127736231–127742951 in Ensembl's 1-based coordinates, converted to
+BED `[127736230, 127742951)`. Distances use **127736230** to each element midpoint;
+they are reference-annotation distances, not a claim about the rE2G model's
+undisclosed target TSS or a measured K562-specific TSS.
+
+This is a separate source dataset, not a replacement shared-contract record.
+`k562.ts` adapts it only for the frontend: empty contacts, staples, risks and rankings;
+no invented disease or dosage claim. The internal plotting bounds cover the source
+intervals and are labelled a **display span, not a TAD**. The CSV supplies no TAD,
+contact matrix or measured 3D conformation. Original contract fixtures stay untouched.
+The API links both this case study and the original fixtures.
+
+All K562 rows are potential regulatory elements, including sodium butyrate,
+vorinostat and DMSO conditions. An absent treatment annotation means **not listed**,
+not verified untreated. A score sort compares supplied numbers, not calibrated
+cross-model evidence. A distance sort is also available; contact-strength sorting
+is disabled because measured contacts are absent. Dashed map arcs are explicitly
+predicted regulatory links. Source: [ENCODE-rE2G](https://www.nature.com/articles/s41586-026-10781-4)
+and the per-row ENCODE accessions.
+
 ## 3D viewer boundaries
 
-The Three.js viewer is loaded on demand on the results page. It shows a molecular-style
-cutaway, with one rung for each base pair displayed. The genomic separation is the
-absolute coordinate difference from the supplied transcription start to the selected
-element's midpoint (including a half-base value for odd-width intervals). It is not
-the separation between a proposed staple's binding sites. Placeholder coordinates
-remain explicitly labelled, including in the expanded viewer.
+The full interval from the reference TSS to the complete selected element, plus
+bounded flanks, is represented continuously. **No ellipsis and no omitted bp.**
+The distance readout is TSS-to-midpoint; the total model count includes flanks.
+World units are nanometres, using idealised B-DNA with 0.34 nm centreline rise per
+bp, 10.5 bp per turn and a 1 nm helix radius. These are nominal modelling dimensions,
+not sequence-specific atomic coordinates. See [DNA mechanics and topology](https://pmc.ncbi.nlm.nih.gov/articles/PMC7288220/).
 
-Short windows up to 180 bp are shown continuously. Longer windows show local stretches
-around the two markers, normally 72 bp each; a fading end and dotted arch explicitly
-omit the intervening DNA. The exact omitted count is the gap between the displayed
-intervals. Shown base pairs plus omitted base pairs equal the full cutaway span, which
-includes flanking DNA outside the two markers. These are viewing choices, not biological
-thresholds. Geometry size is bounded for megabase-scale separations. The omitted count
-and genomic separation never change during playback; the DNA is not cut or shortened.
+A curve indexed by cumulative arc length preserves DNA contour length during the
+contact preview. The proposed junction approaches a **chosen illustrative 3 nm
+centreline separation**, not an inferred biological distance or staple design.
+The loop is explanatory geometry, not a measured conformation or molecular dynamics.
+It omits nucleosomes and higher-order chromatin packing. Actual in-cell spatial
+separation cannot be recovered from this CSV.
 
-The centreline, helix turns, beads and bonds are illustration geometry: no actual
-sequence, atomic coordinates, spatial distances or folding prediction is supplied.
-The coloured markers denote the TSS and element midpoint, not their full footprints.
-Bringing the markers together is a hypothetical contact exploration, independent of
-expression direction or a method recommendation; it does not establish feasibility.
-Invalid, overlapping, mismatched-chromosome or out-of-domain pairs offer the 2D map.
-The viewer supports drag rotation, zoom/pan, keyboard controls, a contact slider
-and reduced-motion preferences. It renders on demand and pauses off screen or in
-a hidden tab. A WebGL failure retains access to the contact map. The 3D bundle is
-larger than the build tool's 500 kB advisory threshold and is a separate lazy chunk.
+At overview scale a continuous centreline represents the entire DNA; it and the
+position markers have a minimum pixel size for visibility. As the camera zooms in,
+the visible region resolves into a molecular-style helix with **one rung per bp**.
+Only visible molecular detail is allocated; the continuous model remains present
+outside the viewport. Full span, gene, element and junction shortcuts connect these
+scales. A small full-span inset retains context during close-ups. Blue shows the
+reference transcript (when supplied), rust the selected interval; the TSS marker
+has priority where they overlap. All counts and genomic coordinates remain fixed
+while folding; only the illustrative conformation changes.
+
+The viewer supports drag rotation, zoom/pan, expansion, keyboard controls, a
+contact slider and reduced motion. Overlapping TSS/element intervals remain
+viewable with looping disabled. Invalid coordinates retain the 2D map fallback.
+The separate Three.js lazy chunk exceeds the build's 500 kB advisory threshold.
 
 ## Validation
 
@@ -124,15 +162,13 @@ npm run build --prefix site
 uv run python contracts/validate.py
 ```
 
-Unit tests exercise missing-versus-zero contact values, exact endpoint matching,
-direction filtering, non-mutating supported sorts, viewer defaults under opposing
-rankings, source handling and HTML escaping. DNA tests cover genomic mapping,
-invalid anchors, curve continuity, approaching anchors and finite helix frames. Synthetic
-scale tests from 10 bp to 2 Mb check exact rung/omission counts in both genomic orders,
-clipped windows and odd-width elements. Browser QA covers desktop and phone layouts, the full query flow,
-unsupported genes, evidence expansion, direction changes, empty results and API
-links. Candidate tables have contained horizontal scrolling on phones; the contact map
-resizes to keep the selected element visible.
+Tests cover exact source counts, provenance, source score preservation, distinct
+ranking orders, all 56 locus windows, independent numerical contour integration,
+base-pair spacing at kilobase and megabase scales in both genomic directions,
+finite frames, both arms of the junction, overlap handling and invalid coordinates.
+Existing tests retain fixture contact matching, empty results, direction filtering,
+escaping and selection behavior. Browser QA clicks every K562 row and checks
+molecular detail, longest-span selection, sorting, map fallback and mobile layout.
 
 `npm audit --omit=dev` currently reports the upstream `http-cache-semantics`
 max-stale advisory, also attributed to Astro. The registry's latest versions

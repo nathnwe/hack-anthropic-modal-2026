@@ -6,16 +6,38 @@ export type CRE = {
   end: number;
   type: "enhancer" | "silencer" | "insulator" | "promoter";
   score_rE2G: number;
+  source?: {
+    csv_row: number;
+    accession: string;
+    url: string;
+    model: string;
+    annotation: string;
+    evidence: string;
+  };
 };
 export type Contact = { a: number; b: number; strength: number };
 export type GeneRecord = {
+  caseStudy?: {
+    assembly: string;
+    coordinate_system: string;
+    reference: {
+      transcript: string;
+      start: number;
+      end: number;
+      tss: number;
+      strand: string;
+      url: string;
+      note: string;
+    };
+    source_file: string;
+  };
   illustrative?: boolean;
   gene: {
     symbol: string;
     chrom: string;
     tss: number;
     disease: string;
-    direction: "too_much" | "too_little";
+    direction: "too_much" | "too_little" | null;
     evidence: string[];
   };
   locus: { cell_type: string; tad: Region; cres: CRE[]; contacts: Contact[] };
@@ -84,6 +106,13 @@ export function sortElements(record: GeneRecord, criterion: string): CRE[] {
   if (criterion === "re2g")
     return result.sort(
       (a, b) => b.score_rE2G - a.score_rE2G || a.id.localeCompare(b.id),
+    );
+  if (criterion === "distance")
+    return result.sort(
+      (a, b) =>
+        Math.abs((a.start + a.end) / 2 - record.gene.tss) -
+          Math.abs((b.start + b.end) / 2 - record.gene.tss) ||
+        a.id.localeCompare(b.id),
     );
   return result;
 }

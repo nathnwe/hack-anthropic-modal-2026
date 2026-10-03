@@ -8,7 +8,7 @@ const files = Object.entries(
     import: "default",
   }),
 );
-const example = `const response = await fetch('${base}/data/myc.json');
+const example = `const response = await fetch('${base}/data/case-studies/myc-k562.json');
 if (!response.ok) throw new Error('Record unavailable');
 const record = await response.json();
 
@@ -17,7 +17,7 @@ if (record.illustrative === true) {
   console.info('Placeholder data — not a finding');
 }
 
-console.log(record.gene.symbol, record.ranking);`;
+console.log(record.symbol, record.links);`;
 ---
 
 <Layout title="Data API — Rewire Bio" page="api">
@@ -58,6 +58,14 @@ console.log(record.gene.symbol, record.ranking);`;
           Use the lowercase filename listed below. Unknown filenames return a
           404; there is no fallback prediction.
         </p>
+        <p>
+          MYC in the workbench uses{" "}
+          <a href={`${base}/data/case-studies/myc-k562.json`}>myc-k562.json</a>:
+          all 56 K562 CSV rows, source accessions, conditions, scores and a
+          sourced reference TSS. This case-study dataset is separate from the
+          pipeline contract below; it supplies no TAD, measured contacts or
+          staple predictions.
+        </p>
         <div class="data-files">
           {files.map(([path, r]) => (
             <a href={`${base}/data/${path.split("/").pop()}`}>
@@ -76,9 +84,9 @@ console.log(record.gene.symbol, record.ranking);`;
         <p class="placeholder-note">
           <span aria-hidden="true">◇</span>
           <span>
-            <strong>Keep the label attached.</strong> All current records have{" "}
-            <code>illustrative: true</code>. Their annotations, coordinates and
-            scores are placeholders.
+            <strong>Keep the label attached.</strong> The fixture records below
+            have <code>illustrative: true</code>. Their annotations, coordinates
+            and scores are placeholders.
           </span>
         </p>
       </section>

@@ -45,10 +45,24 @@
     </div>
   </div>
   <div id="dna-panel">
+    <div class="dna-focus" role="group" aria-label="Focus DNA view">
+      <button type="button" id="dna-focus-full">
+        Full span
+      </button>
+      <button type="button" id="dna-focus-gene">
+        MYC / TSS
+      </button>
+      <button type="button" id="dna-focus-element">
+        Element
+      </button>
+      <button type="button" id="dna-focus-junction">
+        Junction
+      </button>
+    </div>
     <div class="dna-distance" id="dna-distance" hidden>
       <div>
         <strong id="dna-separation"></strong>
-        <span>Along DNA · transcription start → element midpoint</span>
+        <span>Along DNA · reference TSS → element midpoint</span>
       </div>
       <span class="dna-coordinate-kind" id="dna-coordinate-kind"></span>
     </div>
@@ -66,7 +80,12 @@
         </button>
       </div>
       <div class="dna-label dna-label-gene" id="dna-label-gene" hidden></div>
-      <div class="dna-gap-label" id="dna-gap-label" hidden></div>
+      <div class="dna-minimap" id="dna-minimap" hidden></div>
+      <div class="dna-scale">
+        <span id="dna-scale-mode"></span>
+        <span id="dna-scale-line"></span>
+        <strong id="dna-scale-label"></strong>
+      </div>
       <div
         class="dna-label dna-label-element"
         id="dna-label-element"
@@ -115,17 +134,18 @@
         <i class="promoter-key"></i> Transcription start
       </span>
       <span>
-        <i class="element-key"></i> Element midpoint
+        <i class="element-key"></i> Regulatory element
       </span>
     </div>
     <p class="dna-caption">
       <span id="dna-resolution"></span>
       <span>
-        One rung per displayed bp. Dotted gap = continuous DNA omitted, not cut.
+        Length-preserving B-DNA model: 0.34 nm per bp. Overview lines and
+        position markers have a minimum screen size for visibility.
       </span>
       <span>
-        Sequence, 3D spacing and motion are illustrative, not a measured
-        structure or intervention prediction.
+        Idealised helix, no atomic sequence model. Folding and motion are
+        illustrative; these data do not supply a measured 3D structure.
       </span>
     </p>
   </div>

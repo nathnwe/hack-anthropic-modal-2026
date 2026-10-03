@@ -2332,3 +2332,99 @@ pre code {
     font-size: 10px;
   }
 }
+
+/* Source-rich K562 exploration and continuous molecular zoom. */
+.element-list {
+  max-height: 760px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+  padding-right: 8px;
+}
+.source-summary {
+  display: block;
+  font-size: 10px;
+  line-height: 1.5;
+  padding-top: 4px;
+}
+.element-detail {
+  overflow-wrap: anywhere;
+}
+.dna-focus {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.dna-focus button {
+  border: 0;
+  background: rgba(116, 140, 99, 0.1);
+  border-radius: 20px;
+  padding: 7px 13px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.dna-focus button:hover {
+  background: rgba(116, 140, 99, 0.22);
+}
+.dna-focus button:disabled,
+.dna-play:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.dna-scale {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 12px;
+  pointer-events: none;
+  font-size: 10px;
+  color: #51594e;
+}
+#dna-scale-mode {
+  display: block;
+  margin-bottom: 10px;
+}
+#dna-scale-line {
+  display: inline-block;
+  border: 1px solid #51594e;
+  border-top: 0;
+  height: 6px;
+  margin-right: 8px;
+  vertical-align: 2px;
+}
+#dna-scale-label {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 760px) {
+  .element-list {
+    max-height: 420px;
+  }
+}
+.dna-minimap {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 130px;
+  background: rgba(249, 248, 242, 0.9);
+  border-radius: 6px;
+  padding: 4px;
+  text-align: center;
+  pointer-events: none;
+}
+.dna-minimap svg {
+  width: 100%;
+  display: block;
+}
+.dna-minimap span {
+  display: block;
+  font-size: 9px;
+  color: #62695c;
+  padding-bottom: 4px;
+}
+@media (max-width: 760px) {
+  .dna-minimap {
+    width: 96px;
+  }
+}

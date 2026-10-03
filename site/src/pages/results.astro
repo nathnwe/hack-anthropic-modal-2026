@@ -78,12 +78,14 @@ const manifest = Object.entries(files).map(([path, r]) => ({
           <div class="section-heading">
             <div>
               <h2>Regulatory elements</h2>
+              <p class="small muted" id="elements-count"></p>
             </div>
             <label class="sort-control">
               Rank by{" "}
               <select id="rank-select">
                 <option value="contact">Contact strength</option>
                 <option value="re2g">rE2G score</option>
+                <option value="distance">Distance to TSS</option>
                 <option value="composite" disabled>
                   Composite — staples only
                 </option>
@@ -160,18 +162,19 @@ const manifest = Object.entries(files).map(([path, r]) => ({
                   <i class="element-key"></i> Selected element
                 </span>
                 <span>
-                  <i class="line-key"></i> Recorded contact
+                  <i class="line-key"></i> Contact / predicted link
                 </span>
               </div>
               <p id="map-note" class="small muted"></p>
             </GenomeViewer>
             <details class="viewer-metadata">
               <summary>
-                TAD &amp; record details <span aria-hidden="true">+</span>
+                <span id="metadata-title">TAD &amp; record details</span>{" "}
+                <span aria-hidden="true">+</span>
               </summary>
               <p class="mono" id="tad-label"></p>
               <dl id="locus-facts"></dl>
-              <p class="small muted">
+              <p class="small muted" id="coordinate-note">
                 Genome assembly and contact resolution are not supplied.
               </p>
             </details>

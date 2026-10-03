@@ -130,7 +130,13 @@ const records = Object.values(
               type="button"
               class="example-button"
               data-gene={r.gene.symbol}
-              data-mode={r.gene.direction === "too_much" ? "down" : "up"}
+              data-mode={
+                r.gene.symbol === "MYC"
+                  ? "up"
+                  : r.gene.direction === "too_much"
+                    ? "down"
+                    : "up"
+              }
             >
               {r.gene.symbol}
               <span aria-hidden="true">↗</span>
@@ -138,14 +144,14 @@ const records = Object.values(
           ))}
         </div>
         <p id="example-status" class="small muted" aria-live="polite">
-          All {records.length} examples contain placeholder data.
+          MYC opens all K562 predictions. Other examples are placeholders.
         </p>
       </div>
       <p class="placeholder-note">
         <span aria-hidden="true">◇</span>
         <span>
-          <strong>Illustrative data only.</strong> Coordinates, scores and
-          disease annotations in these examples are placeholders, not findings.
+          <strong>Know your source.</strong> MYC uses sourced K562 rE2G
+          predictions. SHANK3 and PMP22 remain illustrative examples.
         </span>
       </p>
     </div>
@@ -181,7 +187,7 @@ const records = Object.values(
           error.hidden = true;
           input.removeAttribute("aria-invalid");
           document.querySelector("#example-status")!.textContent =
-            `${input.value} selected · illustrative record. You can change the direction before exploring.`;
+            `${input.value} selected · ${input.value === "MYC" ? "K562 predictions" : "illustrative record"}. You can change the direction before exploring.`;
         }),
       );
   </script>
