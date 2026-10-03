@@ -9,6 +9,7 @@ import {
   contactsFor,
   contactStrength,
   sortElements,
+  selectedElementFor,
   candidatesFor,
   evidenceLink,
   escapeHTML as esc,
@@ -42,12 +43,13 @@ function renderElements() {
       ? "Ordered by supplied rE2G score. This is not enhancer potency or a probability that stapling will work."
       : "Ordered by supplied promoter-contact strength. Missing contact evidence sorts last. These values do not predict expression change.";
   const list = sortElements(record, criterion);
+  activeElement = selectedElementFor(record, criterion)?.id ?? null;
   get("element-list").innerHTML =
     list
       .map((cre, i) => {
         const strength = contactStrength(record, cre);
         const matches = contactsFor(record, cre);
-        return `<details class="element" data-element="${esc(cre.id)}" ${activeElement === cre.id ? "open" : ""}>
+        return `<details class="element" data-element="${esc(cre.id)}" data-selected="${activeElement === cre.id}">
       <summary><span class="element-index mono">${String(i + 1).padStart(2, "0")}</span><span class="element-name"><strong>${esc(cre.id)}</strong><span class="small muted">${esc(cre.type)} · ${fmt(cre.start)}–${fmt(cre.end)}</span></span><span class="element-metric"><span class="small muted">${criterion === "re2g" ? "rE2G score" : "Contact strength"}</span><span class="mono">${criterion === "re2g" ? esc(cre.score_rE2G) : strength === null ? "Not recorded" : esc(strength)}</span></span><span class="expand-icon" aria-hidden="true">+</span></summary>
       <div class="element-detail"><div><p class="eyebrow">Recorded criteria ${record.illustrative ? "· placeholder" : ""}</p><dl class="criteria"><div><dt>rE2G score</dt><dd>${esc(cre.score_rE2G)} <span class="small muted">raw model score</span></dd></div><div><dt>Promoter contact</dt><dd>${strength === null ? "Not recorded" : esc(strength) + " · supplied strength"}</dd></div><div><dt>Matched contacts</dt><dd>${matches.length}</dd></div><div><dt>Potency / achievability</dt><dd>Not supplied</dd></div><div><dt>Element composite / tier</dt><dd>Not supplied (staples only)</dd></div></dl></div><div><p class="eyebrow">Gene-level literature</p><ul class="evidence-list">${evidenceMarkup()}</ul><p class="small muted">Context for the gene; not element-specific validation.</p></div></div>
     </details>`;
@@ -57,16 +59,14 @@ function renderElements() {
   get("element-list")
     .querySelectorAll<HTMLDetailsElement>("details")
     .forEach((detail) => {
-      detail.addEventListener("toggle", () => {
-        if (detail.open) {
-          activeElement = detail.dataset.element!;
-          get("element-list")
-            .querySelectorAll<HTMLDetailsElement>("details")
-            .forEach((other) => {
-              if (other !== detail) other.open = false;
-            });
-        } else if (activeElement === detail.dataset.element)
-          activeElement = null;
+      detail.querySelector("summary")!.addEventListener("click", () => {
+        activeElement = detail.dataset.element!;
+        get("element-list")
+          .querySelectorAll<HTMLDetailsElement>("details")
+          .forEach((other) => {
+            other.dataset.selected = String(other === detail);
+            if (other !== detail) other.open = false;
+          });
         drawMap();
       });
     });
@@ -75,6 +75,16 @@ function renderElements() {
 function drawMap() {
   const { tad, cres, contacts } = record.locus;
   const svg = document.getElementById("contact-map")!;
+  const selected = cres.find((c) => c.id === activeElement);
+  const selectedContacts = selected ? contactsFor(record, selected) : [];
+  get("viewer-element").textContent = selected?.id ?? "No element supplied";
+  get("viewer-context").textContent = selected
+    ? `${selected.type} · ${regionLabel({ chrom: tad.chrom, start: selected.start, end: selected.end })}`
+    : "This record has no regulatory elements to display.";
+  svg.setAttribute(
+    "aria-label",
+    `${record.gene.symbol} contact schematic${selected ? ` for ${selected.id}` : ""}${record.illustrative ? " — placeholder data" : ""}`,
+  );
   const start = tad.start,
     end = tad.end;
   if (end <= start) {
@@ -84,40 +94,41 @@ function drawMap() {
       "Invalid or empty TAD interval in the record.";
     return;
   }
-  const x = (n: number) => 48 + ((n - start) / (end - start)) * 784;
+  const width = Math.max(280, svg.parentElement!.clientWidth || 640);
+  const plotRight = width - 32;
+  svg.setAttribute("viewBox", `0 0 ${width} 305`);
+  const x = (n: number) => 32 + ((n - start) / (end - start)) * (width - 64);
   const inside = (n: number) => n >= start && n <= end;
   const shown = contacts.filter((c) => inside(c.a) && inside(c.b));
-  const selected = cres.find((c) => c.id === activeElement);
-  const selectedContacts = selected ? contactsFor(record, selected) : [];
   const plotCREs = cres.filter((c) => c.end >= start && c.start <= end);
   const promoterInside = inside(record.gene.tss);
-  let markup = `<title>${esc(record.gene.symbol)} contact map${record.illustrative ? " — placeholder coordinates" : ""}</title><desc>Linear positions across the supplied TAD. Square: gene promoter. Circles: regulatory elements. Arcs: supplied contacts, with strength in each arc title. Equal arc widths do not encode likelihood.</desc>`;
-  markup += `<line x1="48" y1="209" x2="832" y2="209" stroke="currentColor" opacity=".28"/>`;
-  for (let i = 0; i < 5; i++) {
-    const p = start + ((end - start) * i) / 4;
-    markup += `<line x1="${x(p)}" y1="203" x2="${x(p)}" y2="215" stroke="currentColor" opacity=".25"/><text x="${x(p)}" y="279" text-anchor="middle" class="axis-label">${fmt(Math.round(p))}</text>`;
+  let markup = `<title>${esc(record.gene.symbol)} contact map${selected ? ` — ${esc(selected.id)}` : ""}${record.illustrative ? " — placeholder coordinates" : ""}</title><desc>Linear positions across the supplied TAD. Square: gene promoter. Circles: regulatory elements. Arcs: supplied contacts, with strength in each arc title. Arc emphasis identifies the selected element, not likelihood.</desc>`;
+  markup += `<line x1="32" y1="209" x2="${plotRight}" y2="209" stroke="currentColor" opacity=".28"/>`;
+  const intervals = width < 480 ? 2 : 4;
+  for (let i = 0; i <= intervals; i++) {
+    const p = start + ((end - start) * i) / intervals;
+    markup += `<line x1="${x(p)}" y1="203" x2="${x(p)}" y2="215" stroke="currentColor" opacity=".25"/><text x="${x(p)}" y="286" text-anchor="${i === 0 ? "start" : i === intervals ? "end" : "middle"}" class="axis-label">${fmt(Math.round(p))}</text>`;
   }
   shown.forEach((c) => {
     const a = x(c.a),
       b = x(c.b),
       peak = 209 - Math.min(190, Math.max(45, Math.abs(b - a) * 0.48));
     const highlighted = selectedContacts.includes(c);
-    markup += `<path d="M${a} 209 C${a} ${peak} ${b} ${peak} ${b} 209" fill="none" stroke="#A54C38" stroke-width="${highlighted ? 3 : 1.8}" opacity="${selected && !highlighted ? 0.2 : 0.75}"><title>Contact: ${fmt(c.a)} ↔ ${fmt(c.b)}; strength ${esc(c.strength)}${record.illustrative ? " (placeholder)" : ""}</title></path>`;
+    markup += `<path d="M${a} 209 C${a} ${peak} ${b} ${peak} ${b} 209" fill="none" stroke="#A54C38" stroke-width="${highlighted ? 4 : 1.8}" opacity="${selected && !highlighted ? 0.12 : 0.9}"><title>Contact: ${fmt(c.a)} ↔ ${fmt(c.b)}; strength ${esc(c.strength)}${record.illustrative ? " (placeholder)" : ""}</title></path>`;
   });
-  plotCREs.forEach((cre, i) => {
+  plotCREs.forEach((cre) => {
     const midpoint = Math.max(start, Math.min(end, (cre.start + cre.end) / 2));
     const pos = x(midpoint);
-    markup += `<g><title>${esc(cre.id)} · ${esc(cre.type)} · ${fmt(cre.start)}–${fmt(cre.end)}</title><circle cx="${pos}" cy="209" r="${activeElement === cre.id ? 8 : 5}" fill="#A54C38"/><text x="${pos}" y="${i % 2 === 0 ? 239 : 254}" text-anchor="middle" class="cre-label">${esc(cre.id)}</text></g>`;
+    markup += `<g><title>${esc(cre.id)} · ${esc(cre.type)} · ${fmt(cre.start)}–${fmt(cre.end)}</title><circle cx="${pos}" cy="209" r="${activeElement === cre.id ? 7 : 4}" fill="#A54C38" opacity="${activeElement === cre.id ? 1 : 0.3}"/>${activeElement === cre.id ? `<text x="${pos}" y="256" text-anchor="${pos > width - 75 ? "end" : pos < 75 ? "start" : "middle"}" class="cre-label" font-weight="600">${esc(cre.id)}</text>` : ""}</g>`;
   });
   if (promoterInside)
     markup += `<rect x="${x(record.gene.tss) - 7}" y="202" width="14" height="14" fill="#2A6FA8"/><text x="${x(record.gene.tss)}" y="239" text-anchor="middle" class="promoter-label">${esc(record.gene.symbol)} promoter</text>`;
   if (!shown.length)
-    markup +=
-      '<text x="440" y="100" text-anchor="middle" class="axis-label">No in-domain contacts supplied</text>';
+    markup += `<text x="${width / 2}" y="100" text-anchor="middle" class="axis-label">No in-domain contacts supplied</text>`;
   svg.innerHTML = markup;
   const omitted = contacts.length - shown.length;
   get("map-note").textContent =
-    `${record.illustrative ? "Illustrative coordinates. " : ""}Positions follow the supplied TAD; arc height is schematic. ${omitted ? `${omitted} out-of-domain contact(s) omitted. ` : ""}${!promoterInside ? "The supplied promoter is outside this TAD. " : ""}${selected ? `Highlighted: ${selected.id}.` : "Expand an element below to highlight its contacts."}`;
+    `${record.illustrative ? "Illustrative coordinates. " : ""}Schematic contacts, not a predicted 3D structure. ${omitted ? `${omitted} out-of-domain contact(s) omitted. ` : ""}${!promoterInside ? "The supplied promoter is outside this TAD. " : ""}${selected && !selectedContacts.length ? "No promoter contact is recorded for this element." : ""}`;
 }
 
 function renderStaples() {
@@ -126,7 +137,7 @@ function renderStaples() {
     `${staples.length} matching ${staples.length === 1 ? "design" : "designs"}`;
   if (!staples.length) {
     get("staples-content").innerHTML =
-      `<div class="empty-inline"><h3>No ${modeLabels[mode].toLowerCase()} staple is supplied.</h3><p>This record contains ${record.staples.length} candidate(s), but none for this direction. The locus above remains available to inspect. No alternative intervention has been inferred.</p></div>`;
+      `<div class="empty-inline"><h3>No ${modeLabels[mode].toLowerCase()} staple is supplied.</h3><p>The record has no candidate for this direction. Recorded contacts remain available to explore.</p></div>`;
     return;
   }
   get("staples-content").innerHTML =
@@ -164,8 +175,8 @@ function renderRecord() {
     : `<span class="notice-icon" aria-hidden="true">◇</span><div><strong>In silico record — experimentally unvalidated.</strong><p>${record.illustrative === undefined ? "Illustrative status is unspecified. Review source provenance before interpreting this record." : "Review the sources and limitations before interpreting any proposed intervention."}</p></div>`;
   get("tad-label").textContent = regionLabel(record.locus.tad);
   get("map-label").textContent = record.illustrative
-    ? "Illustrative TAD"
-    : "Supplied TAD";
+    ? "Placeholder schematic"
+    : "Contact schematic";
   get("locus-facts").innerHTML =
     `<div><dt>Cell context</dt><dd>${isPlaceholder(record.locus.cell_type) ? "Not specified (placeholder)" : esc(record.locus.cell_type)}</dd></div><div><dt>Regulatory elements</dt><dd>${record.locus.cres.length}</dd></div><div><dt>Recorded contacts</dt><dd>${record.locus.contacts.length}</dd></div><div><dt>Data status</dt><dd>${record.illustrative ? "Placeholder" : record.illustrative === false ? "In silico" : "Provenance unspecified"}</dd></div>`;
   renderElements();
@@ -237,4 +248,12 @@ get<HTMLSelectElement>("intent-select").addEventListener("change", () => {
   history.replaceState(null, "", url);
   updateMode();
 });
+let lastMapWidth = 0;
+new ResizeObserver(([entry]) => {
+  const width = Math.round(entry.contentRect.width);
+  if (record && width > 0 && width !== lastMapWidth) {
+    lastMapWidth = width;
+    drawMap();
+  }
+}).observe(document.querySelector(".map-scroll")!);
 void loadRecord();

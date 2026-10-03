@@ -4,59 +4,55 @@ import { strategies } from "../data/strategies";
 
 <section id="methods" class="results-section methods-section">
   <div class="section-heading">
-    <div>
-      <p class="eyebrow">04 / Method library</p>
-      <h2>Ways to make a connection.</h2>
-    </div>
-    <span class="tag">7 approaches</span>
+    <h2>Stapling strategies</h2>
+    <span class="small muted">7 approaches</span>
   </div>
   <p class="section-description">
-    Method-level research, separate from the gene record. Attractions and issues
-    are qualitative design considerations; these are not validated interventions
-    for your selected target.
+    Method-level evidence; not validated for this target. Select a strategy to
+    compare tradeoffs.
   </p>
-  <div
-    class="table-scroll"
-    role="region"
-    aria-label="Stapling strategies comparison, scroll horizontally on small screens"
-    tabindex="0"
-  >
-    <table class="strategies-table">
-      <caption class="sr-only">
-        Stapling strategies, mammalian evidence, switchability and design
-        tradeoffs
-      </caption>
-      <thead>
-        <tr>
-          <th scope="col">Strategy</th>
-          <th scope="col">Mammalian evidence</th>
-          <th scope="col">Switchability</th>
-          <th scope="col">Main attraction</th>
-          <th scope="col">Main issue</th>
-        </tr>
-      </thead>
-      <tbody>
-        {strategies.map((s) => (
-          <tr>
-            <th scope="row">
-              <strong>{s.name}</strong>
-              <span class="small muted">{s.mechanism}</span>
-              <a
-                class="source-link"
-                href={s.source}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {s.citation} ↗
-              </a>
-            </th>
-            <td>{s.evidence}</td>
-            <td>{s.switchability}</td>
-            <td>{s.attraction}</td>
-            <td>{s.issue}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+  <div class="strategy-list">
+    {strategies.map((s, i) => (
+      <details class="strategy" name="stapling-strategy">
+        <summary>
+          <span class="mono strategy-index">
+            {String(i + 1).padStart(2, "0")}
+          </span>
+          <strong>{s.name}</strong>
+          <span class="strategy-mechanism">{s.mechanism}</span>
+          <span class="expand-icon" aria-hidden="true">
+            +
+          </span>
+        </summary>
+        <div class="strategy-detail">
+          <dl>
+            <div>
+              <dt>Mammalian evidence</dt>
+              <dd>{s.evidence}</dd>
+            </div>
+            <div>
+              <dt>Switchability</dt>
+              <dd>{s.switchability}</dd>
+            </div>
+            <div>
+              <dt>Main attraction</dt>
+              <dd>{s.attraction}</dd>
+            </div>
+            <div>
+              <dt>Main issue</dt>
+              <dd>{s.issue}</dd>
+            </div>
+          </dl>
+          <a
+            class="source-link"
+            href={s.source}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {s.citation} ↗
+          </a>
+        </div>
+      </details>
+    ))}
   </div>
 </section>

@@ -87,6 +87,13 @@ export function sortElements(record: GeneRecord, criterion: string): CRE[] {
     );
   return result;
 }
+// A new ranking always starts the viewer on its first available element.
+export function selectedElementFor(
+  record: GeneRecord,
+  criterion: string,
+): CRE | null {
+  return sortElements(record, criterion)[0] ?? null;
+}
 export function candidatesFor(record: GeneRecord, mode: Mode) {
   const score = (id: string) =>
     record.ranking.find((r) => r.staple_id === id)?.score ?? -Infinity;

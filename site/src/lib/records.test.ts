@@ -7,6 +7,7 @@ import {
   contactStrength,
   candidatesFor,
   sortElements,
+  selectedElementFor,
   evidenceLink,
   escapeHTML,
 } from "./records.ts";
@@ -77,4 +78,16 @@ test("record content cannot inject markup into result tables", () => {
     escapeHTML('<img src=x onerror="alert(1)">'),
     "&lt;img src=x onerror=&quot;alert(1)&quot;&gt;",
   );
+});
+
+test("viewer defaults follow each ranking, including opposite orders and an empty locus", () => {
+  const record = fixture();
+  const [first, second] = record.locus.cres;
+  // Test-only values exercise diverging rankings without changing a fixture.
+  first.score_rE2G = 0.1;
+  second.score_rE2G = 0.9;
+  assert.equal(selectedElementFor(record, "contact")?.id, first.id);
+  assert.equal(selectedElementFor(record, "re2g")?.id, second.id);
+  record.locus.cres = [];
+  assert.equal(selectedElementFor(record, "contact"), null);
 });

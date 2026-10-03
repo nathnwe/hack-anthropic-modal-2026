@@ -24,10 +24,12 @@ background; use its `astro dev status` command from `site/` to inspect it.
 
 - `/`: full-viewport wordmark, About, Team and Contact anchors, scroll-linked DNA
   thread. Reduced-motion preference renders the thread without animation.
-- `/workbench/`: gene lookup and up/down/off query. Example buttons select a
+- `/workbench/`: gene lookup and up/down query. Example buttons select a
   fixture and its corresponding direction. Unsupported genes show an error.
-- `/results/?gene=SHANK3&intent=up`: static record fetch, contact map, element
-  details and sources, direction-filtered staple rankings, risks and methods.
+- `/results/?gene=SHANK3&intent=up`: ranked elements beside a linked contact
+  viewer. The viewer starts on the top-ranked element, resets when the sort changes,
+  and follows element selection independently of whether its details stay open.
+  Candidate staples and method tradeoffs expand on demand.
 - `/api/`: static JSON endpoints and contract documentation.
 
 All paths above are under `/hack-anthropic-modal-2026` in development and production.
@@ -75,10 +77,11 @@ uv run python contracts/validate.py
 ```
 
 Unit tests exercise missing-versus-zero contact values, exact endpoint matching,
-direction filtering, non-mutating supported sorts, source handling and HTML
-escaping. Browser QA covers desktop and phone layouts, the full query flow,
+direction filtering, non-mutating supported sorts, viewer defaults under opposing
+rankings, source handling and HTML escaping. Browser QA covers desktop and phone layouts, the full query flow,
 unsupported genes, evidence expansion, direction changes, empty results and API
-links. Tables and the contact map have contained horizontal scrolling on phones.
+links. Candidate tables have contained horizontal scrolling on phones; the contact map
+resizes to keep the selected element visible.
 
 `npm audit --omit=dev` currently reports the upstream `http-cache-semantics`
 max-stale advisory, also attributed to Astro. The registry's latest versions
@@ -95,7 +98,7 @@ Recheck the dependency before adding server rendering or deploying a server.
   with system fallbacks when unavailable. Serif emphasis uses system Georgia.
 - The logo, conceptual diagrams and DNA thread are original SVG/CSS artwork.
 - Fixture provenance: `contracts/fixtures/`; source of truth: `contracts/schema.json`.
-- The method table links the primary studies for CLOuD9, LADL, bivalent dCas,
+- The method library links the primary studies for CLOuD9, LADL, bivalent dCas,
   BPCL, LDB1, CTCF and ZF tethering.
 - Real team names, contact details, experimental findings and verified gene
   records remain to be supplied. The GitHub project is the current contact link.

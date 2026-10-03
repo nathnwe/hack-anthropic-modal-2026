@@ -59,10 +59,9 @@ const manifest = Object.entries(files).map(([path, r]) => ({
       <div id="record-notice" class="notice"></div>
       <div class="results-controls">
         <nav aria-label="Results sections">
-          <a href="#landscape">Landscape</a>
           <a href="#elements">Elements</a>
-          <a href="#staples">Staples</a>
-          <a href="#methods">Methods</a>
+          <a href="#landscape">Viewer</a>
+          <a href="#methods">Strategies</a>
         </nav>
         <label class="small">
           Direction{" "}
@@ -73,29 +72,80 @@ const manifest = Object.entries(files).map(([path, r]) => ({
           </select>
         </label>
       </div>
-      <section id="landscape" class="results-section landscape-section">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">01 / In the neighbourhood</p>
-            <h2>A view of the connections.</h2>
-          </div>
-          <span id="map-label" class="tag"></span>
-        </div>
-        <div class="landscape-grid">
-          <div class="map-panel">
-            <div class="map-topline">
-              <span class="eyebrow">Promoter–element contacts</span>
-              <span class="mono" id="tad-label"></span>
+      <div class="exploration-grid">
+        <section id="elements" class="results-section elements-section">
+          <div class="section-heading">
+            <div>
+              <h2>Regulatory elements</h2>
             </div>
+            <label class="sort-control">
+              Rank by{" "}
+              <select id="rank-select">
+                <option value="contact">Contact strength</option>
+                <option value="re2g">rE2G score</option>
+                <option value="composite" disabled>
+                  Composite — staples only
+                </option>
+                <option value="potency" disabled>
+                  Potency — not supplied
+                </option>
+                <option value="achievability" disabled>
+                  Achievability — not supplied
+                </option>
+              </select>
+            </label>
+          </div>
+          <div class="element-list" id="element-list"></div>
+          <details class="methodology">
+            <summary>
+              About the ranking <span aria-hidden="true">+</span>
+            </summary>
+            <p id="rank-explanation"></p>
+            <p>
+              Contact strength is the maximum supplied strength for a contact
+              with one endpoint exactly at the gene’s TSS and the other inside
+              the element’s interval (inclusive endpoints). No nearby-contact
+              tolerance is inferred. Missing contact evidence sorts last, and is
+              not treated as zero.
+            </p>
+            <p>
+              rE2G is displayed as the record’s raw enhancer–gene score, not
+              enhancer potency or a probability of successful engineering.
+              Composite scores and tiers belong to staples in this contract.
+              Potency and achievability are not supplied, so those sorts are
+              disabled.
+            </p>
+            <p>
+              Gene-level literature is shown with each element for context. It
+              does not, by itself, validate that element or an engineered
+              contact.
+            </p>
+          </details>
+        </section>
+        <section id="landscape" class="results-section viewer-section">
+          <div class="section-heading">
+            <h2>Rewired genome viewer</h2>
+          </div>
+          <div class="map-panel">
+            <div class="viewer-selection" aria-live="polite">
+              <div>
+                <p class="eyebrow">Selected element</p>
+                <h3 id="viewer-element"></h3>
+              </div>
+              <span id="map-label" class="tag">
+                Contact schematic
+              </span>
+            </div>
+            <p id="viewer-context" class="small muted"></p>
             <div
               class="map-scroll"
               role="region"
-              aria-label="Contact diagram, scroll horizontally on small screens"
+              aria-label="Selected-element contact diagram"
               tabindex="0"
             >
               <svg
                 id="contact-map"
-                viewBox="0 0 880 300"
+                viewBox="0 0 880 340"
                 role="img"
                 aria-label="Contact diagram"
               ></svg>
@@ -105,95 +155,46 @@ const manifest = Object.entries(files).map(([path, r]) => ({
                 <i class="promoter-key"></i> Promoter
               </span>
               <span>
-                <i class="element-key"></i> Regulatory element
+                <i class="element-key"></i> Selected element
               </span>
               <span>
                 <i class="line-key"></i> Recorded contact
               </span>
             </div>
             <p id="map-note" class="small muted"></p>
+            <details class="viewer-metadata">
+              <summary>
+                TAD &amp; record details <span aria-hidden="true">+</span>
+              </summary>
+              <p class="mono" id="tad-label"></p>
+              <dl id="locus-facts"></dl>
+              <p class="small muted">
+                Genome assembly and contact resolution are not supplied.
+              </p>
+            </details>
           </div>
-          <aside class="locus-facts">
-            <p class="eyebrow">Record at a glance</p>
-            <dl id="locus-facts"></dl>
-            <p class="small muted">
-              Genome assembly and contact resolution are not specified by this
-              contract.
+          <details id="staples" class="candidate-disclosure">
+            <summary>
+              <span>Candidate staples</span>
+              <span id="staple-count" class="small muted"></span>
+              <span class="expand-icon" aria-hidden="true">
+                +
+              </span>
+            </summary>
+            <p class="section-description">
+              For the requested direction, ordered by supplied composite score.
+              Tiers express uncertainty.
             </p>
-          </aside>
-        </div>
-      </section>
-      <section id="elements" class="results-section">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">02 / Regulatory elements</p>
-            <h2>A closer look.</h2>
-          </div>
-          <label class="sort-control">
-            Rank by{" "}
-            <select id="rank-select">
-              <option value="contact">Contact strength</option>
-              <option value="re2g">rE2G score</option>
-              <option value="composite" disabled>
-                Composite — staples only
-              </option>
-              <option value="potency" disabled>
-                Potency — not supplied
-              </option>
-              <option value="achievability" disabled>
-                Achievability — not supplied
-              </option>
-            </select>
-          </label>
-        </div>
-        <p id="rank-explanation" class="section-description"></p>
-        <div class="element-list" id="element-list"></div>
-        <details class="methodology">
-          <summary>
-            How these rankings are read <span aria-hidden="true">+</span>
-          </summary>
-          <p>
-            Contact strength is the maximum supplied strength for a contact with
-            one endpoint exactly at the gene’s TSS and the other inside the
-            element’s interval (inclusive endpoints). No nearby-contact
-            tolerance is inferred. Missing contact evidence sorts last, and is
-            not treated as zero.
-          </p>
-          <p>
-            rE2G is displayed as the record’s raw enhancer–gene score, not
-            enhancer potency or a probability of successful engineering.
-            Composite scores and tiers belong to staples in this contract.
-            Potency and achievability are not supplied, so those sorts are
-            disabled.
-          </p>
-          <p>
-            Gene-level literature is shown with each element for context. It
-            does not, by itself, validate that element or an engineered contact.
-          </p>
-        </details>
-      </section>
-      <section id="staples" class="results-section">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">03 / Candidate designs</p>
-            <h2>Connections to investigate.</h2>
-          </div>
-          <span class="tag" id="staple-count"></span>
-        </div>
-        <p class="section-description">
-          Matching the requested direction, ordered by the record’s composite
-          score. Uncertainty is shown as the supplied ordinal tier, not a
-          success probability.
-        </p>
-        <div id="staples-content"></div>
-      </section>
+            <div id="staples-content"></div>
+          </details>
+        </section>
+      </div>
       <Strategies />
       <section class="limitations">
         <span class="eyebrow">What remains unknown</span>
         <p>
-          Contact is not proof of regulation. Rankings do not establish an
-          expression effect, delivery feasibility, reversibility or safety.
-          These in silico proposals require experimental validation.
+          Contact does not establish an expression effect or safety. These in
+          silico proposals require experimental validation.
         </p>
       </section>
     </article>
