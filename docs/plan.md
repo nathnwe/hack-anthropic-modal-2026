@@ -43,7 +43,7 @@ The three branches stay independent through a shared data contract: [`contracts/
 ## 4. Multi-agent use inside each branch
 Each operator runs their own Claude Code session on their own branch (ideally a git worktree).
 - **Papers (hour 1, A and B):** two parallel research agents, one per paper, each returning a 1-page brief (data formats, download locations, meaning of outputs, caveats). Commit the briefs to `docs/briefs/`.
-- **Implementation:** `create-plan` then `implement-plan` for A's dependent phases.
+- **Implementation:** plan first with the `plan` skill, then implement in phases for A's dependent stages.
 - **Review:** `/code-review` before each merge; B also does a scientific sanity pass on A's outputs (plausible TAD sizes, correct CRE types).
 - **Avoid** several agents editing the same files. Divide by file ownership, not task.
 
