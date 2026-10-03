@@ -331,13 +331,31 @@ const genes = records.sort((a, b) => a.gene.symbol.localeCompare(b.gene.symbol))
           : '<tr><td colspan="4" class="px-4 py-6 text-sm text-slate-500">No candidate staples.</td></tr>';
       }
 
+      // Deep link: /search?gene=MYC&intent=down selects that state on load, and the
+      // URL tracks the controls so any view can be copied and shared.
+      const params = new URLSearchParams(location.search);
+      const wanted = params.get('gene');
+      if (wanted && bySymbol[wanted]) $('gene-select').value = wanted;
+      const intent = params.get('intent');
+      if (intent && ['up', 'down', 'off'].includes(intent)) $('intent-select').value = intent;
+
+      function syncUrl() {
+        const q = new URLSearchParams({
+          gene: $('gene-select').value,
+          intent: $('intent-select').value,
+        });
+        history.replaceState(null, '', location.pathname + '?' + q);
+      }
+
       ['gene-select', 'intent-select', 'high-only'].forEach((id) =>
         $(id).addEventListener('change', () => {
           if (id === 'gene-select') selectedCre = null;
+          syncUrl();
           render();
         })
       );
 
+      syncUrl();
       render();
     })();
   </script>
