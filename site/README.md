@@ -2,7 +2,7 @@
 
 An Astro static site on `feat/site-alt`, developed independently of `feat/site`.
 Only `site/` is changed. The landing page, workbench, results and API pages share
-a parchment/clay identity, original SVG mark and responsive CSS. No deployment
+a parchment/olive identity, original interwoven DNA SVG mark and responsive CSS. No deployment
 or backend inference is performed by this frontend.
 
 ## Run locally
