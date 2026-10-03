@@ -18,4 +18,5 @@ uv run python contracts/validate.py
 ## Credits
 - UniversalEPI: Grover et al., 2026 (see `docs/`)
 - ENCODE-rE2G: Gschwind et al., 2026 (see `docs/`)
+- Animation renderer: NumPy, SciPy, Pillow, FFmpeg (via imageio-ffmpeg); Segoe UI font (Windows system font)
 Add every further library, model and dataset here as it is used.
