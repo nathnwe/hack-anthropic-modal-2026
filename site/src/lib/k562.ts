@@ -24,9 +24,15 @@ export type K562Dataset = {
   }[];
 };
 
+// Three distances from the same Extended export for focused viewer iteration.
+export const K562_VIEWER_IDS = ["K562-51", "K562-49", "K562-55"] as const;
+
 // A frontend-only adapter. The source file is a prediction dataset, not a
 // pipeline contract record. In particular it has no TAD, contacts or staples.
-export function k562Record(data: K562Dataset): GeneRecord {
+export function k562Record(
+  data: K562Dataset,
+  ids?: readonly string[],
+): GeneRecord {
   if (
     data.kind !== "re2g-case-study" ||
     data.assembly !== "GRCh38" ||
@@ -44,11 +50,13 @@ export function k562Record(data: K562Dataset): GeneRecord {
       !Number.isFinite(r.score)
     )
       throw new Error("Invalid K562 interval.");
-  const start = Math.min(
-    data.reference.start,
-    ...data.links.map((r) => r.start),
-  );
-  const end = Math.max(data.reference.end, ...data.links.map((r) => r.end));
+  const links = data.links.filter((r) => !ids || ids.includes(r.id));
+  if (ids && links.length !== ids.length)
+    throw new Error(
+      "A selected K562 example is missing from the source dataset.",
+    );
+  const start = Math.min(data.reference.start, ...links.map((r) => r.start));
+  const end = Math.max(data.reference.end, ...links.map((r) => r.end));
   return {
     illustrative: false,
     caseStudy: {
@@ -71,7 +79,7 @@ export function k562Record(data: K562Dataset): GeneRecord {
     locus: {
       cell_type: "K562",
       tad: { chrom: "chr8", start: Math.max(0, start - 1000), end: end + 1000 },
-      cres: data.links.map((r) => ({
+      cres: links.map((r) => ({
         id: r.id,
         start: r.start,
         end: r.end,

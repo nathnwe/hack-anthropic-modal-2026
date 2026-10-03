@@ -46,8 +46,11 @@
   </div>
   <div id="dna-panel">
     <div class="dna-focus" role="group" aria-label="Focus DNA view">
+      <button type="button" id="dna-focus-folded" aria-pressed="true">
+        Folded DNA
+      </button>
       <button type="button" id="dna-focus-full">
-        Full span
+        Genomic span
       </button>
       <button type="button" id="dna-focus-gene">
         MYC / TSS
@@ -80,6 +83,10 @@
         </button>
       </div>
       <div class="dna-label dna-label-gene" id="dna-label-gene" hidden></div>
+      <div class="dna-omission" id="dna-omission" hidden>
+        <strong id="dna-omitted-count"></strong>
+        <span>omitted in this close-up</span>
+      </div>
       <div class="dna-minimap" id="dna-minimap" hidden></div>
       <div class="dna-scale">
         <span id="dna-scale-mode"></span>
@@ -139,14 +146,7 @@
     </div>
     <p class="dna-caption">
       <span id="dna-resolution"></span>
-      <span>
-        Length-preserving B-DNA model: 0.34 nm per bp. Overview lines and
-        position markers have a minimum screen size for visibility.
-      </span>
-      <span>
-        Idealised helix, no atomic sequence model. Folding and motion are
-        illustrative; these data do not supply a measured 3D structure.
-      </span>
+      <span id="dna-fold-note"></span>
     </p>
   </div>
   <div id="contact-panel" hidden>

@@ -1,4 +1,4 @@
-import { k562Record, type K562Dataset } from "../lib/k562";
+import { k562Record, K562_VIEWER_IDS, type K562Dataset } from "../lib/k562";
 import {
   type GeneRecord,
   type Mode,
@@ -248,7 +248,7 @@ function renderRecord() {
   get("disease-line").textContent = record.gene.disease;
   const k562 = record.caseStudy;
   get("record-notice").innerHTML = k562
-    ? '<span class="notice-icon" aria-hidden="true">◇</span><div><strong>56 K562 predictions · 53 distinct intervals · 8 source exports.</strong><p>All source rows retained, including treated cells. Predicted regulatory links; physical contacts and engineering effects are unvalidated.</p></div>'
+    ? '<span class="notice-icon" aria-hidden="true">◇</span><div><strong>3 K562 examples · short, medium and long range.</strong><p>Selected from the Extended export ENCFF269DKY for viewer refinement. Predicted regulatory links; physical contacts and engineering effects are unvalidated.</p></div>'
     : record.illustrative
       ? '<span class="notice-icon" aria-hidden="true">◇</span><div><strong>Placeholder record — not a biological finding.</strong><p>Disease annotations, cell type, coordinates, scores, tiers and recommendations are illustrative. In silico and experimentally unvalidated.</p></div>'
       : `<span class="notice-icon" aria-hidden="true">◇</span><div><strong>In silico record — experimentally unvalidated.</strong><p>${record.illustrative === undefined ? "Illustrative status is unspecified. Review source provenance before interpreting this record." : "Review the sources and limitations before interpreting any proposed intervention."}</p></div>`;
@@ -264,11 +264,12 @@ function renderRecord() {
     get("coordinate-note").textContent =
       `${k562.assembly} · ${k562.coordinate_system}. Reference TSS: ${k562.reference.transcript}, ${fmt(k562.reference.tss)} (0-based). ${k562.reference.note} Display bounds cover the source intervals; no TAD or contact resolution supplied.`;
     get("locus-facts").innerHTML =
-      `<div><dt>Cell context</dt><dd>K562, multiple conditions</dd></div><div><dt>Source rows</dt><dd>56</dd></div><div><dt>Unique intervals</dt><dd>53</dd></div><div><dt>Measured contacts</dt><dd>Not supplied</dd></div>`;
+      `<div><dt>Cell context</dt><dd>K562 · treatment not listed</dd></div><div><dt>Displayed predictions</dt><dd>${record.locus.cres.length}</dd></div><div><dt>Source export</dt><dd>ENCFF269DKY · Extended</dd></div><div><dt>Measured contacts</dt><dd>Not supplied</dd></div>`;
     const rank = get<HTMLSelectElement>("rank-select");
     rank.querySelector<HTMLOptionElement>('[value="contact"]')!.disabled = true;
     rank.value = "re2g";
-    get("elements-count").textContent = "56 source predictions";
+    get("elements-count").textContent =
+      `${record.locus.cres.length} selected predictions`;
   }
   renderElements();
   drawMap();
@@ -310,7 +311,10 @@ async function loadRecord() {
         `The ${symbol} record could not be loaded (HTTP ${response.status}).`,
       );
     const data = await response.json();
-    record = symbol === "MYC" ? k562Record(data as K562Dataset) : data;
+    record =
+      symbol === "MYC"
+        ? k562Record(data as K562Dataset, K562_VIEWER_IDS)
+        : data;
     if (
       !record.gene ||
       record.gene.symbol !== entry.symbol ||

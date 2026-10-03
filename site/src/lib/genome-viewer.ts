@@ -1,4 +1,11 @@
 import * as THREE from "three";
+import {
+  foldedDNA,
+  foldedFrame,
+  foldedAnchor,
+  hazeCenter,
+  type FoldedDNA,
+} from "./folded-dna";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import {
   dnaCenter,
@@ -36,6 +43,18 @@ export class GenomeViewer {
   private renderer: THREE.WebGLRenderer;
   private controls: OrbitControls;
   private model = new THREE.Group();
+  private haze = new THREE.Group();
+  private hazeTexture: THREE.CanvasTexture;
+  private cutaway: FoldedDNA | null = null;
+  private viewMode: "folded" | "full" = "folded";
+  private sphereFade = new THREE.InstancedBufferAttribute(
+    new Float32Array(24000).fill(1),
+    1,
+  );
+  private bondFade = new THREE.InstancedBufferAttribute(
+    new Float32Array(28000).fill(1),
+    1,
+  );
   private spheres: THREE.InstancedMesh;
   private bonds: THREE.InstancedMesh;
   private contact: THREE.Line;
@@ -124,6 +143,21 @@ export class GenomeViewer {
       shininess: 40,
       specular: 0x555c58,
     });
+    material.alphaHash = true;
+    material.onBeforeCompile = (shader) => {
+      shader.vertexShader =
+        "attribute float instanceFade; varying float vFade;\n" +
+        shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <begin_vertex>",
+        "#include <begin_vertex>\nvFade = instanceFade;",
+      );
+      shader.fragmentShader = "varying float vFade;\n" + shader.fragmentShader;
+      shader.fragmentShader = shader.fragmentShader.replace(
+        "#include <alphahash_fragment>",
+        "diffuseColor.a *= vFade;\n#include <alphahash_fragment>",
+      );
+    };
     this.spheres = new THREE.InstancedMesh(
       new THREE.SphereGeometry(1, 14, 10),
       material,
@@ -134,6 +168,10 @@ export class GenomeViewer {
       material,
       28000,
     );
+    this.spheres.geometry.setAttribute("instanceFade", this.sphereFade);
+    this.bonds.geometry.setAttribute("instanceFade", this.bondFade);
+    this.sphereFade.setUsage(THREE.DynamicDrawUsage);
+    this.bondFade.setUsage(THREE.DynamicDrawUsage);
     this.spheres.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     this.bonds.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     // The deformed model's bounds change. Culling stale instance bounds can hide it.
@@ -170,14 +208,59 @@ export class GenomeViewer {
     );
     this.model.add(this.geneMarker, this.elementMarker);
     this.scene.add(this.model);
+    const smoke = document.createElement("canvas");
+    smoke.width = smoke.height = 192;
+    const context = smoke.getContext("2d")!;
+    // Soft overlapping lobes give a quiet, smoky boundary rather than a hard mask.
+    for (let i = 0; i < 13; i++) {
+      const angle = i * 2.39996,
+        r = 12 + (18 * (i % 3)) / 2;
+      const x = 96 + Math.cos(angle) * r,
+        y = 96 + Math.sin(angle) * r * 0.7;
+      const gradient = context.createRadialGradient(
+        x,
+        y,
+        0,
+        x,
+        y,
+        55 + (i % 4) * 5,
+      );
+      gradient.addColorStop(0, "rgba(128, 141, 119, 0.10)");
+      gradient.addColorStop(0.45, "rgba(145, 154, 136, 0.045)");
+      gradient.addColorStop(1, "rgba(160, 167, 150, 0)");
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, 192, 192);
+    }
+    this.hazeTexture = new THREE.CanvasTexture(smoke);
+    for (let i = 0; i < 3; i++) {
+      const sprite = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+          map: this.hazeTexture,
+          transparent: true,
+          depthWrite: false,
+          depthTest: false,
+          opacity: 0.55,
+        }),
+      );
+      sprite.renderOrder = 3 + i;
+      sprite.userData.lobe = i;
+      this.haze.add(sprite);
+    }
+    this.scene.add(this.haze);
     const signal = this.abort.signal;
     const on = (id: string, action: () => void) =>
       byId(id).addEventListener("click", action, { signal });
     on("dna-reset", () => {
-      this.focusView("full");
+      this.focusView("folded");
       this.requestFrame();
     });
-    for (const view of ["full", "gene", "element", "junction"] as const)
+    for (const view of [
+      "folded",
+      "full",
+      "gene",
+      "element",
+      "junction",
+    ] as const)
       on(`dna-focus-${view}`, () => this.focusView(view));
     on("dna-zoom-in", () => this.zoom(1.25));
     on("dna-zoom-out", () => this.zoom(0.8));
@@ -273,6 +356,8 @@ export class GenomeViewer {
     this.record = record;
     this.cre = cre;
     this.locus = cre ? locusWindow(record, cre) : null;
+    this.cutaway = this.locus ? foldedDNA(this.locus) : null;
+    this.viewMode = this.cutaway ? "folded" : "full";
     this.playing = false;
     this.progress = 0;
     byId("dna-region-info").hidden = true;
@@ -301,26 +386,24 @@ export class GenomeViewer {
       : record.caseStudy
         ? `${record.locus.cell_type} · ${record.caseStudy.assembly}`
         : "Record coordinates";
-    byId("dna-resolution").textContent =
-      `${formatNumber(locus.end - locus.start)} bp in the continuous model · 0 bp omitted`;
     this.stage.dataset.separationBp = String(separation);
-    this.stage.dataset.omittedBp = "0";
-    this.stage.dataset.totalBp = String(locus.end - locus.start);
     this.stage.dataset.element = cre!.id;
     byId<HTMLButtonElement>("dna-play").disabled = locus.overlap;
     byId<HTMLInputElement>("dna-progress").disabled = locus.overlap;
     byId<HTMLButtonElement>("dna-focus-junction").disabled = locus.overlap;
-    this.renderer.domElement.setAttribute(
-      "aria-label",
-      `Continuous DNA model: ${record.gene.symbol} reference transcription start and ${cre!.id}, ${formatNumber(separation)} base pairs apart. No internal omissions. Drag to rotate, zoom to resolve base pairs. Folding is illustrative.`,
-    );
     this.setProgress(0);
-    this.focusView("full");
+    this.focusView("folded");
     this.resize();
   }
 
   private region(position: number): "gene" | "element" | null {
     if (!this.locus || !this.record) return null;
+    if (this.viewMode === "folded") {
+      // Local position patches, not a claim that a full gene fits in this window.
+      if (Math.abs(position - this.locus.tss) <= 10) return "gene";
+      if (Math.abs(position - this.locus.midpoint) <= 10) return "element";
+      return null;
+    }
     if (Math.abs(position - this.locus.tss) < 4) return "gene";
     if (position >= this.locus.elementStart && position < this.locus.elementEnd)
       return "element";
@@ -329,8 +412,81 @@ export class GenomeViewer {
     return null;
   }
 
+  private center(position: number) {
+    return this.viewMode === "folded" && this.cutaway
+      ? foldedAnchor(position, this.progress, this.cutaway)
+      : dnaCenter(position, this.progress, this.locus!);
+  }
+
+  private updateScaleDescription() {
+    if (!this.locus || !this.record || !this.cre) return;
+    const folded = this.viewMode === "folded" && this.cutaway;
+    const omitted = folded ? folded.omittedBp : 0;
+    const shown = folded ? folded.shownBp : this.locus.end - this.locus.start;
+    this.root.dataset.view = this.viewMode;
+    this.stage.dataset.view = this.viewMode;
+    this.stage.dataset.omittedBp = String(omitted);
+    this.stage.dataset.totalBp = String(
+      folded ? folded.end - folded.start : shown,
+    );
+    byId("dna-resolution").textContent = folded
+      ? `${formatNumber(shown)} bp in two local windows · gap compressed, not to scale`
+      : `${formatNumber(shown)} bp in the full span · 0 bp omitted`;
+    byId("dna-fold-note").textContent = folded
+      ? "Illustrative folding, not a measured TAD or atomic structure. Coloured patches locate the reference TSS and element midpoint."
+      : "Full DNA contour at one scale; folding remains illustrative, not a measured TAD or atomic structure.";
+    byId("dna-omitted-count").textContent = `${formatNumber(omitted)} bp`;
+    byId("dna-omission").hidden = !folded;
+    this.renderer.domElement.setAttribute(
+      "aria-label",
+      `${this.record.gene.symbol} and ${this.cre.id}: ${folded ? `folded molecular close-up, ${formatNumber(omitted)} base pairs omitted in the haze` : "full continuous genomic span"}. Three-dimensional folding is illustrative. Drag to rotate, scroll to zoom.`,
+    );
+    for (const view of ["folded", "full"])
+      byId(`dna-focus-${view}`).setAttribute(
+        "aria-pressed",
+        String(view === this.viewMode),
+      );
+  }
+
+  private rebuildFolded() {
+    if (!this.cutaway || !this.locus) return;
+    this.trace.visible =
+      this.geneMarker.visible =
+      this.elementMarker.visible =
+        false;
+    this.haze.visible = true;
+    const center = hazeCenter(this.cutaway, this.progress);
+    this.haze.position.copy(center);
+    this.haze.children.forEach((child, i) => {
+      const width = this.cutaway!.hazeWidth;
+      child.position.set(
+        (i - 1) * width * 0.18,
+        Math.sin(i * 2) * width * 0.1,
+        0,
+      );
+      child.scale.set(width * (1.65 - i * 0.12), width * (1.2 + i * 0.06), 1);
+      (child as THREE.Sprite).material.opacity = 0.6;
+    });
+    const a = this.center(this.locus.tss),
+      b = this.center(this.locus.midpoint);
+    this.contact.geometry.dispose();
+    this.contact.geometry = new THREE.BufferGeometry().setFromPoints([a, b]);
+    this.contact.computeLineDistances();
+    this.contact.visible = this.progress > 0.96;
+    this.stage.dataset.anchorSeparationNm = String(a.distanceTo(b));
+    // This mode intentionally has no whole-locus physical contour measurement.
+    delete this.stage.dataset.contourNm;
+    if (this.focus) this.moveFocus(this.focus);
+    this.geometryDirty = true;
+  }
+
   private rebuild() {
     if (!this.locus) return;
+    if (this.viewMode === "folded" && this.cutaway) {
+      this.rebuildFolded();
+      return;
+    }
+    this.haze.visible = false;
     const locus = this.locus;
     const positions = Array.from(
       { length: STEPS + 1 },
@@ -405,8 +561,10 @@ export class GenomeViewer {
     const height = (this.camera.top - this.camera.bottom) / this.camera.zoom;
     const width =
       (height * this.stage.clientWidth) / Math.max(1, this.stage.clientHeight);
-    const ranges =
-      height < 130
+    const folded = this.viewMode === "folded" && this.cutaway;
+    const ranges = folded
+      ? folded.arms
+      : height < 130
         ? detailIntervals(
             this.locus,
             this.progress,
@@ -418,20 +576,23 @@ export class GenomeViewer {
     const detailed = bpCount > 0 && bpCount <= 2100;
     this.spheres.visible = this.bonds.visible = detailed;
     // A continuous centreline remains at all scales, including beyond the viewport.
-    this.trace.visible = true;
+    this.trace.visible = !folded;
     (this.trace.material as THREE.LineBasicMaterial).opacity = detailed
       ? 0.12
       : 0.9;
-    this.geneMarker.visible = this.elementMarker.visible = !detailed;
+    this.geneMarker.visible = this.elementMarker.visible = !folded && !detailed;
     const markerSize = (height * 5) / Math.max(1, this.stage.clientHeight);
     this.geneMarker.scale.setScalar(markerSize);
     this.elementMarker.scale.setScalar(markerSize);
-    byId("dna-minimap").hidden = !detailed;
+    byId("dna-minimap").hidden = !!folded || !detailed;
     this.stage.dataset.resolution = detailed ? "base-pair" : "centreline";
     this.stage.dataset.detailBp = detailed ? String(bpCount) : "0";
-    byId("dna-scale-mode").textContent = detailed
-      ? "Molecular detail · one rung per bp"
-      : "Continuous DNA · zoom in to resolve base pairs";
+    byId("dna-scale-mode").textContent = folded
+      ? "Molecular close-up · one rung per local bp"
+      : detailed
+        ? "Molecular detail · one rung per bp"
+        : "Continuous DNA · zoom in to resolve base pairs";
+    byId("dna-scale-line").hidden = byId("dna-scale-label").hidden = !!folded;
     const raw = (width * 100) / Math.max(1, this.stage.clientWidth);
     const power = 10 ** Math.floor(Math.log10(raw));
     const nm =
@@ -451,10 +612,12 @@ export class GenomeViewer {
       radius: number,
       color: THREE.Color,
       region: "gene" | "element" | null,
+      fade = 1,
     ) => {
       this.matrix.makeScale(radius, radius, radius).setPosition(point);
       this.spheres.setMatrixAt(sphereCount, this.matrix);
       this.spheres.setColorAt(sphereCount, color);
+      this.sphereFade.setX(sphereCount, fade);
       this.sphereRegions[sphereCount++] = region;
     };
     const bond = (
@@ -462,6 +625,7 @@ export class GenomeViewer {
       b: THREE.Vector3,
       radius: number,
       color: THREE.Color,
+      fade = 1,
     ) => {
       const delta = b.clone().sub(a);
       this.quaternion.setFromUnitVectors(Y_AXIS, delta.clone().normalize());
@@ -472,6 +636,7 @@ export class GenomeViewer {
         this.scale,
       );
       this.bonds.setMatrixAt(bondCount, this.matrix);
+      this.bondFade.setX(bondCount, fade);
       this.bonds.setColorAt(bondCount++, color);
     };
     for (const range of ranges) {
@@ -482,11 +647,9 @@ export class GenomeViewer {
         position < range.end;
         position += 0.5
       ) {
-        const { center, normal, binormal } = dnaFrame(
-          position,
-          this.progress,
-          this.locus,
-        );
+        const { center, normal, binormal, fade } = folded
+          ? foldedFrame(position, this.progress, folded)
+          : { ...dnaFrame(position, this.progress, this.locus), fade: 1 };
         const phase = ((position % BP_PER_TURN) / BP_PER_TURN) * Math.PI * 2;
         const offset = (angle: number) =>
           center
@@ -501,11 +664,11 @@ export class GenomeViewer {
           region === "gene" ? GENE : region === "element" ? ELEMENT : STRAND_A;
         const bColor =
           region === "gene" ? GENE : region === "element" ? ELEMENT : STRAND_B;
-        sphere(a, rung ? 0.27 : 0.21, aColor, region);
-        sphere(b, rung ? 0.27 : 0.21, bColor, region);
+        sphere(a, rung ? 0.3 : 0.24, aColor, region, fade);
+        sphere(b, rung ? 0.3 : 0.24, bColor, region, fade);
         if (previousA && previousB) {
-          bond(previousA, a, 0.16, aColor);
-          bond(previousB, b, 0.16, bColor);
+          bond(previousA, a, 0.17, aColor, fade);
+          bond(previousB, b, 0.17, bColor, fade);
         }
         previousA = a;
         previousB = b;
@@ -521,14 +684,15 @@ export class GenomeViewer {
                   : j <= 3
                     ? BASE_A
                     : BASE_B;
-            sphere(p, 0.18, color, region);
-            bond(previous, p, 0.09, color);
+            sphere(p, 0.2, color, region, fade);
+            bond(previous, p, 0.1, color, fade);
             previous = p;
           }
-          bond(previous, b, 0.09, bColor);
+          bond(previous, b, 0.1, bColor, fade);
         }
       }
     }
+    this.sphereFade.needsUpdate = this.bondFade.needsUpdate = true;
     this.spheres.count = sphereCount;
     this.bonds.count = bondCount;
     this.spheres.instanceMatrix.needsUpdate =
@@ -540,8 +704,8 @@ export class GenomeViewer {
 
   private moveFocus(view: "gene" | "element" | "junction") {
     if (!this.locus) return;
-    const gene = dnaCenter(this.locus.tss, this.progress, this.locus),
-      element = dnaCenter(this.locus.midpoint, this.progress, this.locus);
+    const gene = this.center(this.locus.tss),
+      element = this.center(this.locus.midpoint);
     const target =
       view === "gene"
         ? gene
@@ -552,10 +716,16 @@ export class GenomeViewer {
     this.controls.target.copy(target);
   }
 
-  private focusView(view: "full" | "gene" | "element" | "junction") {
+  private focusView(view: "folded" | "full" | "gene" | "element" | "junction") {
     if (!this.locus) return;
+    this.viewMode = view !== "full" && this.cutaway ? "folded" : "full";
+    this.updateScaleDescription();
+    if (this.viewMode === "folded" && this.cutaway) {
+      this.focusFolded(view);
+      return;
+    }
     this.playing = false;
-    this.focus = view === "full" ? null : view;
+    this.focus = view === "full" || view === "folded" ? null : view;
     this.overviewTracking = view === "full";
     const length = (this.locus.end - this.locus.start) * RISE_NM;
     this.camera.near = 0.01;
@@ -581,7 +751,7 @@ export class GenomeViewer {
     this.camera.zoom = 1;
     this.resize();
     if (view === "junction") this.setProgress(1);
-    if (view !== "full") {
+    if (view !== "full" && view !== "folded") {
       this.moveFocus(view);
       this.camera.zoom = (this.camera.top - this.camera.bottom) / 18;
     }
@@ -590,6 +760,51 @@ export class GenomeViewer {
     this.updatePlaybackUI();
     this.resize();
     this.geometryDirty = true;
+    this.requestFrame();
+  }
+
+  private focusFolded(
+    view: "folded" | "full" | "gene" | "element" | "junction",
+  ) {
+    if (!this.cutaway) return;
+    this.playing = false;
+    this.overviewTracking = false;
+    this.focus =
+      view === "gene" || view === "element" || view === "junction"
+        ? view
+        : null;
+    const bounds = new THREE.Box3();
+    for (const progress of [0, 1])
+      for (const arm of this.cutaway.arms)
+        for (let i = 0; i <= 64; i++)
+          bounds.expandByPoint(
+            foldedAnchor(
+              arm.start + ((arm.end - arm.start) * i) / 64,
+              progress,
+              this.cutaway,
+            ),
+          );
+    const center = bounds.getCenter(new THREE.Vector3()),
+      size = bounds.getSize(new THREE.Vector3());
+    // Keep the same molecular magnification across the three source examples.
+    // Their compressed gaps can then look different without shrinking the DNA.
+    this.viewWidth = Math.max(26, size.x * 0.56 + 1.2);
+    this.viewHeight = Math.max(12, size.y * 0.65 + 2);
+    this.camera.near = 0.01;
+    this.camera.far = 500;
+    this.camera.zoom = 1;
+    this.controls.target.copy(center);
+    this.camera.position.copy(center).add(new THREE.Vector3(0, 2, 110));
+    this.resize();
+    if (view === "junction") this.setProgress(1);
+    if (this.focus) {
+      this.moveFocus(this.focus);
+      this.camera.zoom = (this.camera.top - this.camera.bottom) / 18;
+    }
+    this.rebuild();
+    this.controls.update();
+    this.updatePlaybackUI();
+    this.resize();
     this.requestFrame();
   }
 
@@ -712,9 +927,7 @@ export class GenomeViewer {
       ["dna-label-gene", this.locus.tss, -1],
       ["dna-label-element", this.locus.midpoint, 1],
     ] as const) {
-      const point = dnaCenter(position, this.progress, this.locus).project(
-        this.camera,
-      );
+      const point = this.center(position).project(this.camera);
       const label = byId(id);
       label.hidden =
         Math.abs(point.x) > 1.1 ||
@@ -726,6 +939,19 @@ export class GenomeViewer {
       label.style.left = `${Math.max(half + 8, Math.min(width - half - 8, x + side * (half + 10)))}px`;
       label.style.top = `${Math.max(22, Math.min(height - 65, y + side * 34))}px`;
     }
+    const label = byId("dna-omission");
+    if (this.viewMode === "folded" && this.cutaway) {
+      const point = hazeCenter(this.cutaway, this.progress).project(
+        this.camera,
+      );
+      label.hidden =
+        Math.abs(point.x) > 1.1 ||
+        Math.abs(point.y) > 1.1 ||
+        Math.abs(point.z) > 1;
+      const half = (label.offsetWidth || 150) / 2;
+      label.style.left = `${Math.max(half + 6, Math.min(width - half - 6, (point.x * 0.5 + 0.5) * width))}px`;
+      label.style.top = `${Math.max(35, Math.min(height - 70, (-point.y * 0.5 + 0.5) * height))}px`;
+    } else label.hidden = true;
   }
 
   private pick(event: PointerEvent) {
@@ -773,6 +999,8 @@ export class GenomeViewer {
     byId("dna-controls").hidden = true;
     byId("dna-distance").hidden = true;
     byId("dna-resolution").textContent = "";
+    byId("dna-omission").hidden = true;
+    this.haze.visible = false;
     byId("dna-label-gene").hidden = byId("dna-label-element").hidden = true;
     this.stage.dataset.state = "unavailable";
   }
@@ -848,6 +1076,10 @@ export class GenomeViewer {
       marker.geometry.dispose();
       (marker.material as THREE.Material).dispose();
     }
+    this.hazeTexture.dispose();
+    this.haze.children.forEach((child) =>
+      (child as THREE.Sprite).material.dispose(),
+    );
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }

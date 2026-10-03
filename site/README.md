@@ -89,6 +89,12 @@ attractions/issues are qualitative design considerations.
 
 ## MYC / K562 case study
 
+The workbench currently displays **three** predictions from the same Extended
+export, `ENCFF269DKY`, to keep viewer refinement focused: `K562-51` (6,134.5 bp),
+`K562-49` (162,522.5 bp), and `K562-55` (1,846,075 bp) from the reference TSS.
+This is a display selection, not a biological shortlist. The full source data
+remains available through View JSON. `K562_VIEWER_IDS` controls this selection.
+
 `public/data/case-studies/myc-k562.json` retains all **56** K562 rows from
 `MYC_rE2G_all_cell_types_GRCh38.csv`: **53** distinct intervals and **8** source
 exports. Rows are not deduplicated, merged or treated as independent validation.
@@ -124,34 +130,46 @@ and the per-row ENCODE accessions.
 
 ## 3D viewer boundaries
 
-The full interval from the reference TSS to the complete selected element, plus
-bounded flanks, is represented continuously. **No ellipsis and no omitted bp.**
-The distance readout is TSS-to-midpoint; the total model count includes flanks.
-World units are nanometres, using idealised B-DNA with 0.34 nm centreline rise per
-bp, 10.5 bp per turn and a 1 nm helix radius. These are nominal modelling dimensions,
-not sequence-specific atomic coordinates. See [DNA mechanics and topology](https://pmc.ncbi.nlm.nih.gov/articles/PMC7288220/).
+The default **Folded DNA** view opens directly on PDB-style molecular detail.
+It shows two 128 bp local windows around the reference TSS and the selected
+regulatory-element midpoint. The exact inner gap is calculated from those window
+boundaries. The DNA fades progressively over the inner 34 bp into a soft haze
+labelled with the **exact omitted count**. No molecular bonds bridge that omitted
+interval. Shown bp + omitted bp equals the source span covered by this close-up;
+source coordinates and counts never change during the contact preview.
 
-A curve indexed by cumulative arc length preserves DNA contour length during the
-contact preview. The proposed junction approaches a **chosen illustrative 3 nm
-centreline separation**, not an inferred biological distance or staple design.
-The loop is explanatory geometry, not a measured conformation or molecular dynamics.
-It omits nucleosomes and higher-order chromatin packing. Actual in-cell spatial
-separation cannot be recovered from this CSV.
+The local centrelines are curved, three-dimensional illustrative folds. The two
+visible fragments have one rung per local bp, approximately 0.34 nm centreline
+rise and 10.5 bp per helix turn. Beads suggest molecular detail; they are not a
+sequence-derived atomic model or a PDB structure. The coloured patches locate
+20 bp around the TSS and element midpoint; they do not imply that the entire gene
+or regulatory element is shown. Larger source gaps have a broader haze on a
+logarithmic **display** scale, with stable molecular magnification across the three
+examples. Neither the haze size nor the arrangement measures physical compaction.
 
-At overview scale a continuous centreline represents the entire DNA; it and the
-position markers have a minimum pixel size for visibility. As the camera zooms in,
-the visible region resolves into a molecular-style helix with **one rung per bp**.
-Only visible molecular detail is allocated; the continuous model remains present
-outside the viewport. Full span, gene, element and junction shortcuts connect these
-scales. A small full-span inset retains context during close-ups. Blue shows the
-reference transcript (when supplied), rust the selected interval; the TSS marker
-has priority where they overlap. All counts and genomic coordinates remain fixed
-while folding; only the illustrative conformation changes.
+The user-provided TAD illustration informs the fluid visual composition only.
+**No TAD boundary, chromatin conformation or real contact is inferred.** The CSV
+supplies regulatory predictions and genomic coordinates, not these structural
+measurements. The looping preview moves the local fragments together while
+preserving their geometry; it does not model nucleosomes, an intervention,
+expression effects or molecular dynamics. Its final separation is a viewing choice.
 
-The viewer supports drag rotation, zoom/pan, expansion, keyboard controls, a
-contact slider and reduced motion. Overlapping TSS/element intervals remain
-viewable with looping disabled. Invalid coordinates retain the 2D map fallback.
-The separate Three.js lazy chunk exceeds the build's 500 kB advisory threshold.
+**Genomic span** retains the earlier full-length view: a continuous centreline,
+with one consistent nanometre scale and no internal omission. DNA resolves into
+individual bp as the camera zooms in. Its overview line and position markers have
+a minimum pixel size for visibility. A small whole-span inset accompanies its
+molecular close-ups. The default remains Folded DNA, including after switching
+regulatory elements or resetting the camera. Gene, element and junction shortcuts
+return to the folded molecular view.
+
+The viewer supports rotation, zoom/pan, expansion, keyboard controls, a contact
+slider and reduced motion. Overlapping TSS/element intervals remain viewable in
+the full model with looping disabled. Invalid coordinates retain the 2D map
+fallback. Shader alpha hashing makes the molecular fade gradual, with a procedural
+smoke texture and no external image asset. The separate Three.js lazy chunk
+exceeds the build's 500 kB advisory threshold.
+
+Nominal helix dimensions: [DNA mechanics and topology](https://pmc.ncbi.nlm.nih.gov/articles/PMC7288220/).
 
 ## Validation
 
@@ -167,8 +185,9 @@ ranking orders, all 56 locus windows, independent numerical contour integration,
 base-pair spacing at kilobase and megabase scales in both genomic directions,
 finite frames, both arms of the junction, overlap handling and invalid coordinates.
 Existing tests retain fixture contact matching, empty results, direction filtering,
-escaping and selection behavior. Browser QA clicks every K562 row and checks
-molecular detail, longest-span selection, sorting, map fallback and mobile layout.
+escaping and selection behavior. Folded-view tests cover exact omission accounting,
+progressive fading, stable local geometry, source order and clipped windows. Browser
+QA covers all three selected examples, sorting, both viewing scales and mobile layout.
 
 `npm audit --omit=dev` currently reports the upstream `http-cache-semantics`
 max-stale advisory, also attributed to Astro. The registry's latest versions

@@ -2428,3 +2428,50 @@ pre code {
     width: 96px;
   }
 }
+
+/* Local folds emerge from an explicitly compressed genomic interval. */
+.dna-focus button[aria-pressed="true"] {
+  background: #52683f;
+  color: #fffef8;
+}
+.dna-omission {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  color: #45513f;
+  padding: 10px 12px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #f5f5ebbd, #f5f5eb00 72%);
+}
+.dna-omission strong {
+  display: block;
+  font-size: 17px;
+  letter-spacing: -0.025em;
+  font-weight: 550;
+  white-space: nowrap;
+}
+.dna-omission span {
+  display: block;
+  font-size: 9px;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+.genome-viewer[data-view="folded"] .dna-stage {
+  background: radial-gradient(ellipse at 50% 42%, #f9faf3, #f3f3e9);
+}
+@media (max-width: 760px) {
+  .dna-focus {
+    gap: 4px;
+  }
+  .dna-focus button {
+    font-size: 10px;
+    padding: 7px 9px;
+  }
+  .dna-omission strong {
+    font-size: 14px;
+  }
+  .dna-omission span {
+    font-size: 8px;
+  }
+}
