@@ -27,7 +27,7 @@ A **target-shortlisting tool for 3D genome engineering**.
 ## Hackathon: Anthropic x Modal 2026
 Tracks: (1) Open Maths Problems (C3); (2) **Originator**: agents that do science and know when they're wrong / reward hacking (benchmarks, lab automation and safety, epistemological agents with calibrated uncertainty); (3) Drug and protein design (Serova: peptide-HLA stability with foundation models); (4) Materials manufacturing (Polaron: SEM batch QC). Sponsor challenges: **Best use of Modal**, Best use of Devin (reproduce a paper, then go further).
 
-**Our likely fit (to confirm as a team):** Track 2 (epistemological agents: we surface uncertainty, risks and "what we don't know" rather than a black-box score) plus the Modal challenge (UniversalEPI inference on Modal GPUs). Track 3 is the adjacent alternative.
+**Our track:** Track 3, Drug and protein design: we are developing a new therapeutic approach (reversible 3D-genome "stapling" of a chosen enhancer-promoter contact), with the tool shortlisting and ranking the targets. We also aim for the Modal challenge (UniversalEPI inference on Modal GPUs). Track 2 is no longer the target, but we still surface uncertainty and risks rather than a black-box score, because it is good practice for a therapeutic claim.
 
 ### Judging (100 pts, 20 each)
 Technicality, Creativity, Usefulness, Demo, Track/sponsor alignment.

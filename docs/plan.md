@@ -38,7 +38,7 @@ The three branches stay independent through a shared data contract: [`contracts/
 | Bulk tasks: fixtures, table reformatting, README polish, per-gene rationale text | Haiku 4.5 | low | Cheap, parallel; spot-check output |
 | Debugging | Sonnet 5.5, escalate to Opus 5.5 | medium -> high | Escalate after one failed attempt |
 
-**Runtime design:** ranking is deterministic (weighted score + auditable flags). Claude only writes the plain-English rationale and method recommendation, from structured JSON, on Sonnet 5.5. This keeps the demo reproducible and fits the "know what you don't know" judging angle: surface uncertainty as tiers and explicit limitations, not false precision.
+**Runtime design:** ranking is deterministic (weighted score + auditable flags). Claude only writes the plain-English rationale and method recommendation, from structured JSON, on Sonnet 5.5. This keeps the demo reproducible and supports our Track 3 (therapeutic design) case: a shortlist a researcher can audit, with uncertainty shown as tiers and explicit limitations, not false precision.
 
 ## 4. Multi-agent use inside each branch
 Each operator runs their own Claude Code session on their own branch (ideally a git worktree).
@@ -55,7 +55,7 @@ Each operator runs their own Claude Code session on their own branch (ideally a 
 - Large raw data goes in `data/raw/` (git-ignored); commit only small derived JSON.
 
 ## 6. Timeline (compress to fit the event)
-1. **Hour 0-1, together:** confirm the track; agree contract and demo genes/cell types; paper briefs; C scaffolds Astro and activates the Pages deploy.
+1. **Hour 0-1, together:** confirm the track (Track 3, therapeutic design) and frame the pitch around the therapeutic: disease, target, staple, reversible switch; agree contract and demo genes/cell types; paper briefs; C scaffolds Astro and activates the Pages deploy.
 2. **Hour 1-5, parallel:** A builds real data for demo genes; B builds target list, scoring and risk rules on fixtures; C builds dashboard on fixtures and storyboards the animation.
 3. **Hour 5-7, integration:** swap fixtures for real outputs; tune scoring; wire the TAD/contact visual.
 4. **Hour 7-9, polish:** hero-gene end-to-end demo; "known limitations" panel; finish render; README, 2-minute demo video, pitch (1:30 pitch + 1:30 live demo).
