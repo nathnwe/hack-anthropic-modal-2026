@@ -25,11 +25,7 @@ const path = Astro.url.pathname.replace(/\/$/, '');
   <body class="bg-parchment text-ink">
     <nav
       id="site-nav"
-      data-landing={landing ? 'true' : 'false'}
-      class:list={[
-        'fixed inset-x-0 top-0 z-50 transition-[opacity,transform] duration-700',
-        landing ? 'pointer-events-none opacity-0' : '',
-      ]}
+      class="fixed inset-x-0 top-0 z-50 transition-[background-color,backdrop-filter] duration-500"
     >
       <div class="mx-auto flex max-w-6xl items-center px-6 py-5 sm:px-10">
         <a href={`${base}/`} class="flex items-center gap-2.5 text-ink">
@@ -84,34 +80,50 @@ const path = Astro.url.pathname.replace(/\/$/, '');
       // Reveal on enter. One observer for the whole document.
       (function () {
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const items = document.querySelectorAll('.reveal');
+        let pending = Array.from(document.querySelectorAll('.reveal'));
+
         if (reduce) {
-          items.forEach((el) => el.classList.add('in'));
+          pending.forEach((el) => el.classList.add('in'));
         } else {
-          const io = new IntersectionObserver(
-            (entries) => {
-              entries.forEach((e) => {
-                if (e.isIntersecting) {
-                  e.target.classList.add('in');
-                  io.unobserve(e.target);
-                }
-              });
-            },
-            { rootMargin: '0px 0px -12% 0px', threshold: 0.12 }
-          );
-          items.forEach((el) => io.observe(el));
+          // Reveal anything that has reached the viewport *or* that the reader has
+          // already scrolled past — an anchor jump skips over sections, and those
+          // must not be left permanently invisible.
+          const sweep = () => {
+            if (!pending.length) return;
+            const limit = window.innerHeight * 0.92;
+            pending = pending.filter((el) => {
+              if (el.getBoundingClientRect().top < limit) {
+                el.classList.add('in');
+                return false;
+              }
+              return true;
+            });
+          };
+
+          let ticking = false;
+          const onScroll = () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+              sweep();
+              ticking = false;
+            });
+          };
+
+          sweep();
+          window.addEventListener('scroll', onScroll, { passive: true });
+          window.addEventListener('resize', onScroll, { passive: true });
         }
 
-        // On the landing page the nav only appears once the hero is behind you.
+        // The bar is always present; it only gains a surface once content slides
+        // underneath it.
         const nav = document.getElementById('site-nav');
-        if (nav && nav.dataset.landing === 'true') {
+        if (nav) {
           const onScroll = () => {
-            const past = window.scrollY > window.innerHeight * 0.65;
-            nav.classList.toggle('opacity-0', !past);
-            nav.classList.toggle('pointer-events-none', !past);
-            nav.style.backdropFilter = past ? 'blur(10px)' : '';
-            nav.style.background = past
-              ? 'color-mix(in srgb, #f2eedf 82%, transparent)'
+            const lifted = window.scrollY > 24;
+            nav.style.backdropFilter = lifted ? 'blur(10px)' : '';
+            nav.style.background = lifted
+              ? 'color-mix(in srgb, #f2eedf 86%, transparent)'
               : '';
           };
           onScroll();
