@@ -1,6 +1,6 @@
 # Storyboard v2 (draft for review)
 
-30 s, 24 fps, 720 frames, 4K final. Soft pastel, glossy membrane. Generic hero gene (no real gene named). Minimal on-screen text.
+40 s, 24 fps, 960 frames, 4K final. Soft pastel, glossy membrane. Generic hero gene (no real gene named). Minimal on-screen text.
 
 ## Decisions so far
 - Whole TAD visible throughout, proteins enlarged and not to scale. The TAD is a small illustrative one (about 100-1000 bp). State "not to scale" in the notes.
@@ -19,7 +19,8 @@
 | 4 | 12-16 | 289-384 | Enhancer boost | Same framing | Enhancer contacts the promoter complex; Pol II recruitment and firing rate rise; mRNA output rises | "Enhancer elements can increase transcriptional output" |
 | 5 | 16-20 | 385-480 | Repressor element | Same framing | Enhancer releases; a repressor element (silencer) moves next to the promoter; fewer Pol II recruited, output falls | "Repressor elements can decrease transcriptional output" |
 | 6 | 20-29 | 481-696 | Engineered staple | Pull back slightly to see both sites, then push in | 20-22: the fused dCas9-dCas9 stapler drifts in. 22-23: one half binds next to the enhancer. 23-25.3: stapler and enhancer move together to the promoter. 25.3-26: the other half binds next to the promoter and locks. 26-29: Pol II traffic and mRNA output rise and stay high | "Our stapler molecule enforces co-localisation of promoters and regulatory elements" |
-| 7 | 29-30 | 697-720 | Resolve | Slow pull-back, soft glow | Hold on the active gene | none |
+| 7 | 29-32 | 697-768 | Resolve | Slow pull-back, soft glow | Stapler holds; Pol II traffic and mRNA output stay high; scene fades to white from 31.4 s | none |
+| 8 | 32-40 | 769-960 | End card | Static, white | Rewire Bio logo (site mark) and name fade in 33-35 s; tagline fades in 35.5-36.7 s; hold to 40 s | "Rewire Bio" / "Targeting gene regulation to correct disease" |
 
 ## Non-text signal for "more / less" transcription
 Use the visible rate of mRNA streaming away from the gene as the output indicator, plus a soft glow around the TAD that brightens with output. Rates are illustrative and kept low enough that Pol II molecules do not overlap (about 0.4/s baseline, 0.8/s enhancer, 0.13/s repressor, 0.9/s stapler).

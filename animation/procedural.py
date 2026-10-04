@@ -6,7 +6,7 @@ cool fill and rim, ambient occlusion, soft blue-tinted cast shadows), bloom, gra
 captions with leader lines. Everything is illustrative and not to scale; no structure is taken from PDB.
 
     pip install -r animation/requirements.txt
-    python animation/procedural.py --width 1920 --out animation/renders/procedural_1080p
+    python animation/procedural.py --width 1920 --out animation/renders/rewire_40s
     python animation/procedural.py --width 1280 --out animation/renders/preview --frames 0,150,600
 """
 import argparse
@@ -20,12 +20,13 @@ import numpy as np
 from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 from scipy.ndimage import gaussian_filter
 
-FPS, NFRAMES = 24, 720
+FPS, NFRAMES = 24, 960
 BW, BH = 1280, 720            # world units for the TAD scenes == pixels at zoom 1 and 720p
 W = H = S = None              # output size and pixels per world unit, set by init()
 CACHE = None
 FONT_BOLD = "C:/Windows/Fonts/segoeuib.ttf"
 FONT_SEMI = "C:/Windows/Fonts/seguisb.ttf"
+FONT_DM = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "fonts", "DMSans[opsz,wght].ttf")
 CENTER = np.array([650.0, 380.0])
 
 PAL = {
@@ -433,7 +434,7 @@ def rate(t):
 def schedule():
     spawns, acc, rs, sm = [], 0.95, [], 0.0
     dt = 1 / 240
-    for k in range(int(31 / dt)):
+    for k in range(int(41 / dt)):
         t = k * dt
         r = rate(t)
         acc += r * dt
@@ -478,7 +479,7 @@ def cam(t):
     elif t < 29:
         a, b, k = pull, push, ss(23, 28.6, t)
     else:
-        a, b, k = push, anchor_cam(700, 380, 800, 440, 0.92), ss(29, 30, t)
+        a, b, k = push, anchor_cam(700, 380, 800, 440, 0.90), ss(29, 32.5, t)
     return tuple(lerp(u, v, k) for u, v in zip(a, b))
 
 
@@ -717,7 +718,7 @@ def tad_scene(t):
     draw_dust(bg, vh, t)
     cv = bg.resize((W, H), Image.BILINEAR)
 
-    g = 0.06 + 0.10 * hl + 0.16 * min(1.0, rate_s(t) / 0.9) + 0.10 * ss(28.6, 30, t)
+    g = 0.06 + 0.10 * hl + 0.16 * min(1.0, rate_s(t) / 0.9) + 0.10 * ss(28.6, 31, t)
     draw_glow(cv, vf, CENTER, 470, g, PAL["glow"])
 
     ctrl = tad_ctrl(t)
@@ -1292,7 +1293,7 @@ def overlay(cv, t, view, curve):
             d.text((l[0] + 34 * S, l[1] - 30 * S), "Gene", font=fl, fill=255)
 
         white_elements(cv, (gp[0] - 20 * S, gp[1] - 20 * S, lp[0] + 200 * S, lp[1] + 50 * S), draw, al)
-    al = ss(6.5, 7.5, t)
+    al = ss(6.5, 7.5, t) * (1 - ss(30.8, 31.6, t))
     if al > 0:
         fs = font(FONT_SEMI, int(17 * S))
         txt = "Illustrative, not to scale. In silico concept."
@@ -1361,11 +1362,91 @@ def render(i):
                 ring = ring.filter(ImageFilter.GaussianBlur(5 * S / q)).resize((W, H), Image.BILINEAR)
                 tint = Image.merge("RGB", [ring.point(lambda v, c=c: v * c // 255) for c in (240, 228, 255)])
                 cv = ImageChops.screen(cv, tint)
-    else:
+    elif t < WHITE[1]:
         cv, view, curve = tad_scene(t)
-    if t > 6:
+    else:
+        cv = None
+    if cv is not None and t > 6:
         cv = overlay(cv, t, view, curve)
-    post(cv, i).save(path, quality=96, subsampling=0)
+    cv = post(cv, i) if cv is not None else Image.new("RGB", (W, H), (255, 255, 255))
+    w = ss(*WHITE, t)
+    if 0 < w < 1:
+        cv = Image.blend(cv, Image.new("RGB", (W, H), (255, 255, 255)), w)
+    title_card(cv, t)
+    cv.save(path, quality=96, subsampling=0)
+
+
+# ---------------------------------------------------------------- end card: Rewire Bio
+WHITE = (31.4, 33.4)                    # fade the scene to white
+LOGO_INK, LOGO_ACCENT = (32, 32, 29), (82, 104, 63)   # site/src/components/Mark.astro
+
+
+def _bez(p0, p1, p2, p3, n=40):
+    t = np.linspace(0, 1, n)[:, None]
+    return (1 - t) ** 3 * p0 + 3 * (1 - t) ** 2 * t * p1 + 3 * (1 - t) * t ** 2 * p2 + t ** 3 * p3
+
+
+def logo_paths():
+    """The TAD mark from site/public/favicon.svg (96x96 viewBox), S-commands expanded."""
+    P = lambda *v: np.array(v, float)
+    outer = np.vstack([[P(14, 82), P(28, 82)], _bez(P(28, 82), P(32, 82), P(34, 76), P(34, 72)),
+                       _bez(P(34, 72), P(14, 62), P(14, 16), P(48, 16)), _bez(P(48, 16), P(82, 16), P(82, 62), P(62, 72)),
+                       _bez(P(62, 72), P(62, 76), P(64, 82), P(68, 82)), [P(82, 82)]])
+    inner = np.vstack([_bez(P(34, 72), P(28, 60), P(32, 40), P(48, 40)), _bez(P(48, 40), P(64, 40), P(68, 60), P(62, 72))])
+    return outer, inner
+
+
+@lru_cache(maxsize=1)
+def logo_mask(px):
+    """Two L masks (ink, accent) of the mark at px pixels, 4x supersampled, round caps and joins."""
+    ssf = 4
+    n = px * ssf
+    f = n / 96
+    out = []
+    for pts, width in zip(logo_paths(), (7, 6)):
+        m = Image.new("L", (n, n), 0)
+        d = ImageDraw.Draw(m)
+        q = [(x * f, y * f) for x, y in pts]
+        r = width * f / 2
+        d.line(q, fill=255, width=int(round(width * f)), joint="curve")
+        for x, y in (q[0], q[-1]):
+            d.ellipse([x - r, y - r, x + r, y + r], fill=255)
+        out.append(m.resize((px, px), Image.LANCZOS))
+    return tuple(out)
+
+
+@lru_cache(maxsize=8)
+def dm_font(px, weight):
+    f = ImageFont.truetype(FONT_DM, px)
+    f.set_variation_by_axes([min(40, max(9, px / 3)), weight])
+    return f
+
+
+def ink_text(cv, xy, txt, font, col, alpha):
+    if alpha <= 0:
+        return
+    bb = font.getbbox(txt)
+    m = Image.new("L", (bb[2] - bb[0] + 4, bb[3] - bb[1] + 4), 0)
+    ImageDraw.Draw(m).text((2 - bb[0], 2 - bb[1]), txt, font=font, fill=255)
+    cv.paste(col, (int(xy[0] + bb[0] - 2), int(xy[1] + bb[1] - 2)), m.point(lambda v: int(v * alpha)))
+
+
+def title_card(cv, t):
+    a1, a2 = ss(33.0, 35.0, t), ss(35.5, 36.7, t)
+    if a1 <= 0:
+        return
+    lpx = int(170 * S)
+    rise = (1 - a1) * 14 * S
+    name, tag = "Rewire Bio", "Targeting gene regulation to correct disease"
+    fn, ft = dm_font(int(84 * S), 650), dm_font(int(32 * S), 450)
+    wn, wt = fn.getlength(name), ft.getlength(tag)
+    y0 = H / 2 - 190 * S + rise
+    ink, accent = logo_mask(lpx)
+    lx, ly = int(W / 2 - lpx / 2), int(y0)
+    cv.paste(LOGO_INK, (lx, ly, lx + lpx, ly + lpx), ink.point(lambda v: int(v * a1)))
+    cv.paste(LOGO_ACCENT, (lx, ly, lx + lpx, ly + lpx), accent.point(lambda v: int(v * a1)))
+    ink_text(cv, (W / 2 - wn / 2, y0 + lpx + 26 * S), name, fn, LOGO_INK, a1)
+    ink_text(cv, (W / 2 - wt / 2, y0 + lpx + 26 * S + 118 * S + (1 - a2) * 8 * S), tag, ft, LOGO_ACCENT, a2)
 
 
 def build_plates(cache):
@@ -1388,7 +1469,7 @@ def build_plates(cache):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--width", type=int, default=1920)
-    ap.add_argument("--out", default="animation/renders/procedural_1080p")
+    ap.add_argument("--out", default="animation/renders/rewire_40s")
     ap.add_argument("--frames", default="", help="comma list of frame indices for stills, e.g. 0,100,300")
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 2))
     args = ap.parse_args()

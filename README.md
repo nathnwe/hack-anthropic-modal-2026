@@ -26,5 +26,5 @@ uv run python contracts/validate.py
 - ABC model: Fulco et al., 2019, Nat Genet 51:1664-1669
 - Data (real-data run): ENCODE K562 Hi-C (ENCFF621AIY), DNase (ENCSR000EKS), RNA-seq (ENCSR000AEM); UCSC Genome Browser API (RefSeq, GENCODE, JASPAR 2022); ClinGen gene dosage curation
 - Libraries: hic-straw, pybigtools, NumPy
-- Animation renderer: NumPy, SciPy, Pillow, FFmpeg (via imageio-ffmpeg); Segoe UI font (Windows system font)
+- Animation renderer: NumPy, SciPy, Pillow, FFmpeg (via imageio-ffmpeg); Segoe UI font (Windows system font); DM Sans font (SIL OFL 1.1, `animation/assets/fonts/`)
 Add every further library, model and dataset here as it is used.
