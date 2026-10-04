@@ -2,7 +2,7 @@ const story = document.querySelector<HTMLElement>(".story");
 const thread = document.querySelector<SVGPathElement>(".thread-progress");
 const media = matchMedia("(prefers-reduced-motion: reduce)");
 const pending = new Set(
-  document.querySelectorAll<HTMLElement>(".story .landing-reveal"),
+  document.querySelectorAll<HTMLElement>(".landing-reveal"),
 );
 let scheduled = false;
 

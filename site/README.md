@@ -267,8 +267,17 @@ Recheck the dependency before adding server rendering or deploying a server.
 - DM Sans and IBM Plex Mono are loaded from Google Fonts (SIL Open Font License),
   with system fallbacks when unavailable. Serif emphasis uses system Georgia.
 - The logo, conceptual diagrams and DNA thread are original SVG/CSS artwork.
+- The landing-page loop panel is adapted from the team's `LoopPanel.astro` on
+  `feat/site` (9732ea7), retaining its scroll-driven expansion, Bezier curves and
+  contact glow. It is a schematic, not a measured chromatin conformation or a
+  simulation conserving contour length. Reduced motion shows the final state;
+  the replay button animates the same schematic for 2.8 seconds.
+- Landing-page scientific context follows the project background and
+  [Morgan et al., 2017](https://www.nature.com/articles/ncomms15993).
 - Fixture provenance: `contracts/fixtures/`; source of truth: `contracts/schema.json`.
 - The method library links the primary studies for CLOuD9, LADL, bivalent dCas,
   BPCL, LDB1, CTCF and ZF tethering.
-- Real team names, contact details, experimental findings and verified gene
-  records remain to be supplied. The GitHub project is the current contact link.
+- Team profiles link to public professional pages. Biographical sources are in
+  `src/data/team.ts`; portrait sources and cropping are recorded in
+  `public/images/team/CREDITS.md`. Experimental findings and verified gene
+  records remain separate from these profiles and must come from the pipeline.

@@ -1,5 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Mark from "../components/Mark.astro";
+import LoopPanel from "../components/LoopPanel.astro";
 import Thread from "../components/Thread.astro";
 import { team } from "../data/team";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -11,105 +13,110 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
   page="home"
 >
   <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-content">
-      <p class="hero-topline eyebrow landing-reveal">3D genome engineering</p>
-      <div class="hero-grid">
-        <h1 id="hero-title" class="landing-reveal">
-          Rewiring gene dosage without <em>rewriting the genome.</em>
-        </h1>
-        <div class="hero-aside landing-reveal reveal-delay-2">
-          <p class="hero-description">
-            Gene expression depends in part on which regions of DNA make
-            contact. Rewire Bio helps prioritise these contacts for targeted
-            changes in gene regulation.
-          </p>
-          <a class="button dark" href={`${base}/workbench/`}>
-            Open workbench <span aria-hidden="true">↗</span>
-          </a>
-        </div>
-      </div>
+    <div class="hero-topline eyebrow">
+      <span class="status-dot"></span> Exploring the architecture of expression
     </div>
-    <div class="hero-bottom landing-reveal reveal-delay-3">
-      <span class="mono">RESEARCH PROTOTYPE</span>
-      <a href="#about">
-        About the project <span aria-hidden="true">↓</span>
+    <div class="hero-lockup">
+      <Mark class="hero-mark" />
+      <h1 id="hero-title">
+        Rewire Bio<span>.</span>
+      </h1>
+    </div>
+    <p class="hero-description">
+      The next possibility is already in the genome.
+      <br />
+      Let’s find the connection.
+    </p>
+    <a class="button dark" href={`${base}/workbench/`}>
+      Explore the workbench <span aria-hidden="true">↗</span>
+    </a>
+    <div class="hero-bottom">
+      <span class="mono">3D GENOME ENGINEERING</span>
+      <a href="#loop-film">
+        A different perspective <span aria-hidden="true">↓</span>
       </a>
-      <span class="mono">ANTHROPIC × MODAL 2026</span>
+      <span class="mono">ANTHROPIC × MODAL ’26</span>
     </div>
   </section>
+  <LoopPanel />
   <div class="story">
     <Thread />
     <section
       id="about"
-      class="story-section about-section"
+      class="story-section science-section"
       aria-labelledby="about-title"
     >
       <p class="eyebrow section-kicker">01 / About</p>
-      <div class="story-copy landing-reveal">
-        <h2 id="about-title">
-          Regulation in
-          <br />
-          <em>three dimensions.</em>
-        </h2>
-        <p class="lead">
-          DNA folding brings distant regulatory elements into contact with gene
-          promoters.
-        </p>
-        <!-- Scientific basis: Morgan et al., 2017, doi:10.1038/ncomms15993.
-             Effects depend on locus and cellular context; this is not a claim
-             of validated effects for the workbench's candidate contacts. -->
-        <p>
-          Altering these contacts can change gene expression without changing
-          the DNA sequence. Rewire Bio explores which contacts to target and how
-          they might be engineered.
-        </p>
-        <a class="text-link" href={`${base}/workbench/`}>
-          Explore the workbench <span aria-hidden="true">↗</span>
-        </a>
-      </div>
-    </section>
-    <section
-      class="story-section approach-section"
-      aria-labelledby="approach-title"
-    >
-      <p class="eyebrow section-kicker">02 / Workbench</p>
-      <div class="story-copy landing-reveal">
-        <h2 id="approach-title">
-          Prioritise
-          <br />
-          <em>regulatory contacts.</em>
-        </h2>
-        <ol class="approach-list">
-          <li>
-            <span class="mono">01</span>
-            <div>
-              <h3>Gene and direction</h3>
-              <p>
-                Select a target gene and an increase or decrease in expression.
-              </p>
-            </div>
+      <div class="science-copy">
+        <div class="landing-reveal">
+          <h2 id="about-title">A design system for 3D genome engineering</h2>
+          <p>
+            For dosage-sensitive genes, the amount of gene product matters.
+            Rewire Bio is a research workbench for identifying regulatory
+            contacts that could be altered to increase or decrease a target
+            gene’s expression.
+          </p>
+          <p>
+            Enhancers regulate transcription through interactions with gene
+            promoters. Programmable DNA tethering can bring selected genomic
+            regions together without cutting the DNA sequence. The effect on
+            expression, and whether it is reversible, depend on the locus, cell
+            type and tethering method.
+          </p>
+          <p class="science-source">
+            Experimental precedent:{" "}
+            <a
+              href="https://www.nature.com/articles/ncomms15993"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              inducible chromatin looping · Morgan et al., 2017{" "}
+              <span aria-hidden="true">↗</span>
+            </a>
+          </p>
+        </div>
+        <ol class="science-steps">
+          <li class="landing-reveal">
+            <h3>
+              <span class="mono">01</span> Name a gene
+            </h3>
+            <p>
+              A dosage-sensitive target and the desired direction of expression
+              change.
+            </p>
           </li>
-          <li>
-            <span class="mono">02</span>
-            <div>
-              <h3>Regulatory elements</h3>
-              <p>Compare available scores, genomic positions and evidence.</p>
-            </div>
+          <li class="landing-reveal reveal-delay-1">
+            <h3>
+              <span class="mono">02</span> Map the neighbourhood
+            </h3>
+            <p>
+              Inspect regulatory elements, available TAD boundaries and evidence
+              of contacts with the promoter.
+            </p>
           </li>
-          <li>
-            <span class="mono">03</span>
-            <div>
-              <h3>Candidate interventions</h3>
-              <p>
-                Inspect proposed contacts, risk flags and DNA stapling
-                strategies.
-              </p>
-            </div>
+          <li class="landing-reveal">
+            <h3>
+              <span class="mono">03</span> Rank candidate contacts
+            </h3>
+            <p>
+              Compare proposed anchor pairs, evidence tiers and potential
+              effects on other genes.
+            </p>
+          </li>
+          <li class="landing-reveal reveal-delay-1">
+            <h3>
+              <span class="mono">04</span> Choose a method
+            </h3>
+            <p>
+              Compare DNA stapling strategies by experimental evidence,
+              reversibility and practical constraints.
+            </p>
           </li>
         </ol>
-        <p class="research-note">
-          <span class="status-dot"></span> Example records are labelled.
-          Predictions are in silico and require experimental validation.
+        <p class="research-note landing-reveal">
+          Research prototype. Predicted effects are unvalidated; tiers indicate
+          relative evidence, not probabilities. Illustrative records are
+          labelled.
         </p>
       </div>
     </section>
@@ -118,7 +125,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
       class="story-section team-section"
       aria-labelledby="team-title"
     >
-      <p class="eyebrow section-kicker">03 / Team</p>
+      <p class="eyebrow section-kicker">02 / Team</p>
       <div class="team-content">
         <div class="story-copy landing-reveal">
           <h2 id="team-title">The team.</h2>
@@ -166,7 +173,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
       class="story-section contact-section"
       aria-labelledby="contact-title"
     >
-      <p class="eyebrow section-kicker">04 / Contact</p>
+      <p class="eyebrow section-kicker">03 / Contact</p>
       <div class="story-copy landing-reveal">
         <h2 id="contact-title">
           Discuss the

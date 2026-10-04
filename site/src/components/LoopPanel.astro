@@ -1,0 +1,148 @@
+---
+// Adapted from the team's LoopPanel.astro on feat/site (9732ea7).
+// Preserve its scroll-driven expansion, strand curves and contact glow.
+---
+
+<section class="loop-panel-wrap" id="loop-film" aria-labelledby="loop-title">
+  <div class="loop-panel">
+    <canvas class="loop-canvas" aria-hidden="true"></canvas>
+    <div class="loop-vignette" aria-hidden="true"></div>
+    <div class="loop-panel-copy">
+      <h2 id="loop-title" class="landing-reveal">
+        Rewire the genome
+      </h2>
+      <p class="landing-reveal reveal-delay-1">
+        Rewiring gene dosage without rewriting the genome.
+      </p>
+      <button
+        class="loop-replay landing-reveal reveal-delay-2"
+        type="button"
+        hidden
+      >
+        Replay the loop <span aria-hidden="true">↻</span>
+      </button>
+    </div>
+    <p class="loop-caption">
+      Illustrative chromatin looping <span aria-hidden="true">·</span>
+      <span>Enhancer–promoter contact</span>
+    </p>
+    <p class="sr-only">
+      A schematic chromatin fibre folds into a loop as the selected enhancer and
+      promoter approach one another. This illustrates a proposed contact, not a
+      measured structure or a prediction of its effect on expression.
+    </p>
+  </div>
+</section>
+
+<style>
+  .loop-panel-wrap {
+    padding-top: 64px;
+  }
+  .loop-panel {
+    position: relative;
+    overflow: hidden;
+    min-height: max(640px, 80svh);
+    width: 100%;
+    background:
+      radial-gradient(130% 100% at 50% 118%, #16304a 0%, transparent 58%),
+      radial-gradient(
+        60% 55% at 14% 10%,
+        rgb(165 76 56 / 26%) 0%,
+        transparent 62%
+      ),
+      linear-gradient(176deg, #06090d 0%, #0b1017 50%, #080c12 100%);
+  }
+  .loop-canvas,
+  .loop-vignette {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .loop-vignette {
+    background: radial-gradient(
+      85% 65% at 50% 50%,
+      transparent 25%,
+      rgb(4 6 9 / 72%) 100%
+    );
+  }
+  .loop-panel-copy {
+    position: relative;
+    padding: clamp(72px, 13vh, 130px) 24px 0;
+    text-align: center;
+  }
+  .loop-panel-copy h2 {
+    color: #f5f1e6;
+    font-size: clamp(38px, 4.6vw, 64px);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+  }
+  .loop-panel-copy > p {
+    color: rgb(245 241 230 / 70%);
+    font-size: 19px;
+    line-height: 1.7;
+    margin: 24px auto 0;
+    max-width: 560px;
+  }
+  .loop-replay {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 30px;
+    padding: 12px 21px;
+    border-radius: 8px;
+    background: #f5f1e6;
+    color: #20201d;
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .loop-replay:disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
+  .loop-replay:focus-visible {
+    outline-color: #8ebbe0;
+  }
+  .loop-caption {
+    position: absolute;
+    bottom: 24px;
+    width: 100%;
+    padding: 0 24px;
+    text-align: center;
+    color: #a2a9b0;
+    font-size: 11px;
+    letter-spacing: 0.015em;
+  }
+  .loop-caption > span:first-child {
+    margin: 0 8px;
+  }
+  @media (max-width: 760px) {
+    .loop-panel-wrap {
+      padding-top: 40px;
+    }
+    .loop-panel {
+      min-height: max(620px, 80svh);
+    }
+    .loop-panel-copy {
+      padding: 66px 25px 0;
+    }
+    .loop-panel-copy > p {
+      font-size: 16px;
+      max-width: 320px;
+      margin-top: 20px;
+    }
+    .loop-replay {
+      font-size: 13px;
+      margin-top: 24px;
+    }
+    .loop-caption {
+      font-size: 10px;
+    }
+  }
+</style>
+
+<script>
+  import "../scripts/landing-loop";
+</script>
