@@ -1,3 +1,5 @@
+[![Rewire Bio — visit the website](docs/assets/rewire-bio-banner.png)](https://leandre-tappenden.github.io/rewire-bio-site/)
+
 # 3D Genome Engineering: target shortlisting for chromatin "stapling"
 
 [**Open the Rewire Bio website →**](https://leandre-tappenden.github.io/rewire-bio-site/)
