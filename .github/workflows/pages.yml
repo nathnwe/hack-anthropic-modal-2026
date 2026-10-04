@@ -1,4 +1,4 @@
-name: Deploy site to GitHub Pages
+name: Validate site and manually deploy original Pages
 on:
   push:
     branches: [main]
@@ -26,6 +26,9 @@ jobs:
           node-version: "24"
           build-cmd: npm run check && npm test && npm run build
   deploy:
+    # The active website is published by Leandre-Tappenden/rewire-bio-site.
+    # Retain the original destination as an explicit manual option only.
+    if: github.event_name == 'workflow_dispatch'
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10

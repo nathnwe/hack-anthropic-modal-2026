@@ -22,19 +22,35 @@ background; use its `astro dev status` command from `site/` to inspect it.
 
 ## Public deployment
 
-Public URL after Pages activation: [Rewire Bio](https://nathnwe.github.io/hack-anthropic-modal-2026/).
+Public website: [Rewire Bio](https://leandre-tappenden.github.io/rewire-bio-site/).
 
-One-time setup requires a repository administrator, maintainer, or someone with
-permission to manage Pages: open **Settings → Pages → Build and deployment** and
-select **GitHub Actions** as the source. Then run **Actions → Deploy site to
-GitHub Pages → Run workflow**, selecting `main`.
+The [publishing repository](https://github.com/Leandre-Tappenden/rewire-bio-site)
+builds this repository's `main` branch and deploys it under Leandre's account,
+where Pages settings are controlled independently of the shared project.
+Application development stays in this repository's `site/` directory.
 
-The workflow in `.github/workflows/pages.yml` automatically checks, builds and
-deploys changes to `site/` or that workflow when they reach `main`. Local changes
-and feature-branch pushes stay out of the public site until merged. A failed
-check or build stops deployment and leaves the previous successful site live.
-The workflow uses Node 24 and runs the type checks and frontend tests before
-building the static site. The existing contract-validation workflow is separate.
+After pushing website changes to `main`, open
+[Publish Rewire Bio](https://github.com/Leandre-Tappenden/rewire-bio-site/actions/workflows/pages.yml)
+and choose **Run workflow**, or use the signed-in GitHub CLI:
+
+```sh
+gh workflow run pages.yml --repo Leandre-Tappenden/rewire-bio-site --ref main
+```
+
+Source pushes do not automatically trigger the separate publishing repository.
+The publishing workflow checks, tests and builds the latest `main` with Node 24
+before deploying, and records the source revision in its build summary. Failed
+builds leave the previous published version intact. No personal access token is
+stored in either workflow.
+
+The source repository still checks site changes automatically. Its original
+Pages destination is now a manual-only option, because that repository's Pages
+setup has not been completed. Use the publishing workflow linked above for the
+active public website.
+
+The alternate build uses `REWIRE_SITE_URL=https://leandre-tappenden.github.io`
+and `REWIRE_BASE_PATH=/rewire-bio-site`. Without those variables, local development
+keeps the original `/hack-anthropic-modal-2026` path on port 4322.
 
 MYC uses sourced K562 rE2G predictions; the other examples remain labelled fixtures. All 3D folding is illustrative.
 
