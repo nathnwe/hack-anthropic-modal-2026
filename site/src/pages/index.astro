@@ -31,11 +31,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
       Explore the workbench <span aria-hidden="true">↗</span>
     </a>
     <div class="hero-bottom">
-      <span class="mono">3D GENOME ENGINEERING</span>
-      <a href="#loop-film">
-        A different perspective <span aria-hidden="true">↓</span>
+      <a href="#loop-film" aria-label="View the genome animation">
+        <span aria-hidden="true">↓</span>
       </a>
-      <span class="mono">ANTHROPIC × MODAL ’26</span>
     </div>
   </section>
   <LoopPanel />
@@ -151,7 +149,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
                   decoding="async"
                 />
               </div>
-              <p class="team-role">{person.role}</p>
               <h3 id={`team-${person.id}`}>{person.name}</h3>
               <p class="team-bio">{person.bio}</p>
               <a

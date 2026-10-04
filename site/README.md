@@ -270,8 +270,15 @@ Recheck the dependency before adding server rendering or deploying a server.
 - The landing-page loop panel is adapted from the team's `LoopPanel.astro` on
   `feat/site` (9732ea7), retaining its scroll-driven expansion, Bezier curves and
   contact glow. It is a schematic, not a measured chromatin conformation or a
-  simulation conserving contour length. Reduced motion shows the final state;
-  the replay button animates the same schematic for 2.8 seconds.
+  simulation conserving contour length. Reduced motion shows the final state.
+- “visit the cell” opens the user-supplied film in a full-screen modal with a
+  crossfade and subtle zoom. The original 30-second, 1080p H.264 MP4 is stored at
+  `public/media/rewire-bio-cell.mp4` (no audio track; fast-start metadata retained).
+  Video loading begins on click. Native playback controls, a Close button and
+  Escape support playback and return to the same page position; reopening starts
+  the film again. Keyboard focus stays in the modal and returns to the launch
+  link on close. Reduced motion removes the transitions. With JavaScript disabled,
+  the link opens the video file directly.
 - Landing-page scientific context follows the project background and
   [Morgan et al., 2017](https://www.nature.com/articles/ncomms15993).
 - Fixture provenance: `contracts/fixtures/`; source of truth: `contracts/schema.json`.

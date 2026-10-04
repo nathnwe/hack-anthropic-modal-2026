@@ -1,6 +1,8 @@
 ---
 // Adapted from the team's LoopPanel.astro on feat/site (9732ea7).
 // Preserve its scroll-driven expansion, strand curves and contact glow.
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const videoUrl = `${base}/media/rewire-bio-cell.mp4`;
 ---
 
 <section class="loop-panel-wrap" id="loop-film" aria-labelledby="loop-title">
@@ -14,18 +16,18 @@
       <p class="landing-reveal reveal-delay-1">
         Rewiring gene dosage without rewriting the genome.
       </p>
-      <button
-        class="loop-replay landing-reveal reveal-delay-2"
-        type="button"
-        hidden
+      <a
+        class="loop-launch landing-reveal reveal-delay-2"
+        href={videoUrl}
+        aria-haspopup="dialog"
+        aria-controls="cell-film-dialog"
       >
-        Replay the loop <span aria-hidden="true">↻</span>
-      </button>
+        visit the cell{" "}
+        <span class="film-play-icon" aria-hidden="true">
+          ▶
+        </span>
+      </a>
     </div>
-    <p class="loop-caption">
-      Illustrative chromatin looping <span aria-hidden="true">·</span>
-      <span>Enhancer–promoter contact</span>
-    </p>
     <p class="sr-only">
       A schematic chromatin fibre folds into a loop as the selected enhancer and
       promoter approach one another. This illustrates a proposed contact, not a
@@ -33,6 +35,45 @@
     </p>
   </div>
 </section>
+
+<dialog
+  class="cell-film-dialog"
+  id="cell-film-dialog"
+  aria-label="Visit the cell — Rewire Bio film"
+>
+  <button
+    class="cell-film-close"
+    type="button"
+    aria-label="Close video"
+    autofocus
+  >
+    <span>Close</span>
+    <span aria-hidden="true">×</span>
+  </button>
+  <video
+    class="cell-film-video"
+    data-src={videoUrl}
+    preload="none"
+    controls
+    playsinline
+    aria-label="Rewire Bio animation"
+  >
+    Your browser does not support this video.
+    <a href={videoUrl}>Open the film</a>.
+  </video>
+  <p class="cell-film-loading" role="status">
+    Loading film…
+  </p>
+  <button class="cell-film-play" type="button" hidden>
+    Play film <span aria-hidden="true">▶</span>
+  </button>
+  <div class="cell-film-error" role="alert" hidden>
+    <p>The film could not be loaded.</p>
+    <a href={videoUrl} target="_blank" rel="noopener noreferrer">
+      Open the video file <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+</dialog>
 
 <style>
   .loop-panel-wrap {
@@ -86,7 +127,7 @@
     margin: 24px auto 0;
     max-width: 560px;
   }
-  .loop-replay {
+  .loop-launch {
     display: inline-flex;
     align-items: center;
     gap: 16px;
@@ -98,25 +139,137 @@
     font-size: 15px;
     font-weight: 500;
   }
-  .loop-replay:disabled {
-    opacity: 0.7;
-    cursor: default;
+  .loop-launch:hover {
+    color: #20201d;
+    background: #ffffff;
   }
-  .loop-replay:focus-visible {
+  .loop-launch:focus-visible {
     outline-color: #8ebbe0;
   }
-  .loop-caption {
-    position: absolute;
-    bottom: 24px;
-    width: 100%;
-    padding: 0 24px;
-    text-align: center;
-    color: #a2a9b0;
-    font-size: 11px;
-    letter-spacing: 0.015em;
+  .film-play-icon {
+    font-size: 10px;
   }
-  .loop-caption > span:first-child {
-    margin: 0 8px;
+  .loop-canvas,
+  .loop-panel-copy {
+    transition:
+      transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 600ms ease;
+    transform-origin: 50% 78%;
+  }
+  .loop-panel.is-entering .loop-canvas {
+    transform: scale(1.06);
+  }
+  .loop-panel.is-entering .loop-panel-copy {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  .cell-film-dialog {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    background: #06090d;
+    color: #f5f1e6;
+    opacity: 0;
+    transition: opacity 550ms ease;
+  }
+  .cell-film-dialog.is-open {
+    opacity: 1;
+  }
+  .cell-film-dialog::backdrop {
+    background: rgb(4 6 9 / 0%);
+    transition: background-color 550ms ease;
+  }
+  .cell-film-dialog.is-open::backdrop {
+    background: rgb(4 6 9 / 96%);
+  }
+  .cell-film-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(1.018);
+    transition:
+      opacity 750ms ease,
+      transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .cell-film-dialog.is-ready .cell-film-video {
+    opacity: 1;
+    transform: none;
+  }
+  .cell-film-close {
+    position: absolute;
+    top: max(20px, env(safe-area-inset-top));
+    right: max(22px, env(safe-area-inset-right));
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 44px;
+    padding: 7px 16px;
+    border: 1px solid rgb(245 241 230 / 25%);
+    border-radius: 40px;
+    background: rgb(6 9 13 / 78%);
+    color: #f5f1e6;
+    font-size: 12px;
+  }
+  .cell-film-close > span:last-child {
+    font-size: 24px;
+    line-height: 1;
+  }
+  .cell-film-close:hover {
+    background: #252a2f;
+  }
+  .cell-film-close:focus-visible,
+  .cell-film-play:focus-visible {
+    outline-color: #8ebbe0;
+  }
+  .cell-film-loading,
+  .cell-film-play,
+  .cell-film-error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    margin: 0;
+  }
+  .cell-film-loading {
+    font-size: 14px;
+    color: #c3c6ca;
+  }
+  .cell-film-play {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    white-space: nowrap;
+    border-radius: 8px;
+    background: #f5f1e6;
+    color: #20201d;
+    padding: 14px 24px;
+  }
+  .cell-film-error {
+    width: min(85%, 440px);
+    font-size: 16px;
+  }
+  .cell-film-error a {
+    display: inline-block;
+    color: #b6c5a4;
+    margin-top: 18px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .loop-panel.is-entering .loop-canvas,
+    .loop-panel.is-entering .loop-panel-copy,
+    .cell-film-video {
+      transform: none;
+    }
   }
   @media (max-width: 760px) {
     .loop-panel-wrap {
@@ -133,16 +286,14 @@
       max-width: 320px;
       margin-top: 20px;
     }
-    .loop-replay {
+    .loop-launch {
       font-size: 13px;
       margin-top: 24px;
-    }
-    .loop-caption {
-      font-size: 10px;
     }
   }
 </style>
 
 <script>
   import "../scripts/landing-loop";
+  import "../scripts/landing-video";
 </script>

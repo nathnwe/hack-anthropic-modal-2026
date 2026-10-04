@@ -397,14 +397,10 @@ b {
   left: 5.2vw;
   right: 5.2vw;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   font-size: 10px;
   color: var(--muted);
-}
-.hero-bottom .mono {
-  font-size: 9px;
-  letter-spacing: 0.06em;
 }
 .hero-bottom > a {
   display: flex;
@@ -578,15 +574,6 @@ b {
   object-fit: cover;
   filter: grayscale(1) sepia(0.12) contrast(0.93);
   mix-blend-mode: multiply;
-}
-.team-role {
-  font-family: var(--mono);
-  font-size: 9px;
-  line-height: 1.6;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 8px;
 }
 .team-profile h3 {
   font-size: clamp(18px, 1.65vw, 23px);
@@ -1725,17 +1712,11 @@ pre code {
     font-size: 12px;
     min-width: 220px;
   }
-  .hero-bottom > span:last-child {
-    display: none;
-  }
   .hero-bottom {
     font-size: 10px;
     bottom: 25px;
     left: 6vw;
     right: 6vw;
-  }
-  .hero-bottom .mono {
-    font-size: 8px;
   }
   .story {
     padding: 20px 8vw 0;
@@ -1798,9 +1779,6 @@ pre code {
   }
   .team-bio {
     font-size: 14px;
-  }
-  .team-role {
-    font-size: 10px;
   }
   .team-portrait {
     max-width: 280px;

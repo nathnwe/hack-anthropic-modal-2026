@@ -1,18 +1,15 @@
 // Drawing geometry and scroll reveal adapted from feat/site's LoopPanel.
 // This is a schematic curve: neither contour length nor 3D conformation is measured.
 function initLoopPanel() {
-  const wrap = document.querySelector<HTMLElement>(".loop-panel-wrap");
   const film = document.querySelector<HTMLElement>(".loop-panel");
   const canvas = document.querySelector<HTMLCanvasElement>(".loop-canvas");
-  const replay = document.querySelector<HTMLButtonElement>(".loop-replay");
-  if (!wrap || !film || !canvas || !replay) return;
+  if (!film || !canvas) return;
   const context = canvas.getContext("2d");
   if (!context) return;
   const media = matchMedia("(prefers-reduced-motion: reduce)");
   let width = 0;
   let height = 0;
   let queued = false;
-  let replayStart: number | null = null;
 
   function resize() {
     const dpr = Math.min(devicePixelRatio || 1, 2);
@@ -80,19 +77,9 @@ function initLoopPanel() {
       ctx.fillStyle = gradient;
       ctx.fillRect(0, midY - 200, width, 400);
     }
-    // Text makes the schematic readable without relying on colour alone.
-    ctx.font = "12px 'DM Sans', sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#d9dbdd";
-    if (bx - ax < 170) {
-      ctx.fillText("Enhancer · promoter", width * 0.5, midY + 34);
-    } else {
-      ctx.fillText("Enhancer", ax, midY + 34);
-      ctx.fillText("Promoter", bx, midY + 34);
-    }
   }
 
-  function frame(now: number) {
+  function frame() {
     queued = false;
     const rect = film!.getBoundingClientRect();
     const scrollProgress = media.matches
@@ -110,17 +97,7 @@ function initLoopPanel() {
       ) *
       (1 - scrollProgress);
     film!.style.clipPath = `inset(0 ${inset.toFixed(1)}px round ${(16 * (1 - scrollProgress)).toFixed(1)}px)`;
-    let progress = scrollProgress;
-    if (replayStart !== null && !media.matches) {
-      const elapsed = Math.min(1, (now - replayStart) / 2800);
-      progress = elapsed * elapsed * (3 - 2 * elapsed);
-      if (elapsed < 1) queueFrame();
-      else {
-        replayStart = null;
-        replay!.disabled = false;
-      }
-    }
-    draw(progress);
+    draw(scrollProgress);
   }
 
   function queueFrame() {
@@ -128,34 +105,12 @@ function initLoopPanel() {
     queued = true;
     requestAnimationFrame(frame);
   }
-  function stopReplay() {
-    replayStart = null;
-    replay!.disabled = false;
-  }
-  replay.hidden = media.matches;
-  replay.addEventListener("click", () => {
-    if (media.matches) return;
-    replayStart = performance.now();
-    replay.disabled = true;
-    queueFrame();
-  });
-  addEventListener(
-    "scroll",
-    () => {
-      stopReplay();
-      queueFrame();
-    },
-    { passive: true },
-  );
+  addEventListener("scroll", queueFrame, { passive: true });
   addEventListener("resize", () => {
     resize();
     queueFrame();
   });
-  media.addEventListener("change", () => {
-    stopReplay();
-    replay.hidden = media.matches;
-    queueFrame();
-  });
+  media.addEventListener("change", queueFrame);
   // Fonts and browser zoom can change element sizes without a window resize.
   new ResizeObserver(() => {
     resize();
