@@ -13,8 +13,7 @@ Hi-C        ENCODE ENCFF621AIY, K562 intact Hi-C (ENCSR479XDG), GRCh38,
 DNase       ENCODE ENCSR000EKS (K562). Peaks ENCFF070TML; signal ENCFF972GVB.
 Genes       UCSC ncbiRefSeqCurated, hg38. TSS = the one shared by the most
             isoforms of the gene (the rE2G convention).
-CTCF        UCSC jaspar2022 track, TFName == CTCF, restricted to accessible
-            sites. (Track is JASPAR 2022; the method doc cites MA0139.1.)
+CTCF        UCSC jaspar2022 track, TFName == CTCF, every hit in the window. (Track is JASPAR 2022; the method doc cites MA0139.1.)
 Dosage      ClinGen gene dosage curation list, GRCh38.
 
 NOT covered, and not faked: COSMIC Cancer Gene Census (needs a login) and
@@ -84,7 +83,10 @@ def fetch_hic(chrom: str, start: int, end: int) -> np.ndarray:
     zoom = hic.getMatrixZoomData(chrom, chrom, "observed", "SCALE", "BP", BIN)
     m = np.asarray(zoom.getRecordsAsMatrix(start, end - 1, start, end - 1), dtype=float)
     m = np.nan_to_num(m, nan=0.0)
-    m = np.triu(m) + np.triu(m, 1).T          # straw returns the upper triangle
+    # straw returns the upper triangle; if the lower were also populated, mirroring
+    # the upper would discard it, so check rather than assume.
+    assert np.allclose(np.tril(m, -1), 0.0) or np.allclose(m, m.T), "unexpected triangle layout from straw"
+    m = np.triu(m) + np.triu(m, 1).T
     RAW.mkdir(parents=True, exist_ok=True)
     np.save(cache, m)
     return m
@@ -208,7 +210,13 @@ def load_k562_locus(chrom: str, start: int, end: int) -> tuple[Locus, dict]:
 
     contact = fetch_hic(chrom, start, end)
     assert contact.shape == (n, n), contact.shape
-    np.fill_diagonal(contact, 0.0)
+    # The diagonal is self-contact and is not informative, but zeroing it silently
+    # drops any element sharing a bin with a promoter (5 of 76 genes here, e.g. HBE1:
+    # T 550 -> 665). Impute it from the two neighbouring bins instead.
+    nb = np.zeros(n)
+    nb[1:-1] = 0.5 * (np.diagonal(contact, 1)[:-1] + np.diagonal(contact, 1)[1:])
+    nb[0], nb[-1] = contact[0, 1], contact[-1, -2]
+    contact[np.arange(n), np.arange(n)] = nb
 
     genes_all = fetch_genes(chrom, start, end)
     peaks = fetch_peaks(chrom, start, end)
@@ -234,7 +242,7 @@ def load_k562_locus(chrom: str, start: int, end: int) -> tuple[Locus, dict]:
     elements = np.array(sorted(best))
     activities = np.array([best[b] for b in elements])
 
-    ctcf = sorted({to_bin(p) for p in fetch_ctcf(chrom, start, end) if accessible[to_bin(p)]})
+    ctcf = sorted({to_bin(p) for p in fetch_ctcf(chrom, start, end)})   # every motif hit, accessible or not
 
     expression = fetch_expression(chrom, start, end, genes_all)
     dosage = fetch_dosage()
@@ -251,7 +259,7 @@ def load_k562_locus(chrom: str, start: int, end: int) -> tuple[Locus, dict]:
         "hic": {"file": "ENCFF621AIY", "experiment": "ENCSR479XDG", "cell": "K562",
                 "assembly": "GRCh38", "balancing": "Juicer SCALE (no KR at 5 kb)"},
         "dnase": {"experiment": "ENCSR000EKS", "peaks": "ENCFF070TML", "signal": "ENCFF972GVB"},
-        "genes": "UCSC ncbiRefSeqCurated hg38", "ctcf": "UCSC jaspar2022, CTCF, accessible only",
+        "genes": "UCSC ncbiRefSeqCurated hg38", "ctcf": "UCSC jaspar2022, TFName == CTCF, all hits in window",
         "rna": "ENCODE polyA+ RNA-seq ENCSR000AEM rep 1 (ENCFF222UVT), joined to RefSeq by TSS +/-500 bp",
         "dosage": "ClinGen gene dosage curation list GRCh38 (score 3 only)",
         "not_covered": ["COSMIC Cancer Gene Census (login)", "DepMap common essential (verification page)"],

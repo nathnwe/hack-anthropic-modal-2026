@@ -1,6 +1,40 @@
 {
- "spearman_T_vs_log1pTPM": 0.6912085628647034,
- "p": 4.7986106649808466e-12,
- "n": 76,
- "null_95pct": 0.18930358577283107
+ "n_genes": 76,
+ "spearman_T_vs_log1p_tpm": 0.666,
+ "null_mean": -0.002,
+ "null_95th_pct": 0.189,
+ "fraction_of_null_below_observed": 1.0,
+ "n_null": 2000,
+ "top_T_genes": [
+  [
+   "TRIM3",
+   1176,
+   8
+  ],
+  [
+   "ILK",
+   800,
+   42
+  ],
+  [
+   "RRP8",
+   800,
+   19
+  ],
+  [
+   "TAF10",
+   767,
+   138
+  ],
+  [
+   "HBG2",
+   758,
+   8201
+  ],
+  [
+   "OR51V1",
+   746,
+   0
+  ]
+ ]
 }

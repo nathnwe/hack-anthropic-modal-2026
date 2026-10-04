@@ -9,8 +9,9 @@ things we do not know? -- asked four ways, all deterministic:
   provenance      measured Hi-C 53.3% precision > averaged megamap 48.0% >
                   inverse-distance 44.3% (ENCODE-rE2G benchmark).
   distance        every model tested failed three real MYC enhancers at ~2 Mb.
-  sweep stability does the ranking hold as q runs from p50 to p99 of real
-                  contacts? If it flips, we do not know the answer.
+  sign stability  is the predicted change in the same direction at every q from
+                  p50 to p99 of real contacts? (Full gene-ordering stability is
+                  too strict: it was never satisfied by any of 592 real staples.)
 
 Output order: SAFE is a gate; among survivors, sort by dT/T. Confidence rides
 along as a label rather than a sort key, so a confident small effect never
@@ -22,6 +23,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 MAX_CONFIDENT_DISTANCE_KB = 500
+MIN_EFFECT = 0.10   # assumption: a staple must move the target's dose by at least this much to be a candidate
+TRUSTED_PROVENANCE = {"hic", "universalepi"}
 PROVENANCE_PRECISION = {"hic": 0.533, "megamap": 0.480, "power_law": 0.443}
 
 
@@ -32,15 +35,15 @@ class Candidate:
     provenance: str           # hic | megamap | power_law
     distance_kb: float
     abstained: bool
-    rank_stable: bool
+    sign_stable: bool
     safe: bool
 
     @property
     def confident(self) -> bool:
         return (not self.abstained
-                and self.provenance != "power_law"
+                and self.provenance in TRUSTED_PROVENANCE
                 and self.distance_kb <= MAX_CONFIDENT_DISTANCE_KB
-                and self.rank_stable)
+                and self.sign_stable)
 
     @property
     def tier(self) -> str:
@@ -49,7 +52,10 @@ class Candidate:
         return "CONFIDENT" if self.confident else "TENTATIVE"
 
 
-def rank(candidates: list[Candidate]) -> list[Candidate]:
-    """Gate on safety, then order by predicted dose change. Deterministic."""
-    survivors = [c for c in candidates if c.safe and not c.abstained]
-    return sorted(survivors, key=lambda c: (-c.delta_t, c.name))
+def rank(candidates: list[Candidate], min_effect: float = MIN_EFFECT) -> list[Candidate]:
+    """Gate on safety, drop anything that does not raise the target's dose by
+    at least min_effect, then order by predicted dose change. Deterministic:
+    ties on the rounded value break by name."""
+    survivors = [c for c in candidates
+                 if c.safe and not c.abstained and c.delta_t >= min_effect]
+    return sorted(survivors, key=lambda c: (-round(c.delta_t, 4), c.name))

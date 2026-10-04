@@ -489,7 +489,7 @@ def fig8(a, b) -> None:
            "Two tests, because they fail for different reasons. Absolute: no "
            "flagged gene moves more than tau, which we start at 10%. Relative: no "
            "flagged gene moves more than the gene we were aiming at — candidate B "
-           "does 6.2% to an oncogene and only 5.1% to its target, so it dies even "
+           "does 6.1% to an oncogene and only 5.0% to its target, so it dies even "
            "though both numbers are small and tau alone would have let it through. "
            "A weighted score would allow a large predicted effect to outrank a "
            "safety concern. A gate cannot. Survivors are then ordered by dT/T, "

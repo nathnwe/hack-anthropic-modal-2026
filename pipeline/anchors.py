@@ -16,16 +16,25 @@ TSS_PAD_BINS = 1  # +/- 5 kb around a TSS
 
 def forbidden_mask(n: int, elements, gene_tss, gene_bodies, ctcf_sites,
                    tss_pad: int = TSS_PAD_BINS) -> np.ndarray:
-    """True where a staple must not be placed."""
+    """True where a staple must not be placed. Out-of-range bins raise rather
+    than wrapping (numpy would silently index -1 as the last bin)."""
     mask = np.zeros(n, dtype=bool)
+
+    def check(b: int) -> int:
+        if not 0 <= b < n:
+            raise IndexError(f"bin {b} outside window of {n}")
+        return int(b)
+
     for e in elements:
-        mask[e] = True                       # the enhancer itself
+        mask[check(e)] = True                                # the enhancer itself
     for t in gene_tss:
-        mask[max(0, t - tss_pad):t + tss_pad + 1] = True   # promoter
+        t = check(t)
+        mask[max(0, t - tss_pad):t + tss_pad + 1] = True     # promoter
     for start, end in gene_bodies:
-        mask[start:end + 1] = True           # transcribed region
+        lo, hi = sorted((check(start), check(end)))          # minus-strand genes arrive reversed
+        mask[lo:hi + 1] = True                               # transcribed region
     for c in ctcf_sites:
-        mask[c] = True                       # boundary element
+        mask[check(c)] = True                                # boundary element
     return mask
 
 
