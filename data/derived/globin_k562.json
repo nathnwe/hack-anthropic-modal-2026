@@ -1,0 +1,121 @@
+{
+ "provenance": {
+  "retrieved": "2026-10-04",
+  "window": "chr11:4700000-6700000",
+  "bins": 400,
+  "bin_bp": 5000,
+  "hic": {
+   "file": "ENCFF621AIY",
+   "experiment": "ENCSR479XDG",
+   "cell": "K562",
+   "assembly": "GRCh38",
+   "balancing": "Juicer SCALE (no KR at 5 kb)"
+  },
+  "dnase": {
+   "experiment": "ENCSR000EKS",
+   "peaks": "ENCFF070TML",
+   "signal": "ENCFF972GVB"
+  },
+  "genes": "UCSC ncbiRefSeqCurated hg38",
+  "ctcf": "UCSC jaspar2022, CTCF, accessible only",
+  "rna": "ENCODE polyA+ RNA-seq ENCSR000AEM rep 1 (ENCFF222UVT), joined to RefSeq by TSS +/-500 bp",
+  "dosage": "ClinGen gene dosage curation list GRCh38 (score 3 only)",
+  "not_covered": [
+   "COSMIC Cancer Gene Census (login)",
+   "DepMap common essential (verification page)"
+  ],
+  "counts": {
+   "dnase_peaks": 106,
+   "candidate_elements": 57,
+   "coding_genes": 76,
+   "ctcf_sites": 2,
+   "flagged_genes": 0
+  }
+ },
+ "sanity_abc_globin": {
+  "HBE1": {
+   "top_element_kb": 5280,
+   "share": 0.352,
+   "is_lcr": true
+  },
+  "HBG2": {
+   "top_element_kb": 5280,
+   "share": 0.33,
+   "is_lcr": true
+  },
+  "HBG1": {
+   "top_element_kb": 5280,
+   "share": 0.291,
+   "is_lcr": true
+  },
+  "HBD": {
+   "top_element_kb": 5280,
+   "share": 0.315,
+   "is_lcr": true
+  },
+  "HBB": {
+   "top_element_kb": 5280,
+   "share": 0.204,
+   "is_lcr": true
+  }
+ },
+ "n_functional_elements": 46,
+ "n_permitted_anchors": 4,
+ "n_flagged_genes": 0,
+ "n_staples": 4,
+ "staples": [
+  {
+   "target": "OR52A5",
+   "enhancer_kb": 5205,
+   "anchor_a_kb": 5170,
+   "anchor_b_kb": 5105,
+   "separation_kb": 65,
+   "q": 69.275,
+   "delta_target": 0.0105,
+   "tier": "CONFIDENT",
+   "safe": true,
+   "rank_stable": true,
+   "collateral_over_tau": []
+  },
+  {
+   "target": "OR56A1",
+   "enhancer_kb": 5205,
+   "anchor_a_kb": 5170,
+   "anchor_b_kb": 6060,
+   "separation_kb": 890,
+   "q": 5.852,
+   "delta_target": 0.0075,
+   "tier": "TENTATIVE",
+   "safe": true,
+   "rank_stable": false,
+   "collateral_over_tau": []
+  },
+  {
+   "target": "CAVIN3",
+   "enhancer_kb": 5205,
+   "anchor_a_kb": 5170,
+   "anchor_b_kb": 6355,
+   "separation_kb": 1185,
+   "q": 5.387,
+   "delta_target": -0.0006,
+   "tier": "TENTATIVE",
+   "safe": true,
+   "rank_stable": false,
+   "collateral_over_tau": []
+  },
+  {
+   "target": "SMPD1",
+   "enhancer_kb": 5205,
+   "anchor_a_kb": 5170,
+   "anchor_b_kb": 6355,
+   "separation_kb": 1185,
+   "q": 5.387,
+   "delta_target": -0.0008,
+   "tier": "TENTATIVE",
+   "safe": true,
+   "rank_stable": false,
+   "collateral_over_tau": []
+  }
+ ],
+ "lcr_to_globin": []
+}
