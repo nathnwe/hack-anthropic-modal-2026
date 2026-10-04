@@ -31,6 +31,8 @@ class Locus:
     tad_edges: list[int]
     accessible: np.ndarray        # bool per bin
     flags: dict[str, str] = field(default_factory=dict)
+    expression: dict[str, float] = field(default_factory=dict)   # TPM; empty for the synthetic locus
+    exons: list[tuple[int, int]] = field(default_factory=list)   # bin spans of every exon; empty -> use gene_bodies
     illustrative: bool = True
 
     @property

@@ -28,7 +28,7 @@ from __future__ import annotations
 import numpy as np
 
 SIGMA_BINS = 3.0  # ~15 kb at 5 kb resolution
-RENORM_ITERS = 4
+RENORM_ITERS = 100   # 4 left up to 0.9% row-sum error; 100 converges to ~1e-16
 
 
 def kernel(n: int, anchor_a: int, anchor_b: int, sigma: float = SIGMA_BINS) -> np.ndarray:
@@ -51,6 +51,19 @@ def apply_staple(contact: np.ndarray, anchor_a: int, anchor_b: int, q: float,
         out = out * scale[:, None]
         out = (out + out.T) / 2.0
     return out
+
+
+def staple_strength(contact: np.ndarray, a: int, b: int, tol: float = 0.95) -> tuple[float, bool]:
+    """(q, noop). The yardstick, plus a flag for a staple that cannot help.
+
+    The yardstick is the strongest real contact at this separation ANYWHERE in
+    the window. If the pair being stapled already is that contact, then
+    max(C, q*K) leaves the anchor pixel unchanged and renormalisation then
+    slightly weakens it (verified: LCR->HBG2, 49.13 -> 47.62). Such a staple is
+    reported as already-at-yardstick, not scored as if it did something.
+    """
+    q = yardstick(contact, abs(a - b))
+    return q, bool(contact[a, b] >= tol * q)
 
 
 def yardstick(contact: np.ndarray, separation_bins: int) -> float:

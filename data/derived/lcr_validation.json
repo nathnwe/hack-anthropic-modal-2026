@@ -1,0 +1,165 @@
+{
+ "sanity": {
+  "HBE1": {
+   "top_element_kb": 5280,
+   "share": 0.291,
+   "margin_over_second": 1.69,
+   "is_lcr": true
+  },
+  "HBG2": {
+   "top_element_kb": 5280,
+   "share": 0.33,
+   "margin_over_second": 2.65,
+   "is_lcr": true
+  },
+  "HBG1": {
+   "top_element_kb": 5280,
+   "share": 0.291,
+   "margin_over_second": 1.46,
+   "is_lcr": true
+  },
+  "HBD": {
+   "top_element_kb": 5280,
+   "share": 0.315,
+   "margin_over_second": 2.69,
+   "is_lcr": true
+  },
+  "HBB": {
+   "top_element_kb": 5280,
+   "share": 0.204,
+   "margin_over_second": 1.31,
+   "is_lcr": true
+  }
+ },
+ "per_gene": {
+  "HBE1": {
+   "sep_kb": 15,
+   "contact_percentile": 79.3,
+   "tpm": 2023.96,
+   "q": 61.943,
+   "noop": false,
+   "delta": 0.1797,
+   "sweep": [
+    -0.01,
+    -0.0084,
+    0.024,
+    0.041,
+    0.0945
+   ],
+   "collateral": [
+    {
+     "gene": "OR51B4",
+     "delta": 0.1426
+    }
+   ]
+  },
+  "HBG2": {
+   "sep_kb": 30,
+   "contact_percentile": 99.7,
+   "tpm": 8201.48,
+   "q": 49.129,
+   "noop": true,
+   "delta": -0.0215,
+   "sweep": [
+    0.0,
+    0.0,
+    -0.0006,
+    -0.0013,
+    -0.0065
+   ],
+   "collateral": [
+    {
+     "gene": "HBG1",
+     "delta": 0.0568
+    }
+   ]
+  },
+  "HBG1": {
+   "sep_kb": 35,
+   "contact_percentile": 99.5,
+   "tpm": 3875.63,
+   "q": 55.121,
+   "noop": false,
+   "delta": 0.1198,
+   "sweep": [
+    -0.0,
+    0.0,
+    -0.0001,
+    -0.0005,
+    0.008
+   ],
+   "collateral": [
+    {
+     "gene": "HBB",
+     "delta": 0.1812
+    },
+    {
+     "gene": "HBD",
+     "delta": 0.1422
+    }
+   ]
+  },
+  "HBD": {
+   "sep_kb": 50,
+   "contact_percentile": 99.0,
+   "tpm": 21.88,
+   "q": 34.082,
+   "noop": false,
+   "delta": 0.1586,
+   "sweep": [
+    0.0,
+    0.0001,
+    0.0009,
+    0.0071,
+    0.0296
+   ],
+   "collateral": [
+    {
+     "gene": "HBB",
+     "delta": 0.4099
+    }
+   ]
+  },
+  "HBB": {
+   "sep_kb": 55,
+   "contact_percentile": 80.2,
+   "tpm": 0.13,
+   "q": 33.596,
+   "noop": false,
+   "delta": 0.4383,
+   "sweep": [
+    0.0001,
+    -0.0003,
+    0.0299,
+    0.0827,
+    0.2269
+   ],
+   "collateral": [
+    {
+     "gene": "HBD",
+     "delta": 0.1188
+    }
+   ]
+  }
+ },
+ "sigma_sensitivity": {
+  "1.5": {
+   "hbb": 0.394,
+   "largest_collateral": "HBD",
+   "largest_collateral_delta": 0.0201,
+   "genes_over_2pct": 1
+  },
+  "3.0": {
+   "hbb": 0.4383,
+   "largest_collateral": "HBD",
+   "largest_collateral_delta": 0.1188,
+   "genes_over_2pct": 2
+  },
+  "4.5": {
+   "hbb": 0.4248,
+   "largest_collateral": "HBD",
+   "largest_collateral_delta": 0.127,
+   "genes_over_2pct": 2
+  }
+ }
+}

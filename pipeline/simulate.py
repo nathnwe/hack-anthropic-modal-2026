@@ -68,13 +68,13 @@ def run(loc: Locus | None = None, anchor_a: int = DEMO_ANCHOR_A,
 
     grid = sweep_mod.q_grid(before, sep, SWEEP_PERCENTILES)
     curves = {g: [] for g in order}
-    ranks = []
+    signs = []
     for qi in grid:
         ti = _totals(loc, sweep_mod.apply_staple(before, anchor_a, anchor_b, qi))
         d = {g: (ti[g] - t0[g]) / t0[g] for g in order}
         for g in order:
             curves[g].append(d[g])
-        ranks.append(max(order, key=lambda g: d[g]))
+        signs.append(d[target] > 0)
     curves = {g: np.array(v) for g, v in curves.items()}
 
     found = concerns(delta, loc.flags, TAU, target=target)
@@ -84,7 +84,7 @@ def run(loc: Locus | None = None, anchor_a: int = DEMO_ANCHOR_A,
         provenance="hic",
         distance_kb=sep * BIN_KB,
         abstained=False,
-        rank_stable=len(set(ranks)) == 1,
+        sign_stable=all(signs),
         safe=not found,
     )
     return Result(loc, before, after, q, t0, t1, delta, share0, share1,
@@ -101,4 +101,4 @@ if __name__ == "__main__":
         print(f"  {g:<7} {r.delta[g]:+7.1%}  {flag}")
     print("concerns:", [str(c) for c in r.concerns] or "none")
     print("tier:", r.candidate.tier, " safe:", r.candidate.safe,
-          " stable:", r.candidate.rank_stable)
+          " stable:", r.candidate.sign_stable)

@@ -57,7 +57,12 @@ The rung matters and is recorded with every result:
 | averaged megamap | 48.0% |
 | inverse distance | 44.3% |
 
-**Data.** Hi-C: ENCODE / 4DN, KR-normalised, 5 kb. ATAC: ENCODE DNase or ATAC-seq for the cell
+**Diagonal.** The Hi-C diagonal is self-contact and is imputed from the two neighbouring bins
+rather than zeroed. Zeroing silently drops any element sharing a bin with a promoter (5 of 76
+genes in the real window; for HBE1 it understated T by 21%).
+
+**Data.** Hi-C: ENCODE / 4DN, KR-normalised, 5 kb (Juicer SCALE balancing where KR is absent, as
+in the real K562 file). ATAC: ENCODE DNase or ATAC-seq for the cell
 type. Sequence: hg38. Promoters: GENCODE v29, 500 bp centred on the RefSeq TSS with the most
 coding isoforms.
 
@@ -107,20 +112,33 @@ changes a gene's expression — its score against measured effect size is only `
 
 ## 3. Filter the physical conflicts
 
-$$\mathcal{F} \;=\; \{e\} \,\cup\, \{\mathrm{TSS} \pm 5\,\mathrm{kb}\} \,\cup\, \{\text{gene bodies}\} \,\cup\, \{\text{CTCF motif hits}\}$$
+$$\mathcal{F} \;=\; \{e : \exists\, g\ \text{expressed},\ \mathrm{ABC}_{e,g} \ge 0.02\} \,\cup\, \{\mathrm{TSS\ bin}\} \,\cup\, \{\text{exons}\} \,\cup\, \{\text{every CTCF motif hit}\}$$
 
-$$\mathcal{A} \;=\; \{\,b \;:\; \mathrm{ATAC}(b) \;\wedge\; b \notin \mathcal{F} \,\}$$
+$$\mathcal{A} \;=\; \{\,b \;:\; \mathrm{dist}(b, \text{nearest ATAC peak}) \le 2\ \text{bins} \;\wedge\; b \notin \mathcal{F} \,\}$$
 
-**In plain terms.** The staple has to grab something, and it grabs open chromatin. But parking a
-large protein on a working part of the genome breaks that part. So we subtract everything we would
-damage — the enhancer itself, the promoter and 5 kb either side, the transcribed body of any gene,
-and CTCF boundary sites — and what is left is where a staple may land.
+**In plain terms.** The staple has to grab something, and it grabs near open chromatin. But
+parking a large protein on a working part of the genome breaks that part. So we subtract what we
+would damage — the enhancers of genes that are actually switched on, the promoter bin, the exons
+of any gene, and CTCF boundary sites — and what is left is where a staple may land.
+
+**Four rules, and why each is what it is.** The first draft was stricter and left only 4 permitted
+anchors of 81 at the β-globin locus, which made the search empty. Each relaxation is a choice
+traded against coverage, not a correction of an error:
+
+| rule | first draft | now | reason |
+|---|---|---|---|
+| on-peak | anchor must be *on* an ATAC peak | within 2 bins (10 kb) of one | in a gene-dense locus nearly every peak is an enhancer or promoter, so "on a peak, not an enhancer" is almost empty |
+| promoter | TSS ± 1 bin (15 kb) | TSS bin only | 5 kb bins are already coarser than a real promoter; the wider pad also forbade the published LCR→promoter design |
+| gene body | whole transcript | exons | two genes (287 kb and 165 kb, the latter unexpressed with a 1 kb CDS) forbade 465 kb alone; an intronic anchor is not obviously harmful |
+| CTCF | motif hits in accessible bins | every motif hit | fidelity to the spec; costs nothing |
+| dose floor | 10% | 10% (unchanged, a stated knob) | arbitrary; set equal to τ for scale |
 
 This is a filter, not a score. It removes the impossible rather than ranking the possible, which
 is why "tractable" does not need to be an axis in the ranking.
 
-**Data.** ATAC/DNase peaks for the cell type · GENCODE v29 gene models · CTCF motif hits from
-JASPAR **MA0139.1**.
+**Data.** ATAC/DNase peaks for the cell type · RefSeq exon models · CTCF motif hits from JASPAR
+(2022 track via UCSC; `MA0139.1` is the CTCF matrix in the 2018 release) · RNA-seq for "expressed"
+(TPM ≥ 1).
 
 > **Figure 3** — `docs/figures/method/fig3_anchor_filter.png`
 
@@ -150,7 +168,9 @@ important unvalidated number in the method.
 ### 4b. Contact is conserved, not created
 
 $$C'' \;=\; \text{rescale } C' \text{ so that } \sum_j C''[i, j] = \sum_j C[i, j] \ \ \forall i,
-\quad\text{symmetrised, iterated}$$
+\quad\text{alternately scaled and symmetrised, 100 iterations}$$
+
+(Four iterations, as first written, left up to 0.9% row-sum error. A hundred converge to ~1e-16.)
 
 **In plain terms.** A stretch of chromosome has a finite amount of contact to give. Pulling it
 towards one place pulls it away from everywhere else. Without this constraint a staple adds
@@ -166,8 +186,14 @@ than invent a number, we run the whole thing across the range of contacts that g
 that genomic separation, and report the curve. An unknown parameter becomes an output.
 
 A single headline figure, where one is needed, uses the strongest real contact at that separation
-— "as tight as the tightest natural loop this far apart." Describable, checkable, not a free
-parameter.
+anywhere in the window — "as tight as the tightest natural loop this far apart." Describable,
+checkable, not a free parameter.
+
+**Known defect, and its handling.** If the pair being stapled *is* that strongest contact, then
+`max(C, q·K)` leaves the anchor pixel unchanged and renormalisation slightly *weakens* it
+(verified on real data: LCR→HBG2, 49.13 → 47.62). Such a pair is reported as
+**already at the yardstick — no-op** and is not scored as though the staple did something. The
+yardstick also lies above the sweep's p99, so the headline is the top of the range, not its middle.
 
 > **Figures 4, 5, 6** — `fig4_point_vs_kernel.png`, `fig5_before_after_diff.png`,
 > `fig6_dose_response.png`
@@ -180,7 +206,9 @@ $$T'_G \;=\; \sum_e A_e \cdot C''(e, G)
 \qquad\qquad
 \frac{\Delta T}{T}\bigg|_G \;=\; \frac{T'_G - T_G}{T_G}$$
 
-for every gene `G` whose TSS lies within 1 Mb of either anchor.
+for every gene `G` in the 2 Mb window (not only those within 1 Mb of an anchor: renormalisation
+moves distant genes by up to ~0.5%, below τ, but it is real model behaviour). A gene with zero
+baseline `T` makes `ΔT/T` undefined; the run refuses rather than emitting `inf`.
 
 **In plain terms.** Run step 2 again on the edited map, for every gene in the neighbourhood rather
 than only the one we were aiming at. Each gene's regulatory input went up, went down, or did not
@@ -216,6 +244,25 @@ without. Two separate tests, because they fail for different reasons. The first 
 gene that moved a lot. The second catches a staple that does more to an oncogene than it does to
 its own target — which should kill a candidate however small both numbers are.
 
+**The risk score.** Each candidate carries one auditable number and a tier, with no model and no
+weights: the score is the largest $|\Delta T/T|$ on any flagged gene other than the target.
+
+| tier | meaning |
+|---|---|
+| `CLEAR` | no *other* ClinGen dosage-sensitive gene lies in the window. This is a result, not an absence of one: to the knowledge of the curated list, nothing nearby is dangerous to disturb |
+| `LOW` | flagged genes exist, none moves by 2% or more |
+| `ELEVATED` | a flagged gene moves between 2% and τ |
+| `BLOCKED` | the gate trips (absolute test, relative test, or an undefined change) |
+
+The list is ClinGen only. COSMIC (oncogenes, tumour suppressors) and DepMap (essential genes)
+could not be obtained, so a `CLEAR` here means clear *of ClinGen*, and the oncogene and
+essential-gene parts of the design remain untested on real data.
+
+**Fail closed.** A flagged gene whose change is undefined (`NaN`, e.g. from a zero baseline) is
+reported as a concern, not waved through, and a target missing from the deltas is an error rather
+than a silently disabled relative test. A null staple (target change exactly 0) does not trip the
+relative test on untouched flagged genes.
+
 **Asymmetric trust.** Per `CLAUDE.md`, a language model may *raise* a concern, with a citation. It
 may never clear one. Silence from a model is not evidence of safety, and no LLM output enters the
 ranking.
@@ -234,7 +281,14 @@ four ways, all deterministic:
 | ensemble abstention | UniversalEPI's K=10 deep ensemble does not return a maximum-confidence fold change of exactly 0 (which it does when its prediction intervals overlap) |
 | contact provenance | the map came from measured Hi-C or UniversalEPI, not a power law |
 | distance | anchors within 500 kb (every model tested failed three real MYC enhancers at ~2 Mb) |
-| sweep stability | the gene ordering does not change as `q` runs from p50 to p99 |
+| sign stability | the predicted change on the target keeps the same sign at every `q` from p50 to p99 |
+
+(Full gene-ordering stability was the first definition. Over 592 real staples it was satisfied by
+none, so it cannot be the test; sign stability is the weaker, implementable one.)
+
+**Which tests are live depends on the run.** In the real-data run UniversalEPI was not used, so
+*abstention* is a constant and *provenance* is constant "measured Hi-C": only distance and sign
+stability actually vary, and the output says so beside the tier.
 
 All four → `CONFIDENT`. Abstention → `ABSTAIN`, and the candidate is withheld rather than ranked.
 Anything else → `TENTATIVE`.
@@ -246,9 +300,11 @@ Anything else → `TENTATIVE`.
 ```
 1. filter      step 3 — removes the impossible
 2. gate        step 6 — SAFE or the candidate is dropped, no exceptions
-3. sort        by ΔT/T on the target, descending
-4. label       confidence tier shown beside each row, not sorted on
-5. report      anchor separation, PAM availability, provenance — raw, for the researcher
+3. floor       ΔT/T on the target must reach MIN_EFFECT (10%, an assumption); a staple that
+               lowers the dose, or barely moves it, is not a candidate
+4. sort        by ΔT/T on the target, descending (ties on the rounded value break by name)
+5. label       confidence tier shown beside each row, not sorted on
+6. report      anchor separation, PAM availability, provenance — raw, for the researcher
 ```
 
 **Why a gate and not a weighted score.** A weighted sum would let a large predicted effect
@@ -261,6 +317,75 @@ order, and every step of that order can be inspected.
 
 ---
 
+## Real-data run: K562, β-globin locus (chr11:4.7–6.7 Mb)
+
+Run on real inputs, none synthetic: K562 intact Hi-C (ENCODE ENCFF621AIY, range-read from a 33.8 GB
+file, 5 kb, SCALE balancing), K562 DNase peaks and signal (ENCSR000EKS), K562 RNA-seq
+(ENCSR000AEM), RefSeq genes, JASPAR CTCF motifs, ClinGen dosage genes. Code:
+`pipeline/real_data.py`, `pipeline/real_run.py`, `pipeline/validate_expression.py`; outputs in
+`data/derived/`. Every step was then re-derived by an independent verifier agent that tried to
+break it; the defects they found are fixed or listed below.
+
+**What worked**
+
+| check | result |
+|---|---|
+| Hi-C is sane | symmetric, finite, distance-decay slope −1.05 (typical −1.0 to −1.3) |
+| T tracks measured expression | Spearman **ρ = 0.67** over 76 genes; random-promoter null 95th pct 0.19, beaten in 2,000/2,000 |
+| LCR is top ABC element for all five globin genes | yes, but it wins on *activity* (5.09 vs window median 0.72), not contact; HBB margin only 1.3×. A consistency check, not independent confirmation |
+| LCR→HBB staple raises HBB | **+43.8%**, from a contact at only the 80th percentile, so it is a real forced contact. Sign agrees with forced-looping experiments (Deng 2012 *Cell*; 2014 *Nature*), which were not done in K562 |
+
+**What did not work, stated plainly**
+
+- **The first search found nothing, and that was the rules, not the data.** Under the original
+  strict step 3 only 4 of 81 accessible sites at the globin locus were permitted anchors. After
+  relaxing four rules (step 3) there are 91, and the demo below runs. The relaxation is a trade of
+  strictness for coverage, not a correction.
+- **At the globin locus the safety gate was never exercised.** No ClinGen-flagged gene lies in that window (of 76
+  coding genes only DCHS1 appears in ClinGen at all, with insufficient evidence), and COSMIC and
+  DepMap could not be obtained. Both gate tests are vacuous here, so `safe = True` carries no
+  information. The gate's logic is tested on synthetic data and by property tests only.
+- **Two of four confidence tests are constants** (abstention: UniversalEPI not run; provenance:
+  measured Hi-C).
+- **The off-target readout depends on σ; the target effect does not.** LCR→HBB is +39.4%, +43.8%,
+  +42.5% at σ = 1.5, 3, 4.5 bins, but the neighbour HBD moves +2.0%, +11.9%, +12.7%.
+- **Neighbours 5 kb apart cannot be told apart.** Staple the LCR to HBD and HBB moves +41%, 2.6×
+  the intended effect. This is the ≤30 kb design rule seen on real data.
+- **The yardstick makes the strongest contacts a no-op.** LCR→HBG2 is already the strongest
+  contact at its separation (100th percentile), so the staple does nothing and is reported as such.
+- **ABC is unaware of expression.** An unexpressed olfactory receptor (OR51V1, 0 TPM) scores
+  T = 746, comparable to HBG2 (758; 8,201 TPM). T measures regional activity, not on/off state.
+- **Low-coverage bins** (bin 102 at 5,210 kb, two bins upstream of HBB; bin 168) have row sums
+  ~0.5× the median even after balancing, so contacts involving them are biased low. Not masked.
+
+## Demo: top staple designs with a risk score, on live K562 data
+
+`pipeline/demo.py` ranks staple designs for four curated target genes from `docs/targets.md`
+(goal: raise dose), two with dosage-sensitive neighbours and two without. Output:
+`data/derived/demo_*.json`, `data/derived/demo_summary.md`.
+
+| target | window | best design (enhancer → promoter) | ΔT/T | risk | score | confidence | rejected by gate |
+|---|---|---|---|---|---|---|---|
+| **LDLR** | chr19:10.11–12.11 Mb | 10,460 kb → 11,080 kb (610 kb) | +10.1% | LOW | 0.0% | TENTATIVE | 0 |
+| **NSD1** | chr5:176.2–178.2 Mb | 177,365 kb → 177,125 kb (220 kb) | +40.0% | LOW | 1.9% | TENTATIVE | 1 |
+| **RUNX1** | chr21:33.9–35.9 Mb | 34,615 kb → 34,875 kb (255 kb) | +15.2% | CLEAR | 0.0% | CONFIDENT | 0 |
+| **NF1** | chr17:30.2–32.2 Mb | 31,555 kb → 31,080 kb (470 kb) | +32.2% | CLEAR | 0.0% | TENTATIVE | 0 |
+
+- **Flagged windows** (LDLR: SMARCA4, PRKCSH; NSD1: DDX41) give the risk score real genes to
+  measure. **Null windows** (RUNX1, NF1) report `CLEAR`: to the knowledge of ClinGen, no other
+  dosage-sensitive gene is nearby.
+- **The gate fired once on real data.** At NSD1, one design would *lower* NSD1 by 4.8% while
+  raising the haploinsufficient gene **DDX41 by 12.4%**, which is the enhancer-hijack case the
+  method exists to catch. It is rejected.
+- **How the windows were chosen.** Targets are from the curated list; windows were selected by
+  scanning all 422 ClinGen-flagged genes for a flagged gene expressed in K562 with a lively
+  neighbourhood (`data/derived/demo_window_scan.json`). That is a post-hoc selection of demonstration
+  cases, not a sample, so the table says nothing about how typical these results are.
+- **Why "confidence" is mostly TENTATIVE.** Only distance and sign stability are live. LDLR's
+  design is 610 kb (over the 500 kb limit) and only just clears the 10% floor; NF1's designs are
+  sign-unstable across the q sweep. These are predictions in silico, unvalidated.
+- **LDLR is the weak case:** a single design at +10.1%, barely above the floor.
+
 ## Assumptions, stated plainly
 
 These are not measurements. They are choices, and a reviewer should be able to find them in one
@@ -271,7 +396,12 @@ place.
 2. **Row-sum conservation** — that a locus has a fixed contact budget. Physically motivated,
    not verified.
 3. **τ = 10%** — the point at which a flagged gene has moved too far. Arbitrary starting value.
-4. **Contact substitution** — ENCODE-rE2G takes contact from Hi-C or the megamap; feeding it
+4. **MIN_EFFECT = 10%** — the dose change below which a staple is not a candidate. Set equal to τ
+   for scale, with no independent justification.
+5. **Staple strength = strongest real contact at the separation** — a describable yardstick, not a
+   measurement, and it makes already-strong pairs a no-op (step 4c).
+6. **Diagonal imputed from neighbouring bins** — a choice; zeroing is the alternative and biases T low.
+7. **Contact substitution** — ENCODE-rE2G takes contact from Hi-C or the megamap; feeding it
    UniversalEPI predictions instead is an unvalidated swap.
 
 ---
@@ -280,6 +410,14 @@ place.
 
 - **No expression calibration.** `ΔT/T` has no units a biologist can act on. Fixing this means
   regressing it against measured CRISPRi effect sizes (Gasperini, Schraivogel).
+- **Step 3 may be too strict at 5 kb.** In a gene-dense locus nearly every accessible site is an
+  enhancer of an expressed gene or a promoter, so "accessible but not functional" is almost empty.
+  Options, not yet decided: exon-level rather than whole-transcript gene bodies (two genes,
+  MMP26 at 287 kb and OR51B5 at 165 kb, forbid ~465 kb alone), a finer resolution, or allowing
+  anchors in the flanks of peaks. Dropping the body rule alone only lifts 4 anchors to 8.
+- **Published forced looping puts the effector *at* the promoter,** which the TSS exclusion forbids
+  by design. Validation therefore has to waive the exclusions; the pipeline's own recommendation
+  and the published design are different experiments.
 - **No validation of the counterfactual.** Nobody has applied a staple and measured the result,
   so the central prediction is untested by construction.
 - **Activation only.** rE2G is trained on activating elements and silencers are not modelled, so
@@ -308,13 +446,23 @@ ABC — Fulco et al. 2019, *Nat Genet* 51:1664–1669 ·
 ENCODE-rE2G — Gschwind et al. 2026, *Nature* 657:179–190 ·
 UniversalEPI — Grover et al. 2026, *Nucleic Acids Res* 54(10) gkag485 ·
 GraphReg — Karbalayghareh, Sahin & Leslie 2022, *Genome Research* 32:930 ·
-COSMIC Cancer Gene Census · ClinGen dosage sensitivity · DepMap · GENCODE · JASPAR · ENCODE.
+ClinGen dosage sensitivity · JASPAR (via UCSC `jaspar2022`) · UCSC Genome Browser API
+(`ncbiRefSeqCurated`, `knownGene`) · ENCODE (Hi-C ENCFF621AIY / ENCSR479XDG, DNase ENCSR000EKS,
+RNA-seq ENCSR000AEM) · Rao et al. 2014 (in situ Hi-C method) · Deng et al. 2012 *Cell*, 2014
+*Nature* (forced looping) · hic-straw and pybigtools (range-reads) · NumPy. Not obtained:
+COSMIC Cancer Gene Census (login), DepMap (verification page).
 
 ## Reproducing the numbers
 
 ```bash
 uv run --with numpy python -m pipeline.simulate
 uv run --with matplotlib --with numpy python animation/figures/method_figures.py
+
+# real K562 data (hic-straw needs an older macOS SDK on recent Xcode command-line tools)
+SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk \
+  uv run --with hic-straw --with pybigtools --with numpy python -m pipeline.demo            # the shortlist
+#                                                              ... -m pipeline.globin_validation  # known-biology checks
+#                                                              ... -m pipeline.validate_expression
 ```
 
 The demo locus (`pipeline/locus.py`) is **synthetic and marked `illustrative`** — element
