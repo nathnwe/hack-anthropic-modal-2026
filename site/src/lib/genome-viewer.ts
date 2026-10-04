@@ -17,6 +17,7 @@ import {
   type LocusWindow,
 } from "./dna-geometry";
 import {
+  elementLabel,
   formatNumber,
   regionLabel,
   type CRE,
@@ -25,7 +26,7 @@ import {
 
 const STEPS = 4096;
 const GENE = new THREE.Color("#2877a5");
-const ELEMENT = new THREE.Color("#ad5641");
+
 const STRAND_A = new THREE.Color("#9baea0");
 const STRAND_B = new THREE.Color("#c8b4ab");
 const BASE_A = new THREE.Color("#e0e3da");
@@ -36,6 +37,7 @@ const byId = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 
 export class GenomeViewer {
+  private elementColor = new THREE.Color("#ad5641");
   private root = byId("genome-viewer");
   private stage = byId("dna-stage");
   private scene = new THREE.Scene();
@@ -81,8 +83,6 @@ export class GenomeViewer {
   private visibility: IntersectionObserver;
   private abort = new AbortController();
   private reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  private expanded = false;
-  private oldOverflow = "";
   private disposed = false;
   private lostContext = false;
   private matrix = new THREE.Matrix4();
@@ -204,7 +204,7 @@ export class GenomeViewer {
     );
     this.elementMarker = new THREE.Mesh(
       new THREE.SphereGeometry(1, 16, 12),
-      new THREE.MeshBasicMaterial({ color: ELEMENT }),
+      new THREE.MeshBasicMaterial({ color: this.elementColor }),
     );
     this.model.add(this.geneMarker, this.elementMarker);
     this.scene.add(this.model);
@@ -254,21 +254,9 @@ export class GenomeViewer {
       this.focusView("folded");
       this.requestFrame();
     });
-    for (const view of [
-      "folded",
-      "full",
-      "gene",
-      "element",
-      "junction",
-    ] as const)
-      on(`dna-focus-${view}`, () => this.focusView(view));
     on("dna-zoom-in", () => this.zoom(1.25));
     on("dna-zoom-out", () => this.zoom(0.8));
-    on("dna-expand", () => this.setExpanded(!this.expanded));
     on("dna-play", () => this.togglePlayback());
-    on("view-3d", () => this.switchView(true));
-    on("view-contacts", () => this.switchView(false));
-    on("dna-fallback-map", () => this.switchView(false));
     byId<HTMLInputElement>("dna-progress").addEventListener(
       "input",
       (event) => {
@@ -309,9 +297,6 @@ export class GenomeViewer {
       },
       { signal },
     );
-    this.root.addEventListener("keydown", (event) => this.handleKeys(event), {
-      signal,
-    });
     document.addEventListener(
       "visibilitychange",
       () => {
@@ -342,7 +327,7 @@ export class GenomeViewer {
     this.stage.dataset.state = "ready";
   }
 
-  update(record: GeneRecord, cre: CRE | null) {
+  update(record: GeneRecord, cre: CRE | null, color = "#ad5641") {
     const key = JSON.stringify([
       record.gene.symbol,
       record.gene.chrom,
@@ -350,9 +335,14 @@ export class GenomeViewer {
       record.locus.tad,
       cre,
       record.illustrative,
+      color,
     ]);
     if (key === this.selectedKey) return;
     this.selectedKey = key;
+    this.elementColor.set(color);
+    (this.elementMarker.material as THREE.MeshBasicMaterial).color.copy(
+      this.elementColor,
+    );
     this.record = record;
     this.cre = cre;
     this.locus = cre ? locusWindow(record, cre) : null;
@@ -375,8 +365,7 @@ export class GenomeViewer {
     byId("dna-fallback").hidden = true;
     byId("dna-controls").hidden = false;
     byId("dna-label-gene").textContent = `${record.gene.symbol} · TSS`;
-    byId("dna-focus-gene").textContent = `${record.gene.symbol} / TSS`;
-    byId("dna-label-element").textContent = cre!.id;
+    byId("dna-label-element").textContent = elementLabel(record, cre!);
     const locus = this.locus!;
     byId("dna-distance").hidden = false;
     const separation = Math.abs(locus.midpoint - locus.tss);
@@ -384,13 +373,12 @@ export class GenomeViewer {
     byId("dna-coordinate-kind").textContent = record.illustrative
       ? "Placeholder coordinates"
       : record.caseStudy
-        ? `${record.locus.cell_type} · ${record.caseStudy.assembly}`
+        ? record.caseStudy.assembly
         : "Record coordinates";
     this.stage.dataset.separationBp = String(separation);
     this.stage.dataset.element = cre!.id;
     byId<HTMLButtonElement>("dna-play").disabled = locus.overlap;
     byId<HTMLInputElement>("dna-progress").disabled = locus.overlap;
-    byId<HTMLButtonElement>("dna-focus-junction").disabled = locus.overlap;
     this.setProgress(0);
     this.focusView("folded");
     this.resize();
@@ -429,12 +417,6 @@ export class GenomeViewer {
     this.stage.dataset.totalBp = String(
       folded ? folded.end - folded.start : shown,
     );
-    byId("dna-resolution").textContent = folded
-      ? `${formatNumber(shown)} bp in two local windows · gap compressed, not to scale`
-      : `${formatNumber(shown)} bp in the full span · 0 bp omitted`;
-    byId("dna-fold-note").textContent = folded
-      ? "Illustrative loop formation, not molecular dynamics or a measured TAD. Coloured patches locate the reference TSS and element midpoint."
-      : "Full DNA contour at one scale; folding remains illustrative, not a measured TAD or atomic structure.";
     byId("dna-omitted-count").textContent = `${formatNumber(omitted)} bp`;
     byId("dna-omission").setAttribute(
       "aria-label",
@@ -443,13 +425,8 @@ export class GenomeViewer {
     byId("dna-omission").hidden = !folded;
     this.renderer.domElement.setAttribute(
       "aria-label",
-      `${this.record.gene.symbol} and ${this.cre.id}: ${folded ? `folded molecular close-up, ${formatNumber(omitted)} base pairs omitted in the haze` : "full continuous genomic span"}. Three-dimensional folding is illustrative. Drag to rotate, scroll to zoom.`,
+      `${this.record.gene.symbol} and ${elementLabel(this.record, this.cre)}: ${folded ? `folded molecular close-up, ${formatNumber(omitted)} base pairs omitted in the haze` : "full continuous genomic span"}. Three-dimensional folding is illustrative. Drag to rotate, scroll to zoom.`,
     );
-    for (const view of ["folded", "full"])
-      byId(`dna-focus-${view}`).setAttribute(
-        "aria-pressed",
-        String(view === this.viewMode),
-      );
   }
 
   private rebuildFolded() {
@@ -529,7 +506,7 @@ export class GenomeViewer {
       (this.region(p) === "gene"
         ? GENE
         : this.region(p) === "element"
-          ? ELEMENT
+          ? this.elementColor
           : STRAND_A
       ).toArray(),
     );
@@ -680,9 +657,17 @@ export class GenomeViewer {
         const region = this.region(position),
           rung = position % 1 === 0.5;
         const aColor =
-          region === "gene" ? GENE : region === "element" ? ELEMENT : STRAND_A;
+          region === "gene"
+            ? GENE
+            : region === "element"
+              ? this.elementColor
+              : STRAND_A;
         const bColor =
-          region === "gene" ? GENE : region === "element" ? ELEMENT : STRAND_B;
+          region === "gene"
+            ? GENE
+            : region === "element"
+              ? this.elementColor
+              : STRAND_B;
         sphere(a, rung ? 0.3 : 0.24, aColor, region, fade);
         sphere(b, rung ? 0.3 : 0.24, bColor, region, fade);
         if (previousA && previousB) {
@@ -699,7 +684,7 @@ export class GenomeViewer {
               region === "gene"
                 ? GENE
                 : region === "element"
-                  ? ELEMENT
+                  ? this.elementColor
                   : j <= 3
                     ? BASE_A
                     : BASE_B;
@@ -994,17 +979,11 @@ export class GenomeViewer {
     if (region === "gene")
       panel.textContent = `${this.record.gene.symbol} transcription start · ${regionLabel({ chrom: this.record.gene.chrom, start: this.record.gene.tss, end: this.record.gene.tss })}`;
     if (region === "element")
-      panel.textContent = `${this.cre.id} · ${regionLabel({ chrom: this.record.gene.chrom, start: this.cre.start, end: this.cre.end })}`;
+      panel.textContent = `${elementLabel(this.record, this.cre)} · ${regionLabel({ chrom: this.record.gene.chrom, start: this.cre.start, end: this.cre.end })}`;
   }
 
-  private switchView(threeD: boolean) {
-    byId("dna-panel").hidden = !threeD;
-    byId("contact-panel").hidden = threeD;
-    for (const id of ["dna-reset", "dna-zoom-in", "dna-zoom-out"])
-      byId(id).hidden = !threeD;
-    byId("view-3d").setAttribute("aria-pressed", String(threeD));
-    byId("view-contacts").setAttribute("aria-pressed", String(!threeD));
-    if (!threeD) {
+  setActive(active: boolean) {
+    if (!active) {
       this.playing = false;
       this.updatePlaybackUI();
     } else {
@@ -1019,68 +998,14 @@ export class GenomeViewer {
     byId("dna-fallback-message").textContent = message;
     byId("dna-controls").hidden = true;
     byId("dna-distance").hidden = true;
-    byId("dna-resolution").textContent = "";
     byId("dna-omission").hidden = true;
     this.haze.visible = false;
     byId("dna-label-gene").hidden = byId("dna-label-element").hidden = true;
     this.stage.dataset.state = "unavailable";
   }
 
-  private setExpanded(expanded: boolean) {
-    this.expanded = expanded;
-    this.root.classList.toggle("is-expanded", expanded);
-    const button = byId("dna-expand");
-    button.setAttribute("aria-pressed", String(expanded));
-    button.setAttribute(
-      "aria-label",
-      expanded ? "Close expanded viewer" : "Expand 3D viewer",
-    );
-    button.textContent = expanded ? "×" : "⤢";
-    if (expanded) {
-      this.oldOverflow = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      this.root.setAttribute("role", "dialog");
-      this.root.setAttribute("aria-modal", "true");
-      this.root.setAttribute("aria-label", "Interactive genome viewer");
-      button.focus();
-    } else {
-      document.body.style.overflow = this.oldOverflow;
-      this.root.removeAttribute("role");
-      this.root.removeAttribute("aria-modal");
-      this.root.removeAttribute("aria-label");
-      button.focus();
-    }
-    this.resize();
-  }
-
-  private handleKeys(event: KeyboardEvent) {
-    if (!this.expanded) return;
-    if (event.key === "Escape") {
-      event.preventDefault();
-      this.setExpanded(false);
-    }
-    if (event.key !== "Tab") return;
-    const focusable = Array.from(
-      this.root.querySelectorAll<HTMLElement>(
-        "button, input, canvas[tabindex]",
-      ),
-    ).filter(
-      (e) => e.getClientRects().length && !(e as HTMLButtonElement).disabled,
-    );
-    const first = focusable[0],
-      last = focusable.at(-1);
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last?.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first?.focus();
-    }
-  }
-
   dispose() {
     this.disposed = true;
-    if (this.expanded) document.body.style.overflow = this.oldOverflow;
     cancelAnimationFrame(this.frame);
     this.abort.abort();
     this.observer.disconnect();

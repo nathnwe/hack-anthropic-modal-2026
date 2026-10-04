@@ -7,6 +7,9 @@
       <button type="button" id="view-contacts" aria-pressed="false">
         Contact map
       </button>
+      <button type="button" id="view-browser" aria-pressed="false">
+        Genome browser
+      </button>
     </div>
     <div class="genome-actions" id="genome-actions">
       <button
@@ -36,7 +39,7 @@
       <button
         type="button"
         id="dna-expand"
-        aria-label="Expand 3D viewer"
+        aria-label="Expand viewer"
         aria-pressed="false"
         title="Expand viewer"
       >
@@ -45,23 +48,6 @@
     </div>
   </div>
   <div id="dna-panel">
-    <div class="dna-focus" role="group" aria-label="Focus DNA view">
-      <button type="button" id="dna-focus-folded" aria-pressed="true">
-        Folded DNA
-      </button>
-      <button type="button" id="dna-focus-full">
-        Genomic span
-      </button>
-      <button type="button" id="dna-focus-gene">
-        MYC / TSS
-      </button>
-      <button type="button" id="dna-focus-element">
-        Element
-      </button>
-      <button type="button" id="dna-focus-junction">
-        Junction
-      </button>
-    </div>
     <div class="dna-distance" id="dna-distance" hidden>
       <div>
         <strong id="dna-separation"></strong>
@@ -143,10 +129,75 @@
         <i class="element-key"></i> Regulatory element
       </span>
     </div>
-    <p class="dna-caption">
-      <span id="dna-resolution"></span>
-      <span id="dna-fold-note"></span>
+  </div>
+  <div id="browser-panel" hidden>
+    <p class="genome-browser-credit">
+      GRCh38 · 1-based ·{" "}
+      <a
+        href="https://www.ensembl.org"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Ensembl annotations
+      </a>{" "}
+      ·{" "}
+      <a
+        href="https://igv.org/doc/igvjs/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        IGV
+      </a>
     </p>
+    <p id="igv-loading" class="small muted" role="status" hidden>
+      Loading genome annotations…
+    </p>
+    <div id="igv-error" class="notice" role="status" hidden>
+      <p id="igv-error-message"></p>
+      <button id="igv-retry" type="button" class="text-link">
+        Retry
+      </button>
+    </div>
+    <div id="igv-content">
+      <p id="igv-enhancer-empty" class="empty-inline" hidden>
+        No regulatory interval is available for this gene yet.
+      </p>
+      {(["enhancer", "gene"] as const).map((pane) => (
+        <section class="igv-pane" id={`igv-${pane}-pane`}>
+          <header>
+            <h4 id={`igv-${pane}-title`}>
+              {pane === "gene" ? "Target gene" : "Regulatory element"}
+            </h4>
+            <div class="igv-actions">
+              <button
+                type="button"
+                id={`igv-${pane}-in`}
+                aria-label={`Zoom in ${pane} browser`}
+              >
+                +
+              </button>
+              <button
+                type="button"
+                id={`igv-${pane}-out`}
+                aria-label={`Zoom out ${pane} browser`}
+              >
+                −
+              </button>
+              <button type="button" id={`igv-${pane}-fit`}>
+                Fit
+              </button>
+            </div>
+          </header>
+          <p id={`igv-${pane}-locus`} class="mono small muted"></p>
+          <p
+            id={`igv-${pane}-status`}
+            class="small form-error"
+            role="status"
+          ></p>
+          <div id={`igv-${pane}`} class="igv-container"></div>
+        </section>
+      ))}
+    </div>
   </div>
   <div id="contact-panel" hidden>
     <slot />

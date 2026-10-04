@@ -16,7 +16,19 @@ export type CRE = {
   };
 };
 export type Contact = { a: number; b: number; strength: number };
+export type ReferenceGene = {
+  assembly: "GRCh38";
+  chrom: string;
+  start: number;
+  end: number;
+  tss: number;
+  strand: "+" | "-";
+  id: string;
+  name: string;
+  url: string;
+};
 export type GeneRecord = {
+  reference?: ReferenceGene;
   caseStudy?: {
     assembly: string;
     coordinate_system: string;
@@ -71,6 +83,8 @@ export const modeLabels: Record<Mode, string> = {
   down: "Downregulate",
   off: "Silence",
 };
+export const elementLabel = (record: GeneRecord, cre: CRE) =>
+  `Element ${String(record.locus.cres.findIndex((c) => c.id === cre.id) + 1).padStart(2, "0")}`;
 export const isMode = (value: string | null): value is Mode =>
   value === "up" || value === "down" || value === "off";
 export const formatNumber = (n: number) => n.toLocaleString("en-GB");

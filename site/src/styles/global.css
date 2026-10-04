@@ -2466,3 +2466,195 @@ pre code {
     font-size: 14px;
   }
 }
+
+/* Separate choosing an interval from opening its evidence. */
+.element-row {
+  display: flex;
+  align-items: stretch;
+}
+.element-select {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 100px;
+  gap: 12px;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding: 22px 12px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+}
+.element-select:hover {
+  background: #ffffff40;
+}
+.element-expand {
+  align-self: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  margin-right: 5px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 24px;
+  border-radius: 50%;
+}
+.element-expand:hover {
+  background: #52683f12;
+}
+.element[data-selected="true"] {
+  box-shadow: inset 3px 0 var(--hit-color);
+}
+.hit-swatch {
+  display: block;
+  width: 11px;
+  height: 11px;
+  border: 1px solid #756a5077;
+  border-radius: 50%;
+  background: var(--hit-color);
+  margin-bottom: 7px;
+}
+.score-colour-key {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 10px;
+  color: var(--muted);
+  margin: -8px 0 16px;
+  flex-wrap: wrap;
+}
+.score-colour-key i {
+  height: 6px;
+  width: 75px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #f0dea0, #ad5641);
+}
+.score-colour-key small {
+  margin-left: auto;
+  font-size: 9px;
+}
+.element-key {
+  background: var(--selected-element-color, var(--chart-contact));
+  border: 1px solid #756a5077;
+}
+.dna-label-element {
+  border-left-color: var(--selected-element-color, var(--chart-contact));
+}
+.gene-suggestions {
+  list-style: none;
+  padding: 6px;
+  margin: 0;
+  background: #fffef8;
+  border: 1px solid var(--line);
+  border-radius: 0 0 8px 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px #20201d0a;
+}
+.gene-suggestions li {
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  gap: 15px;
+  align-items: baseline;
+}
+.gene-suggestions li:hover,
+.gene-suggestions li[aria-selected="true"] {
+  background: #748c631a;
+}
+.gene-suggestions strong {
+  font-size: 14px;
+  min-width: 75px;
+}
+.gene-suggestions span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.genome-toolbar {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.genome-browser-credit {
+  font-size: 10px;
+  color: var(--muted);
+  margin: 15px 0 24px;
+}
+.igv-pane {
+  margin: 18px 0 28px;
+  min-width: 0;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.igv-pane header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.igv-pane h4 {
+  font-size: 15px;
+  margin: 0;
+}
+.igv-actions {
+  display: flex;
+  gap: 5px;
+}
+.igv-actions button {
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: 4px;
+  min-width: 27px;
+  padding: 3px 6px;
+  font-size: 12px;
+}
+.igv-container {
+  margin-top: 12px;
+  min-height: 160px;
+  background: #fffefb;
+  color: #20201d;
+  text-align: left;
+}
+.igv-container .igv-root-div {
+  border: 0 !important;
+}
+.igv-pane > p {
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+#igv-content[aria-busy="true"] {
+  opacity: 0.65;
+  pointer-events: none;
+}
+.genome-viewer.is-expanded #browser-panel {
+  overflow-y: auto;
+  min-height: 0;
+}
+@media (max-width: 760px) {
+  .element-select {
+    grid-template-columns: 23px minmax(0, 1fr) 76px;
+    padding: 18px 7px;
+    gap: 8px;
+  }
+  .element-expand {
+    width: 30px;
+    margin-right: 0;
+  }
+  .score-colour-key small {
+    width: 100%;
+    margin-left: 0;
+  }
+  .viewer-tabs button {
+    font-size: 10px;
+    padding: 8px;
+  }
+  .gene-suggestions li {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .igv-pane h4 {
+    font-size: 12px;
+  }
+}

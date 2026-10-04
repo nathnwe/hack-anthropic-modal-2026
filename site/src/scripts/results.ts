@@ -1,5 +1,9 @@
+import { viewerDialog } from "../lib/viewer-dialog";
+import { rankingColors } from "../lib/element-colors";
+import { liveGeneRecord } from "../lib/live-genes";
 import { k562Record, K562_VIEWER_IDS, type K562Dataset } from "../lib/k562";
 import {
+  elementLabel,
   type GeneRecord,
   type Mode,
   modeLabels,
@@ -22,6 +26,7 @@ const app = get("results-app");
 const manifest: { symbol: string; file: string; direction: string | null }[] =
   JSON.parse(app.dataset.manifest || "[]");
 const base = app.dataset.base || "";
+const disposeDialog = viewerDialog();
 let record: GeneRecord;
 let mode: Mode;
 let activeElement: string | null = null;
@@ -29,55 +34,107 @@ let genomeViewer: import("../lib/genome-viewer").GenomeViewer | null = null;
 let viewerLoading = false;
 let viewerFailed = false;
 
-function syncGenomeViewer() {
-  const selected =
-    record.locus.cres.find((c) => c.id === activeElement) ?? null;
-  if (genomeViewer) {
-    genomeViewer.update(record, selected);
+let browserViewer: import("../lib/genome-browser").GenomeBrowser | null = null;
+let browserLoading = false;
+let currentView: "3d" | "contacts" | "browser" = "3d";
+const selected = () =>
+  record.locus.cres.find((c) => c.id === activeElement) ?? null;
+const colors = () =>
+  rankingColors(record, get<HTMLSelectElement>("rank-select").value);
+const selectedColor = () =>
+  selected() ? colors().color(selected()!) : "#ad5641";
+function syncBrowserViewer() {
+  if (browserViewer) {
+    browserViewer.update(record, selected(), selectedColor());
     return;
   }
-  if (viewerLoading || viewerFailed) return;
+  if (currentView !== "browser" || browserLoading) return;
+  browserLoading = true;
+  get("igv-loading").hidden = false;
+  void import("../lib/genome-browser")
+    .then(({ GenomeBrowser }) => {
+      browserViewer = new GenomeBrowser();
+      browserViewer.update(record, selected(), selectedColor());
+      browserViewer.setActive(currentView === "browser");
+    })
+    .catch(() => {
+      get("igv-error").hidden = false;
+      get("igv-retry").hidden = true;
+      get("igv-error-message").textContent =
+        "The genome browser could not be loaded. Reload to retry.";
+    })
+    .finally(() => {
+      browserLoading = false;
+      if (!browserViewer) get("igv-loading").hidden = true;
+    });
+}
+function setView(view: typeof currentView) {
+  currentView = view;
+  for (const [key, panel] of [
+    ["3d", "dna-panel"],
+    ["contacts", "contact-panel"],
+    ["browser", "browser-panel"],
+  ] as const) {
+    get(panel).hidden = key !== view;
+    get(`view-${key}`).setAttribute("aria-pressed", String(key === view));
+  }
+  for (const id of ["dna-reset", "dna-zoom-in", "dna-zoom-out"])
+    get(id).hidden = view !== "3d";
+  genomeViewer?.setActive(view === "3d");
+  browserViewer?.setActive(view === "browser");
+  if (record) syncBrowserViewer();
+}
+for (const view of ["3d", "contacts", "browser"] as const)
+  get(`view-${view}`).addEventListener("click", () => setView(view));
+get("dna-fallback-map").addEventListener("click", () => setView("contacts"));
+function syncGenomeViewer() {
+  get("genome-viewer").style.setProperty(
+    "--selected-element-color",
+    selectedColor(),
+  );
+  syncBrowserViewer();
+  if (genomeViewer) {
+    genomeViewer.update(record, selected(), selectedColor());
+    return;
+  }
+  if (viewerLoading || viewerFailed || !selected()) return;
   viewerLoading = true;
   void import("../lib/genome-viewer")
     .then(({ GenomeViewer }) => {
       genomeViewer = new GenomeViewer();
-      genomeViewer.update(
-        record,
-        record.locus.cres.find((c) => c.id === activeElement) ?? null,
-      );
+      genomeViewer.update(record, selected(), selectedColor());
+      genomeViewer.setActive(currentView === "3d");
     })
     .catch(() => {
       viewerFailed = true;
       get("dna-loading").hidden = true;
       get("dna-fallback").hidden = false;
       get("dna-fallback-message").textContent =
-        "This browser could not start the 3D renderer. The contact map remains available.";
-      get("genome-actions").hidden = true;
-      const switchView = (threeD: boolean) => {
-        get("dna-panel").hidden = !threeD;
-        get("contact-panel").hidden = threeD;
-        get("view-3d").setAttribute("aria-pressed", String(threeD));
-        get("view-contacts").setAttribute("aria-pressed", String(!threeD));
-        drawMap();
-      };
-      get("view-3d").addEventListener("click", () => switchView(true));
-      get("view-contacts").addEventListener("click", () => switchView(false));
-      get("dna-fallback-map").addEventListener("click", () =>
-        switchView(false),
-      );
+        "3D rendering is unavailable. The contact map and genome browser remain available.";
+      for (const id of ["dna-reset", "dna-zoom-in", "dna-zoom-out"])
+        get<HTMLButtonElement>(id).disabled = true;
     })
     .finally(() => {
       viewerLoading = false;
     });
 }
+const dispose = () => {
+  disposeDialog();
+  genomeViewer?.dispose();
+  browserViewer?.dispose();
+};
 window.addEventListener("pagehide", (event) => {
-  if (!event.persisted) genomeViewer?.dispose();
+  if (!event.persisted) dispose();
 });
-if (import.meta.hot) import.meta.hot.dispose(() => genomeViewer?.dispose());
+if (import.meta.hot) import.meta.hot.dispose(dispose);
 
 function evidenceMarkup() {
   return (
     record.gene.evidence
+      .filter(
+        (source) =>
+          !record.caseStudy || !source.startsWith("Reference transcript"),
+      )
       .map((source) => {
         const link = evidenceLink(source);
         return `<li>${isPlaceholder(source) ? '<span class="tag placeholder-tag">Placeholder source</span> ' : ""}${link ? `<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(source)} ↗</a>` : esc(source)}</li>`;
@@ -90,21 +147,34 @@ function renderElements() {
   const criterion = get<HTMLSelectElement>("rank-select").value;
   get("rank-explanation").textContent =
     criterion === "distance"
-      ? "Ordered by distance from the reference transcript TSS to the element midpoint."
+      ? "Nearest reference TSS first. Colour uses the relative distance range: nearer is darker."
       : criterion === "re2g"
-        ? "Ordered by supplied rE2G score. Raw scores from different models and conditions are not directly comparable. This is not enhancer potency or a probability that stapling will work."
-        : "Ordered by supplied promoter-contact strength. Missing contact evidence sorts last. These values do not predict expression change.";
-  const list = sortElements(record, criterion);
+        ? "Highest supplied enhancer–gene score first. Colour uses the relative score range, not a probability of engineering success."
+        : "Highest supplied promoter-contact strength first. Missing values remain unscored.";
+  const list = sortElements(record, criterion),
+    scale = colors();
   activeElement = selectedElementFor(record, criterion)?.id ?? null;
+  const metricLabel =
+    criterion === "distance"
+      ? "TSS distance"
+      : criterion === "re2g"
+        ? "rE2G score"
+        : "Contact strength";
+  const display = (v: number | null) =>
+    v === null
+      ? "Not supplied"
+      : criterion === "distance"
+        ? `${fmt(v)} bp`
+        : Number(v.toFixed(3)).toString();
+  get("score-colour-key").hidden = scale.min === null;
+  get("score-colour-key").innerHTML =
+    `<span>${display(criterion === "distance" ? scale.max : scale.min)}</span><i aria-hidden="true"></i><span>${display(criterion === "distance" ? scale.min : scale.max)}</span><small>${esc(metricLabel)} · relative to these hits</small>`;
   get("element-list").innerHTML =
     list
       .map((cre, i) => {
-        const strength = contactStrength(record, cre);
-        const matches = contactsFor(record, cre);
-        const distance = Math.abs((cre.start + cre.end) / 2 - record.gene.tss);
-        const condition =
-          cre.source?.annotation.split("Treatment: ")[1] ||
-          "Treatment not listed";
+        const strength = contactStrength(record, cre),
+          distance = Math.abs((cre.start + cre.end) / 2 - record.gene.tss),
+          name = elementLabel(record, cre);
         const metric =
           criterion === "distance"
             ? `${fmt(distance)} bp`
@@ -113,29 +183,36 @@ function renderElements() {
               : strength === null
                 ? "Not recorded"
                 : String(strength);
-        const source = cre.source
-          ? `<div><p class="eyebrow">Source record</p><p><a href="${esc(cre.source.url)}" target="_blank" rel="noopener noreferrer">${esc(cre.source.accession)} ↗</a> · CSV row ${cre.source.csv_row}</p><p>${esc(cre.source.annotation)}</p><p>${esc(cre.source.model)} · ${esc(cre.source.evidence)}</p></div>`
-          : "";
-        return `<details class="element" data-element="${esc(cre.id)}" data-selected="${activeElement === cre.id}">
-      <summary><span class="element-index mono">${String(i + 1).padStart(2, "0")}</span><span class="element-name"><strong>${esc(cre.id)}</strong><span class="small muted">${cre.source ? "Candidate" : esc(cre.type)} · ${fmt(cre.start)}–${fmt(cre.end)}${cre.source ? `<span class="source-summary">${esc(cre.source.model)} · ${esc(condition)}</span>` : ""}</span></span><span class="element-metric"><span class="small muted">${criterion === "distance" ? "TSS distance" : criterion === "re2g" ? "rE2G score" : "Contact strength"}</span><span class="mono">${esc(metric)}</span></span><span class="expand-icon" aria-hidden="true">+</span></summary>
-      <div class="element-detail">${source}<div><p class="eyebrow">Recorded criteria ${record.illustrative ? "· placeholder" : ""}</p><dl class="criteria"><div><dt>rE2G score</dt><dd>${esc(cre.score_rE2G)} <span class="small muted">raw model score</span></dd></div><div><dt>Promoter contact</dt><dd>${strength === null ? "Not recorded" : esc(strength) + " · supplied strength"}</dd></div><div><dt>Distance to reference TSS</dt><dd>${fmt(distance)} bp · midpoint</dd></div><div><dt>Matched contacts</dt><dd>${matches.length}</dd></div><div><dt>Potency / achievability</dt><dd>Not supplied</dd></div><div><dt>Element composite / tier</dt><dd>Not supplied (staples only)</dd></div></dl></div><div><p class="eyebrow">Gene-level literature</p><ul class="evidence-list">${evidenceMarkup()}</ul><p class="small muted">Context for the gene; not element-specific validation.</p></div></div>
-    </details>`;
+        return `<article class="element" data-element="${esc(cre.id)}" data-selected="${activeElement === cre.id}" style="--hit-color:${scale.color(cre)}"><div class="element-row"><button type="button" class="element-select" aria-pressed="${activeElement === cre.id}" aria-label="View ${name}"><span class="element-index mono"><i class="hit-swatch" aria-hidden="true"></i>${String(i + 1).padStart(2, "0")}</span><span class="element-name"><strong>${name}</strong><span class="small muted">${fmt(cre.start)}–${fmt(cre.end)}</span></span><span class="element-metric"><span class="small muted">${metricLabel}</span><span class="mono">${metric}</span></span></button><button type="button" class="element-expand" aria-expanded="false" aria-controls="element-detail-${i}" aria-label="Details for ${name}">+</button></div><div class="element-detail" id="element-detail-${i}" hidden><div><p class="eyebrow">Recorded criteria ${record.illustrative ? "· placeholder" : ""}</p><dl class="criteria"><div><dt>rE2G score</dt><dd>${esc(cre.score_rE2G)} <span class="small muted">raw score</span></dd></div><div><dt>Promoter contact</dt><dd>${strength === null ? "Not recorded" : esc(strength)}</dd></div><div><dt>Distance to reference TSS</dt><dd>${fmt(distance)} bp · midpoint</dd></div><div><dt>Potency / achievability</dt><dd>Not supplied</dd></div></dl></div><div><p class="eyebrow">Gene-level literature</p><ul class="evidence-list">${evidenceMarkup()}</ul></div></div></article>`;
       })
       .join("") ||
-    '<p class="empty-inline">No regulatory elements are supplied for this locus.</p>';
+    '<p class="empty-inline">No regulatory predictions have been supplied for this gene yet. Explore its reference annotation in the genome browser.</p>';
   get("element-list")
-    .querySelectorAll<HTMLDetailsElement>("details")
-    .forEach((detail) => {
-      detail.querySelector("summary")!.addEventListener("click", () => {
-        activeElement = detail.dataset.element!;
+    .querySelectorAll<HTMLElement>("[data-element]")
+    .forEach((row) => {
+      row.querySelector(".element-select")!.addEventListener("click", () => {
+        activeElement = row.dataset.element!;
         get("element-list")
-          .querySelectorAll<HTMLDetailsElement>("details")
+          .querySelectorAll<HTMLElement>("[data-element]")
           .forEach((other) => {
-            other.dataset.selected = String(other === detail);
-            if (other !== detail) other.open = false;
+            const active = other === row;
+            other.dataset.selected = String(active);
+            other
+              .querySelector(".element-select")!
+              .setAttribute("aria-pressed", String(active));
           });
         drawMap();
       });
+      row
+        .querySelector(".element-expand")!
+        .addEventListener("click", (event) => {
+          const button = event.currentTarget as HTMLButtonElement,
+            details = row.querySelector<HTMLElement>(".element-detail")!;
+          const open = details.hidden;
+          details.hidden = !open;
+          button.setAttribute("aria-expanded", String(open));
+          button.textContent = open ? "−" : "+";
+        });
     });
 }
 
@@ -145,10 +222,21 @@ function drawMap() {
   const svg = document.getElementById("contact-map")!;
   const selected = cres.find((c) => c.id === activeElement);
   const selectedContacts = selected ? contactsFor(record, selected) : [];
-  get("viewer-element").textContent = selected?.id ?? "No element supplied";
+  get("viewer-selection-kind").textContent = selected
+    ? "Selected element"
+    : "Target gene";
+  get("viewer-element").textContent = selected
+    ? elementLabel(record, selected)
+    : record.gene.symbol;
   get("viewer-context").textContent = selected
-    ? `${selected.source ? selected.source.accession + " · " + selected.source.model : selected.type} · ${regionLabel({ chrom: tad.chrom, start: selected.start, end: selected.end })}`
-    : "This record has no regulatory elements to display.";
+    ? regionLabel({
+        chrom: tad.chrom,
+        start: selected.start,
+        end: selected.end,
+      })
+    : record.reference
+      ? regionLabel(record.reference)
+      : "This record has no regulatory elements to display.";
   svg.setAttribute(
     "aria-label",
     `${record.gene.symbol} contact schematic${selected ? ` for ${selected.id}` : ""}${record.illustrative ? " — placeholder data" : ""}`,
@@ -170,7 +258,7 @@ function drawMap() {
   const shown = contacts.filter((c) => inside(c.a) && inside(c.b));
   const plotCREs = cres.filter((c) => c.end >= start && c.start <= end);
   const promoterInside = inside(record.gene.tss);
-  let markup = `<title>${esc(record.gene.symbol)} contact map${selected ? ` — ${esc(selected.id)}` : ""}${record.illustrative ? " — placeholder coordinates" : ""}</title><desc>Linear positions across ${record.caseStudy ? "the displayed genomic span (not a TAD)" : "the supplied TAD"}. Square: gene promoter. Circles: regulatory elements. Arcs: supplied contacts, with strength in each arc title. Arc emphasis identifies the selected element, not likelihood.</desc>`;
+  let markup = `<title>${esc(record.gene.symbol)} contact map${selected ? ` — ${esc(elementLabel(record, selected))}` : ""}${record.illustrative ? " — placeholder coordinates" : ""}</title><desc>Linear positions across ${record.caseStudy || record.reference ? "the displayed genomic span (not a TAD)" : "the supplied TAD"}. Square: gene promoter. Circles: regulatory elements. Arcs: supplied contacts, with strength in each arc title. Arc emphasis identifies the selected element, not likelihood.</desc>`;
   markup += `<line x1="32" y1="209" x2="${plotRight}" y2="209" stroke="currentColor" opacity=".28"/>`;
   const intervals = width < 480 ? 2 : 4;
   for (let i = 0; i <= intervals; i++) {
@@ -182,7 +270,7 @@ function drawMap() {
       const a = x(record.gene.tss),
         b = x((cre.start + cre.end) / 2);
       const peak = 209 - Math.min(190, Math.max(45, Math.abs(b - a) * 0.48));
-      markup += `<path d="M${a} 209 C${a} ${peak} ${b} ${peak} ${b} 209" fill="none" stroke="#A54C38" stroke-dasharray="4 4" stroke-width="${cre.id === activeElement ? 3 : 1}" opacity="${cre.id === activeElement ? 0.95 : 0.13}"><title>${esc(cre.id)} · predicted regulatory link, not a measured contact</title></path>`;
+      markup += `<path d="M${a} 209 C${a} ${peak} ${b} ${peak} ${b} 209" fill="none" stroke="${colors().color(cre)}" stroke-dasharray="4 4" stroke-width="${cre.id === activeElement ? 3 : 1}" opacity="${cre.id === activeElement ? 0.95 : 0.13}"><title>${esc(elementLabel(record, cre))} · predicted regulatory link, not a measured contact</title></path>`;
     });
   shown.forEach((c) => {
     const a = x(c.a),
@@ -194,7 +282,7 @@ function drawMap() {
   plotCREs.forEach((cre) => {
     const midpoint = Math.max(start, Math.min(end, (cre.start + cre.end) / 2));
     const pos = x(midpoint);
-    markup += `<g><title>${esc(cre.id)} · ${esc(cre.type)} · ${fmt(cre.start)}–${fmt(cre.end)}</title><circle cx="${pos}" cy="209" r="${activeElement === cre.id ? 7 : 4}" fill="#A54C38" opacity="${activeElement === cre.id ? 1 : 0.3}"/>${activeElement === cre.id ? `<text x="${pos}" y="256" text-anchor="${pos > width - 75 ? "end" : pos < 75 ? "start" : "middle"}" class="cre-label" font-weight="600">${esc(cre.id)}</text>` : ""}</g>`;
+    markup += `<g><title>${esc(elementLabel(record, cre))} · ${esc(cre.type)} · ${fmt(cre.start)}–${fmt(cre.end)}</title><circle cx="${pos}" cy="209" r="${activeElement === cre.id ? 7 : 4}" fill="${colors().color(cre)}" stroke="#756a50" stroke-width="0.6" opacity="${activeElement === cre.id ? 1 : 0.8}"/>${activeElement === cre.id ? `<text x="${pos}" y="256" text-anchor="${pos > width - 75 ? "end" : pos < 75 ? "start" : "middle"}" class="cre-label" font-weight="600">${esc(elementLabel(record, cre))}</text>` : ""}</g>`;
   });
   if (promoterInside)
     markup += `<rect x="${x(record.gene.tss) - 7}" y="202" width="14" height="14" fill="#2A6FA8"/><text x="${x(record.gene.tss)}" y="239" text-anchor="middle" class="promoter-label">${esc(record.gene.symbol)} promoter</text>`;
@@ -202,9 +290,11 @@ function drawMap() {
     markup += `<text x="${width / 2}" y="100" text-anchor="middle" class="axis-label">No in-domain contacts supplied</text>`;
   svg.innerHTML = markup;
   const omitted = contacts.length - shown.length;
-  get("map-note").textContent = record.caseStudy
-    ? "GRCh38, BED coordinates. Dashed arcs show predicted enhancer–gene links, not measured contacts. The displayed span is not an identified TAD."
-    : `${record.illustrative ? "Illustrative coordinates. " : ""}Schematic contacts, not a predicted 3D structure. ${omitted ? `${omitted} out-of-domain contact(s) omitted. ` : ""}${!promoterInside ? "The supplied promoter is outside this TAD. " : ""}${selected && !selectedContacts.length ? "No promoter contact is recorded for this element." : ""}`;
+  get("map-note").textContent = record.reference
+    ? "GRCh38 reference coordinates. No regulatory links supplied; this span is not an identified TAD."
+    : record.caseStudy
+      ? "GRCh38, BED coordinates. Dashed arcs show predicted enhancer–gene links, not measured contacts. The displayed span is not an identified TAD."
+      : `${record.illustrative ? "Illustrative coordinates. " : ""}Schematic contacts, not a predicted 3D structure. ${omitted ? `${omitted} out-of-domain contact(s) omitted. ` : ""}${!promoterInside ? "The supplied promoter is outside this TAD. " : ""}${selected && !selectedContacts.length ? "No promoter contact is recorded for this element." : ""}`;
 }
 
 function renderStaples() {
@@ -245,37 +335,35 @@ function updateMode() {
 function renderRecord() {
   get("gene-title").textContent = record.gene.symbol;
   document.title = `${record.gene.symbol} — Results — Rewire Bio`;
-  get("disease-line").textContent = record.gene.disease;
-  const k562 = record.caseStudy;
-  get("record-notice").innerHTML = k562
-    ? '<span class="notice-icon" aria-hidden="true">◇</span><div><strong>3 K562 examples · short, medium and long range.</strong><p>Selected from the Extended export ENCFF269DKY for viewer refinement. Predicted regulatory links; physical contacts and engineering effects are unvalidated.</p></div>'
+  get("disease-line").textContent = record.reference
+    ? record.reference.name
+    : record.caseStudy
+      ? ""
+      : record.gene.disease;
+  get("record-notice").innerHTML = record.reference
+    ? '<span class="notice-icon">◇</span><div><strong>Live reference annotation.</strong><p>Regulatory predictions have not been supplied for this gene.</p></div>'
     : record.illustrative
-      ? '<span class="notice-icon" aria-hidden="true">◇</span><div><strong>Placeholder record — not a biological finding.</strong><p>Disease annotations, cell type, coordinates, scores, tiers and recommendations are illustrative. In silico and experimentally unvalidated.</p></div>'
-      : `<span class="notice-icon" aria-hidden="true">◇</span><div><strong>In silico record — experimentally unvalidated.</strong><p>${record.illustrative === undefined ? "Illustrative status is unspecified. Review source provenance before interpreting this record." : "Review the sources and limitations before interpreting any proposed intervention."}</p></div>`;
-  get("tad-label").textContent = regionLabel(record.locus.tad);
+      ? '<span class="notice-icon">◇</span><div><strong>Illustrative sample — not a biological finding.</strong></div>'
+      : '<span class="notice-icon">◇</span><div><strong>Sample predictions · experimentally unvalidated.</strong></div>';
   get("map-label").textContent = record.illustrative
     ? "Placeholder schematic"
-    : "Contact schematic";
-  get("locus-facts").innerHTML =
-    `<div><dt>Cell context</dt><dd>${isPlaceholder(record.locus.cell_type) ? "Not specified (placeholder)" : esc(record.locus.cell_type)}</dd></div><div><dt>Regulatory elements</dt><dd>${record.locus.cres.length}</dd></div><div><dt>Recorded contacts</dt><dd>${record.locus.contacts.length}</dd></div><div><dt>Data status</dt><dd>${record.illustrative ? "Placeholder" : record.illustrative === false ? "In silico" : "Provenance unspecified"}</dd></div>`;
-  if (k562) {
-    get("map-label").textContent = "Predicted links";
-    get("metadata-title").textContent = "Reference & source details";
-    get("coordinate-note").textContent =
-      `${k562.assembly} · ${k562.coordinate_system}. Reference TSS: ${k562.reference.transcript}, ${fmt(k562.reference.tss)} (0-based). ${k562.reference.note} Display bounds cover the source intervals; no TAD or contact resolution supplied.`;
-    get("locus-facts").innerHTML =
-      `<div><dt>Cell context</dt><dd>K562 · treatment not listed</dd></div><div><dt>Displayed predictions</dt><dd>${record.locus.cres.length}</dd></div><div><dt>Source export</dt><dd>ENCFF269DKY · Extended</dd></div><div><dt>Measured contacts</dt><dd>Not supplied</dd></div>`;
-    const rank = get<HTMLSelectElement>("rank-select");
-    rank.querySelector<HTMLOptionElement>('[value="contact"]')!.disabled = true;
-    rank.value = "re2g";
-    get("elements-count").textContent =
-      `${record.locus.cres.length} selected predictions`;
-  }
+    : record.caseStudy
+      ? "Predicted links"
+      : "Reference annotation";
+  const rank = get<HTMLSelectElement>("rank-select");
+  rank.querySelector<HTMLOptionElement>('[value="contact"]')!.disabled =
+    !record.locus.contacts.length;
+  if (record.caseStudy || record.reference) rank.value = "re2g";
+  rank.disabled = !record.locus.cres.length;
+  get("elements-count").textContent =
+    `${record.locus.cres.length} regulatory elements`;
+  get("loading-state").hidden = true;
+  get("record-view").hidden = false;
   renderElements();
   drawMap();
   updateMode();
-  get("loading-state").hidden = true;
-  get("record-view").hidden = false;
+  get<HTMLButtonElement>("view-3d").disabled = !record.locus.cres.length;
+  if (record.reference) setView("browser");
 }
 
 async function loadRecord() {
@@ -285,39 +373,33 @@ async function loadRecord() {
     .toUpperCase();
   const entry = manifest.find((item) => item.symbol === symbol);
   try {
-    if (!entry)
-      throw new Error(
-        `No record for “${symbol}” in this build. Available records: ${manifest.map((r) => r.symbol).join(", ")}.`,
-      );
     const requested = params.get("intent");
     if (requested !== null && !isMode(requested))
-      throw new Error(
-        "The requested regulation direction is not supported. Use up, down or off.",
-      );
-    mode =
-      requested ||
-      (symbol === "MYC"
-        ? "up"
-        : entry.direction === "too_much"
-          ? "down"
-          : "up");
-    const file =
-      symbol === "MYC"
-        ? "case-studies/myc-k562.json"
-        : encodeURIComponent(entry.file);
-    const response = await fetch(`${base}/data/${file}`);
-    if (!response.ok)
-      throw new Error(
-        `The ${symbol} record could not be loaded (HTTP ${response.status}).`,
-      );
-    const data = await response.json();
-    record =
-      symbol === "MYC"
-        ? k562Record(data as K562Dataset, K562_VIEWER_IDS)
-        : data;
+      throw new Error("The requested regulation direction is not supported.");
+    mode = requested || (entry?.direction === "too_much" ? "down" : "up");
+    if (params.get("source") === "reference" || !entry) {
+      record = await liveGeneRecord(symbol);
+      get("json-link").hidden = true;
+    } else {
+      const file =
+        symbol === "MYC"
+          ? "case-studies/myc-k562.json"
+          : encodeURIComponent(entry.file);
+      const response = await fetch(`${base}/data/${file}`);
+      if (!response.ok)
+        throw new Error(
+          `The sample could not be loaded (HTTP ${response.status}).`,
+        );
+      const data = await response.json();
+      record =
+        symbol === "MYC"
+          ? k562Record(data as K562Dataset, K562_VIEWER_IDS)
+          : data;
+      get<HTMLAnchorElement>("json-link").href = `${base}/data/${file}`;
+    }
     if (
       !record.gene ||
-      record.gene.symbol !== entry.symbol ||
+      (!record.reference && record.gene.symbol !== entry?.symbol) ||
       !record.locus ||
       !Array.isArray(record.staples) ||
       !Array.isArray(record.ranking)
@@ -325,7 +407,6 @@ async function loadRecord() {
       throw new Error(
         "The returned record is incomplete or does not match this gene.",
       );
-    get<HTMLAnchorElement>("json-link").href = `${base}/data/${file}`;
     renderRecord();
   } catch (error) {
     get("loading-state").hidden = true;

@@ -77,8 +77,11 @@ const records = Object.values(
           <input
             id="gene"
             name="gene"
-            list="gene-options"
-            placeholder="e.g. SHANK3"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded="false"
+            aria-controls="gene-suggestions"
+            placeholder="Search a gene, e.g. BRCA1"
             required
             maxlength="60"
             autocomplete="off"
@@ -87,13 +90,16 @@ const records = Object.values(
           />
           <span aria-hidden="true">↗</span>
         </div>
-        <datalist id="gene-options">
-          {records.map((r) => (
-            <option value={r.gene.symbol} />
-          ))}
-        </datalist>
-        <p class="small muted" id="gene-help">
-          Use a gene symbol from the available examples below.
+        <input id="gene-source" name="source" value="reference" type="hidden" />
+        <ul
+          id="gene-suggestions"
+          class="gene-suggestions"
+          role="listbox"
+          aria-label="Human gene suggestions"
+          hidden
+        ></ul>
+        <p class="small muted" id="gene-help" aria-live="polite">
+          Search human gene symbols or names.
         </p>
         <fieldset class="direction-fieldset">
           <legend class="field-label">
@@ -119,11 +125,12 @@ const records = Object.values(
           Explore connections <span aria-hidden="true">→</span>
         </button>
         <p class="small muted">
-          Opens a precomputed record. No live inference is run.
+          Live gene search · human GRCh38. Regulatory predictions are available
+          for samples only.
         </p>
       </form>
       <div class="example-picker">
-        <span class="eyebrow">Or begin with an example</span>
+        <span class="eyebrow">Or open a sample exploration</span>
         <div class="example-buttons">
           {records.map((r) => (
             <button
@@ -144,51 +151,17 @@ const records = Object.values(
           ))}
         </div>
         <p id="example-status" class="small muted" aria-live="polite">
-          MYC opens three K562 examples. Other examples are placeholders.
+          Sample data for exploring the interface.
         </p>
       </div>
       <p class="placeholder-note">
         <span aria-hidden="true">◇</span>
         <span>
-          <strong>Know your source.</strong> MYC uses sourced K562 rE2G
-          predictions. SHANK3 and PMP22 remain illustrative examples.
+          <strong>Know your source.</strong> Sample predictions are unvalidated.
+          Illustrative records remain labelled.
         </span>
       </p>
     </div>
   </div>
-  <script>
-    const form = document.querySelector<HTMLFormElement>("#query-form")!;
-    const input = document.querySelector<HTMLInputElement>("#gene")!;
-    const error = document.querySelector<HTMLElement>("#form-error")!;
-    const symbols: string[] = JSON.parse(form.dataset.symbols || "[]");
-    form.addEventListener("submit", (event) => {
-      input.value = input.value.trim().toUpperCase();
-      if (!symbols.includes(input.value)) {
-        event.preventDefault();
-        error.hidden = false;
-        error.textContent = `No record for “${input.value}” in this build. Try ${symbols.join(", ")}.`;
-        input.setAttribute("aria-invalid", "true");
-        input.focus();
-      }
-    });
-    input.addEventListener("input", () => {
-      error.hidden = true;
-      input.removeAttribute("aria-invalid");
-    });
-    document
-      .querySelectorAll<HTMLButtonElement>("[data-gene]")
-      .forEach((button) =>
-        button.addEventListener("click", () => {
-          input.value = button.dataset.gene!;
-          const radio = form.querySelector<HTMLInputElement>(
-            `input[value="${button.dataset.mode}"]`,
-          )!;
-          radio.checked = true;
-          error.hidden = true;
-          input.removeAttribute("aria-invalid");
-          document.querySelector("#example-status")!.textContent =
-            `${input.value} selected · ${input.value === "MYC" ? "K562 predictions" : "illustrative record"}. You can change the direction before exploring.`;
-        }),
-      );
-  </script>
+  <script src="../scripts/workbench.ts"></script>
 </Layout>

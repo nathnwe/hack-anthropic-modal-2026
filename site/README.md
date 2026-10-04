@@ -3,7 +3,7 @@
 An Astro static site developed on `feat/site-alt`, independently of `feat/site`,
 and integrated into `main`. The landing page, workbench, results and API pages share
 a parchment/olive identity, original interwoven DNA SVG mark and responsive CSS.
-The frontend serves static records; it does not run backend inference.
+The frontend serves static regulatory records plus live human reference annotations; it does not run backend inference.
 
 ## Run locally
 
@@ -42,13 +42,14 @@ MYC uses sourced K562 rE2G predictions; the other examples remain labelled fixtu
 
 - `/`: full-viewport wordmark, About, Team and Contact anchors, scroll-linked DNA
   thread. Reduced-motion preference renders the thread without animation.
-- `/workbench/`: gene lookup and up/down query. Example buttons select a
-  fixture and its corresponding direction. Unsupported genes show an error.
+- `/workbench/`: live human gene autocomplete (MyGene.info) and an up/down query.
+  Selecting a suggestion resolves GRCh38 coordinates through Ensembl. Example
+  buttons explicitly choose the supplied samples and their corresponding direction.
 - `/results/?gene=SHANK3&intent=up`: ranked elements beside a linked contact
   viewer. The default viewer is an interactive molecular-style 3D schematic with
   rotation, zoom, expansion and a controllable contact preview. The supplied
-  contact map remains available as a separate tab. The viewer starts on the top-ranked element, resets when the sort changes,
-  and follows element selection independently of whether its details stay open.
+  contact map and stacked IGV genome browsers are separate tabs. The viewer starts on the top-ranked element, resets when the sort changes,
+  and follows element selection. Only the separate + button opens details.
   Candidate staples and method tradeoffs expand on demand.
 - `/api/`: static JSON endpoints and contract documentation.
 
@@ -59,12 +60,17 @@ All paths above are under `/hack-anthropic-modal-2026` in development and produc
 The three files in `public/data/` are exact copies of the contract fixtures.
 They all carry `illustrative: true`. Placeholder warnings cover disease
 annotations, cell type, coordinates, scores, tiers, risk flags and recommendations.
-The workbench currently serves precomputed records only.
+Regulatory predictions remain precomputed. Live reference lookups provide gene
+annotations, never inferred enhancers, contacts or staples.
 
 - Composite rankings and A/B/C tiers belong to **staples**, not CREs. Staples are
   sorted by supplied composite score, but shown with ordinal tiers.
-- CREs may be sorted by supplied contact strength or raw rE2G score. rE2G is not
-  labelled potency or interpreted as a probability of engineering success.
+- CREs may be sorted by supplied contact strength, raw rE2G score or TSS distance.
+  Colours interpolate from pale yellow to rust using the actual min/max values
+  among the displayed hits (nearest is darkest for distance). Ties have identical
+  colours; missing values are neutral. The same colour follows each hit through
+  the list, 3D viewer, contact map and IGV interval. rE2G is not labelled potency
+  or interpreted as a probability of engineering success.
 - Composite, potency and achievability sorts are disabled for CREs because the
   contract does not provide those element-level metrics.
 - A contact is associated with a CRE only when one endpoint equals the gene TSS
@@ -75,7 +81,7 @@ The workbench currently serves precomputed records only.
   it is not a probability or expression-effect measurement. Out-of-domain
   contacts are omitted with a visible count. Mark types and labels supplement colour.
 - Directions filter staples; they never relabel an incompatible design. An empty
-  result is valid. Unknown genes, invalid modes and failed loads have error states.
+  result is valid. Unresolved genes, invalid modes and failed loads have error states.
 - `gene.evidence` is labelled gene-level context, not proof about a specific CRE.
   Existing URLs and PMIDs are linked; placeholder strings are visibly flagged.
 - The schema does not define genome assembly, coordinate convention, contact
@@ -130,7 +136,7 @@ and the per-row ENCODE accessions.
 
 ## 3D viewer boundaries
 
-The default **Folded DNA** view opens directly on PDB-style molecular detail.
+The default **3D DNA** view opens directly on PDB-style molecular detail.
 It shows two 160 bp local windows around the reference TSS and the selected
 regulatory-element midpoint: 64 bp on the outer side and 96 bp toward the gap,
 giving the right-hand loop more contour and a wider arc. The exact inner gap is
@@ -165,13 +171,8 @@ or paused without jitter. The preview is not a molecular-dynamics simulation and
 does not model nucleosomes, forces, temperature, an intervention or expression
 effects. The final 3.5 nm centreline separation is an illustrative viewing choice.
 
-**Genomic span** retains the earlier full-length view: a continuous centreline,
-with one consistent nanometre scale and no internal omission. DNA resolves into
-individual bp as the camera zooms in. Its overview line and position markers have
-a minimum pixel size for visibility. A small whole-span inset accompanies its
-molecular close-ups. The default remains Folded DNA, including after switching
-regulatory elements or resetting the camera. Gene, element and junction shortcuts
-return to the folded molecular view.
+The earlier focus/scale shortcuts are removed from the interface. The full-span
+renderer remains only as the fallback for overlapping local windows.
 
 The viewer supports rotation, zoom/pan, expansion, keyboard controls, a contact
 slider and reduced motion. Overlapping TSS/element intervals remain viewable in
@@ -181,6 +182,37 @@ smoke texture and no external image asset. The separate Three.js lazy chunk
 exceeds the build's 500 kB advisory threshold.
 
 Nominal helix dimensions: [DNA mechanics and topology](https://pmc.ncbi.nlm.nih.gov/articles/PMC7288220/).
+
+## Live search and genome browsers
+
+The optional live-reference URL is `/results/?gene=BRCA1&source=reference&intent=up`.
+Typed queries/suggestions use this route; sample buttons retain the existing
+precomputed-record flow. An unknown symbol also attempts live resolution.
+
+- [MyGene.info](https://docs.mygene.info/en/latest/doc/query_service.html) supplies
+  debounced human symbol/alias/name suggestions, with cancellation and caching.
+- [Ensembl REST](https://rest.ensembl.org/) resolves genes and canonical transcript
+  TSS positions. Only human GRCh38 primary chromosomes are supported. Ensembl's
+  1-based inclusive intervals convert to 0-based, half-open frontend intervals.
+- [IGV.js](https://igv.org/doc/igvjs/) renders two independent panes: the selected
+  enhancer above, the target gene below. Both pan and zoom; Fit restores the
+  selected interval. Changing a hit keeps the lower pane's navigation intact.
+  The selected interval uses its ranking colour; the gene stays blue. Unknown
+  enhancer strand is left unspecified.
+- Reference sequence comes from UCSC's public GRCh38 twoBit file via HTTP range
+  requests. Canonical transcripts, exons and CDS are fetched by region from
+  Ensembl. Browser coordinates are shown in 1-based notation. No ENCODE assay
+  tracks are included; those require a biologically appropriate cell context.
+- The IGV code loads only when its tab is opened. API failures have visible
+  error/retry states. External APIs and the reference host require a network
+  connection and CORS support; no credentials or backend service are required.
+
+Live genes without supplied regulatory records open their gene annotation and
+show an empty enhancer pane. Reference annotations do not predict regulatory
+activity. Illustrative fixtures lack a verified assembly and cannot be overlaid
+on real sequence. The sourced MYC sample has verified GRCh38 intervals. Source
+records remain in JSON, although CSV/project-specific detail is removed from
+the workbench interface. The 3D molecular geometry remains illustrative.
 
 ## Validation
 
@@ -199,7 +231,8 @@ Existing tests retain fixture contact matching, empty results, direction filteri
 escaping and selection behavior. Folded-view tests cover exact omission accounting,
 progressive fading, fixed promoter placement, non-rigid motion, local contour
 spacing, smooth endpoints, source order and clipped windows. Browser
-QA covers all three selected examples, sorting, both viewing scales and mobile layout.
+QA covers all three selected examples, independent selection/details, score and
+distance ranking, live search, IGV interval switching, zoom and mobile layout.
 
 `npm audit --omit=dev` currently reports the upstream `http-cache-semantics`
 max-stale advisory, also attributed to Astro. The registry's latest versions
@@ -213,6 +246,8 @@ Recheck the dependency before adding server rendering or deploying a server.
 - Astro (MIT) provides the static build; TypeScript and Node's test runner provide
   checks. Styling uses ordinary CSS, with no UI component library.
 - Three.js and OrbitControls (MIT) provide the interactive 3D renderer and camera.
+- IGV.js (MIT) provides the genome browsers; MyGene.info, Ensembl and UCSC supply
+  the public reference data described above.
 - DM Sans and IBM Plex Mono are loaded from Google Fonts (SIL Open Font License),
   with system fallbacks when unavailable. Serif emphasis uses system Georgia.
 - The logo, conceptual diagrams and DNA thread are original SVG/CSS artwork.
