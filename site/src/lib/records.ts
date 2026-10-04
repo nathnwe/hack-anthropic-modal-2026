@@ -1,3 +1,4 @@
+import type { PipelineAnalysis } from "./pipeline-results.ts";
 export type Mode = "up" | "down" | "off";
 export type Region = { chrom: string; start: number; end: number };
 export type CRE = {
@@ -5,7 +6,7 @@ export type CRE = {
   start: number;
   end: number;
   type: "enhancer" | "silencer" | "insulator" | "promoter";
-  score_rE2G: number;
+  score_rE2G: number | null;
   source?: {
     csv_row: number;
     accession: string;
@@ -28,6 +29,7 @@ export type ReferenceGene = {
   url: string;
 };
 export type GeneRecord = {
+  analysis?: PipelineAnalysis;
   reference?: ReferenceGene;
   caseStudy?: {
     assembly: string;
@@ -84,7 +86,9 @@ export const modeLabels: Record<Mode, string> = {
   off: "Silence",
 };
 export const elementLabel = (record: GeneRecord, cre: CRE) =>
-  `Element ${String(record.locus.cres.findIndex((c) => c.id === cre.id) + 1).padStart(2, "0")}`;
+  record.analysis
+    ? "Regulatory element"
+    : `Element ${String(record.locus.cres.findIndex((c) => c.id === cre.id) + 1).padStart(2, "0")}`;
 export const isMode = (value: string | null): value is Mode =>
   value === "up" || value === "down" || value === "off";
 export const formatNumber = (n: number) => n.toLocaleString("en-GB");
@@ -119,7 +123,9 @@ export function sortElements(record: GeneRecord, criterion: string): CRE[] {
     );
   if (criterion === "re2g")
     return result.sort(
-      (a, b) => b.score_rE2G - a.score_rE2G || a.id.localeCompare(b.id),
+      (a, b) =>
+        (b.score_rE2G ?? -Infinity) - (a.score_rE2G ?? -Infinity) ||
+        a.id.localeCompare(b.id),
     );
   if (criterion === "distance")
     return result.sort(

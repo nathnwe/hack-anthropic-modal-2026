@@ -1,4 +1,19 @@
 <div class="genome-viewer" id="genome-viewer">
+  <div class="design-visibility" id="design-visibility" hidden>
+    <button
+      type="button"
+      id="show-design"
+      role="switch"
+      aria-checked="false"
+      aria-label="Visualise staple design"
+    >
+      <span class="switch-label">Visualise staple design</span>
+      <span class="switch-track" aria-hidden="true">
+        <i></i>
+      </span>
+      <span id="show-design-state">No</span>
+    </button>
+  </div>
   <div class="genome-toolbar">
     <div class="viewer-tabs" role="group" aria-label="Genome view">
       <button type="button" id="view-3d" aria-pressed="true">
@@ -51,7 +66,9 @@
     <div class="dna-distance" id="dna-distance" hidden>
       <div>
         <strong id="dna-separation"></strong>
-        <span>Along DNA · reference TSS → element midpoint</span>
+        <span id="dna-distance-kind">
+          Along DNA · reference TSS → element midpoint
+        </span>
       </div>
       <span class="dna-coordinate-kind" id="dna-coordinate-kind"></span>
     </div>
@@ -69,6 +86,16 @@
         </button>
       </div>
       <div class="dna-label dna-label-gene" id="dna-label-gene" hidden></div>
+      <div
+        class="dna-label dna-label-anchor"
+        id="dna-label-anchor-a"
+        hidden
+      ></div>
+      <div
+        class="dna-label dna-label-anchor"
+        id="dna-label-anchor-b"
+        hidden
+      ></div>
       <div class="dna-omission" id="dna-omission" hidden>
         <strong id="dna-omitted-count"></strong>
       </div>
@@ -129,28 +156,35 @@
         <i class="element-key"></i> Regulatory element
       </span>
     </div>
+    <p id="dna-anchor-note" class="small muted dna-anchor-note" hidden>
+      A / B: centres of candidate regions. Schematic; gaps compressed.
+    </p>
   </div>
   <div id="browser-panel" hidden>
-    <p class="genome-browser-credit">
-      GRCh38 · 1-based ·{" "}
-      <a
-        href="https://www.ensembl.org"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Ensembl annotations
-      </a>{" "}
-      ·{" "}
-      <a
-        href="https://igv.org/doc/igvjs/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        IGV
-      </a>
-    </p>
+    <details class="genome-browser-credit">
+      <summary>Tracks &amp; sources</summary>
+      <div>
+        GRCh38 · 1-based ·{" "}
+        <a
+          href="https://www.ensembl.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Ensembl annotations
+        </a>{" "}
+        ·{" "}
+        <a
+          href="https://igv.org/doc/igvjs/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          IGV
+        </a>
+        <div id="igv-assay-sources" hidden></div>
+      </div>
+    </details>
     <p id="igv-loading" class="small muted" role="status" hidden>
-      Loading genome annotations…
+      Loading tracks…
     </p>
     <div id="igv-error" class="notice" role="status" hidden>
       <p id="igv-error-message"></p>
@@ -194,7 +228,14 @@
             class="small form-error"
             role="status"
           ></p>
-          <div id={`igv-${pane}`} class="igv-container"></div>
+          <div class="igv-frame">
+            <div
+              class="igv-track-names"
+              id={`igv-${pane}-labels`}
+              aria-label={`${pane} track names`}
+            ></div>
+            <div id={`igv-${pane}`} class="igv-container"></div>
+          </div>
         </section>
       ))}
     </div>

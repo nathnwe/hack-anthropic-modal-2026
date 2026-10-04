@@ -1,0 +1,363 @@
+{
+ "label": "NF1 \u00b7 neurofibromatosis type 1 \u00b7 NULL (no other flagged gene)",
+ "window": "chr17:30235000-32235000",
+ "targets": [
+  "NF1"
+ ],
+ "direction": "up",
+ "provenance": {
+  "retrieved": "2026-10-04",
+  "window": "chr17:30235000-32235000",
+  "bins": 400,
+  "bin_bp": 5000,
+  "hic": {
+   "file": "ENCFF621AIY",
+   "experiment": "ENCSR479XDG",
+   "cell": "K562",
+   "assembly": "GRCh38",
+   "balancing": "Juicer SCALE (no KR at 5 kb)"
+  },
+  "dnase": {
+   "experiment": "ENCSR000EKS",
+   "peaks": "ENCFF070TML",
+   "signal": "ENCFF972GVB"
+  },
+  "genes": "UCSC ncbiRefSeqCurated hg38",
+  "ctcf": "UCSC jaspar2022, TFName == CTCF, all hits in window",
+  "rna": "ENCODE polyA+ RNA-seq ENCSR000AEM rep 1 (ENCFF222UVT), joined to RefSeq by TSS +/-500 bp",
+  "dosage": "ClinGen gene dosage curation list GRCh38 (score 3 only)",
+  "not_covered": [
+   "COSMIC Cancer Gene Census (login)",
+   "DepMap common essential (verification page)"
+  ],
+  "counts": {
+   "dnase_peaks": 122,
+   "candidate_elements": 57,
+   "coding_genes": 20,
+   "ctcf_sites": 28,
+   "flagged_genes": 1
+  }
+ },
+ "config": {
+  "TAU": 0.1,
+  "ELEVATED_AT": 0.02,
+  "MIN_EFFECT": 0.1,
+  "TOP_ENHANCERS": 10,
+  "EXPRESSED_TPM": 1.0,
+  "MIN_SEPARATION_BINS": 6,
+  "ANCHOR_REACH": 8,
+  "FLANK_BINS": 2,
+  "TSS_PAD_BINS": 0,
+  "MAX_CONFIDENT_DISTANCE_KB": 500,
+  "SIGMA_BINS": 3.0,
+  "RENORM_ITERS": 100,
+  "DOWN": {
+   "DECOY_REACH_BINS": 100,
+   "DECOY_KEEP_OUT_BINS": 12,
+   "N_DECOYS": 40,
+   "DOWN_ENHANCERS": 5
+  }
+ },
+ "tests_evaluated": {
+  "abstention": "NOT RUN: UniversalEPI not used, constant False",
+  "provenance": "constant: measured Hi-C",
+  "distance": "live",
+  "sign_stability": "live"
+ },
+ "anchor_space": {
+  "genes_expressed": 14,
+  "genes": 20,
+  "elements_protected": 52,
+  "elements": 57,
+  "atac_peaks": 75,
+  "bins_near_open_chromatin": 226,
+  "forbidden_bins": 198,
+  "permitted_anchors": 99,
+  "bins": 400,
+  "excluded_genes": [],
+  "excluded_flagged": []
+ },
+ "flagged_genes_in_window": {
+  "NF1": "haploinsufficient"
+ },
+ "n_staples_scored": 14,
+ "n_meeting_dose_goal": 4,
+ "dropped": {
+  "noop": 0,
+  "no_anchor": 0,
+  "duplicate": 1,
+  "blocked_by_risk": 0,
+  "below_min_effect": 10
+ },
+ "ranked": [
+  {
+   "name": "NF1 <- 31555kb",
+   "mode": "up",
+   "target": "NF1",
+   "target_tpm": 11.42,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 140.28,
+   "enhancer_kb": 31555,
+   "anchor_a_kb": 31550,
+   "anchor_b_kb": 31080,
+   "separation_kb": 470,
+   "q": 10.034,
+   "delta_target": 0.3223,
+   "sweep": [
+    0.0,
+    0.0204,
+    0.053,
+    0.0679,
+    0.1086
+   ],
+   "delta_at_p99": 0.1086,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 1
+  },
+  {
+   "name": "NF1 <- 31435kb",
+   "mode": "up",
+   "target": "NF1",
+   "target_tpm": 11.42,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 140.28,
+   "enhancer_kb": 31435,
+   "anchor_a_kb": 31440,
+   "anchor_b_kb": 31080,
+   "separation_kb": 360,
+   "q": 22.624,
+   "delta_target": 0.1875,
+   "sweep": [
+    0.0,
+    -0.0,
+    0.0012,
+    0.0114,
+    0.0463
+   ],
+   "delta_at_p99": 0.0463,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 2
+  },
+  {
+   "name": "NF1 <- 31545kb",
+   "mode": "up",
+   "target": "NF1",
+   "target_tpm": 11.42,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 140.28,
+   "enhancer_kb": 31545,
+   "anchor_a_kb": 31540,
+   "anchor_b_kb": 31080,
+   "separation_kb": 460,
+   "q": 4.81,
+   "delta_target": 0.1457,
+   "sweep": [
+    0.0,
+    0.0202,
+    0.0406,
+    0.0615,
+    0.1166
+   ],
+   "delta_at_p99": 0.1166,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 3
+  },
+  {
+   "name": "NF1 <- 30705kb",
+   "mode": "up",
+   "target": "NF1",
+   "target_tpm": 11.42,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 140.28,
+   "enhancer_kb": 30705,
+   "anchor_a_kb": 30700,
+   "anchor_b_kb": 31080,
+   "separation_kb": 380,
+   "q": 8.648,
+   "delta_target": 0.118,
+   "sweep": [
+    0.0,
+    0.0122,
+    0.0299,
+    0.0471,
+    0.0745
+   ],
+   "delta_at_p99": 0.0745,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 4
+  }
+ ],
+ "best_below_floor": [
+  {
+   "name": "NF1 <- 31525kb",
+   "mode": "up",
+   "target": "NF1",
+   "target_tpm": 11.42,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 140.28,
+   "enhancer_kb": 31525,
+   "anchor_a_kb": 31510,
+   "anchor_b_kb": 31080,
+   "separation_kb": 430,
+   "q": 6.025,
+   "delta_target": 0.0557,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  {
+   "name": "NF1 <- 31505kb",
+   "mode": "up",
+   "target": "NF1",
+   "target_tpm": 11.42,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 140.28,
+   "enhancer_kb": 31505,
+   "anchor_a_kb": 31500,
+   "anchor_b_kb": 31080,
+   "separation_kb": 420,
+   "q": 6.978,
+   "delta_target": 0.0435,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  {
+   "name": "NF1 <- 31455kb",
+   "mode": "up",
+   "target": "NF1",
+   "target_tpm": 11.42,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 140.28,
+   "enhancer_kb": 31455,
+   "anchor_a_kb": 31460,
+   "anchor_b_kb": 31080,
+   "separation_kb": 380,
+   "q": 8.648,
+   "delta_target": 0.0189,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  {
+   "name": "NF1 <- 31385kb",
+   "mode": "up",
+   "target": "NF1",
+   "target_tpm": 11.42,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 140.28,
+   "enhancer_kb": 31385,
+   "anchor_a_kb": 31380,
+   "anchor_b_kb": 31080,
+   "separation_kb": 300,
+   "q": 8.492,
+   "delta_target": 0.0127,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  {
+   "name": "NF1 <- 32135kb",
+   "mode": "up",
+   "target": "NF1",
+   "target_tpm": 11.42,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 140.28,
+   "enhancer_kb": 32135,
+   "anchor_a_kb": 32130,
+   "anchor_b_kb": 31080,
+   "separation_kb": 1050,
+   "q": 2.443,
+   "delta_target": 0.0043,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  }
+ ]
+}

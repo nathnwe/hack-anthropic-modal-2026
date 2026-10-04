@@ -52,7 +52,7 @@ The alternate build uses `REWIRE_SITE_URL=https://leandre-tappenden.github.io`
 and `REWIRE_BASE_PATH=/rewire-bio-site`. Without those variables, local development
 keeps the original `/hack-anthropic-modal-2026` path on port 4322.
 
-MYC uses sourced K562 rE2G predictions; the other examples remain labelled fixtures. All 3D folding is illustrative.
+LDLR, NSD1, RUNX1, NF1 and MECP2 have precomputed K562 upregulation analyses; MECP2 and MYC also have decoy-based downregulation analyses. MYC retains its separate earlier rE2G case study; SHANK3 and PMP22 remain labelled fixtures. All 3D folding is illustrative.
 
 ## Pages
 
@@ -66,7 +66,9 @@ MYC uses sourced K562 rE2G predictions; the other examples remain labelled fixtu
   rotation, zoom, expansion and a controllable contact preview. The supplied
   contact map and stacked IGV genome browsers are separate tabs. The viewer starts on the top-ranked element, resets when the sort changes,
   and follows element selection. Only the separate + button opens details.
-  Candidate staples and method tradeoffs expand on demand.
+  Legacy candidate staples expand on demand. Pipeline analyses instead show the
+  selected enhancer’s **Stapling strategy** beneath the list: green A/B target
+  regions, compact suggested approaches and an optional anchor overlay.
 - `/api/`: static JSON endpoints and contract documentation.
 
 All paths above are under `/hack-anthropic-modal-2026` locally and
@@ -74,8 +76,8 @@ All paths above are under `/hack-anthropic-modal-2026` locally and
 
 ## Data and scientific boundaries
 
-The three files in `public/data/` are exact copies of the contract fixtures.
-They all carry `illustrative: true`. Placeholder warnings cover disease
+The three legacy files (`myc.json`, `shank3.json`, `pmp22.json`) in `public/data/`
+are exact copies of the contract fixtures and carry `illustrative: true`. Placeholder warnings cover disease
 annotations, cell type, coordinates, scores, tiers, risk flags and recommendations.
 Regulatory predictions remain precomputed. Live reference lookups provide gene
 annotations, never inferred enhancers, contacts or staples.
@@ -109,6 +111,71 @@ The manifest is generated from those files. Do not remove placeholder status
 without verified replacement data. The method library in `src/data/strategies.ts`
 has primary-paper links and is separate from locus-level predictions. Its
 attractions/issues are qualitative design considerations.
+
+## K562 pipeline integration
+
+The default workbench examples are **LDLR (1 design), NSD1 (3), RUNX1 (1),
+NF1 (4), MECP2-up (2), MECP2-down (1), and MYC-down (1)**: seven runs, six genes, 13 shortlisted designs. Search and the existing direction selector resolve the matching run. Unsupported directions retain the unavailable state; explicit earlier MYC samples still load the rE2G dataset. These are precomputed results, not live inference.
+
+Refresh the pinned source snapshot after fetching the shared repository:
+
+```sh
+git fetch origin
+npm run export:pipeline --prefix site -- --source-ref origin/main
+```
+
+`site/scripts/export-pipeline.mjs` imports `data/derived/demo_*.json` from the supplied Git revision into `public/data/pipeline-source/`, records that revision and source SHA-256 hashes, then converts the seven completed demos. Running without `--source-ref` regenerates from the pinned local snapshot offline. The partial ten-record screen and combined website export are also preserved there as source JSON; incomplete screening summaries are not promoted to full demo analyses. It uses the checked-in UCSC
+RefSeq snapshot `scripts/reference-annotations.json` to reproduce the pipeline's
+most-frequent-isoform TSS convention (including the minus-strand txEnd boundary).
+Only an intentional `--refresh-annotations` fetches new UCSC annotations; ordinary
+exports and builds need no annotation network access. Review annotation changes
+against the pipeline before accepting a refresh.
+
+The shared schema is unchanged. Gene, locus, shortlisted staples and compatible
+risk flags use its existing fields. An explicit `analysis.version: 1` extension
+preserves the native designs, source ranks, sweeps, numeric model output and risk
+labels. `locus.tad` is a compatibility interval marked `scope_kind: analysis_window`,
+never presented as a called TAD. `cres`, `contacts` and `ranking` remain empty when
+the export lacks rE2G scores, contact matrices, an arbitrary composite or a method
+recommendation. Nothing fills those fields with zero or invented values.
+
+- **Enhancer regions** are the unit of selection, ordered only by their associated
+  design's reference-setting ΔT/T. Clicking selects; only + expands the score.
+  ΔT/T is simulated **regulatory input**, not expression or an intrinsic enhancer
+  activity score. Colour encodes the relative ΔT/T across the displayed shortlist.
+- The selected enhancer's single exported anchor pair appears directly below the
+  list. Anchor coordinates are 5 kb candidate regions; no guide sequences, PAMs
+  or exact binding sites were designed. Native source ranks remain in JSON.
+- Model confidence, neighbouring-gene screening and contact-strength sweeps expand
+  within that design panel. The stronger reference setting is identified separately.
+  Settings are neither probabilities nor experimental doses. In particular, NSD1
+  enhancer 1's design is positive only at the reference setting.
+- CLEAR is displayed as **No other ClinGen genes**, never low risk or safe. LOW,
+  ELEVATED and BLOCKED remain distinct. Compatibility flags map LOW to low and
+  ELEVATED to medium; BLOCKED never enters the shortlist/staples. Retained rejected
+  and below-floor designs, and counts of omitted designs, remain in View JSON.
+- **Visualise staple design** defaults off. The 3D view then retains the earlier two-window
+  enhancer–TSS close-up. Turning it on adds local windows around anchor A/B centres
+  and joins those centres with the proposed tether. These can differ from the
+  enhancer and TSS. Intervening sequence is compressed with exact excluded bp
+  counts. A/B denote 5 kb regions, not guide sites or atomic binding positions.
+  The animation is illustrative, not a measured structure or molecular simulation.
+- Downregulation retains negative ΔT/T and sorts by reduction magnitude. Anchor B is labelled **Decoy region**, never near the target promoter. In 3D, the design overlay previews the actual enhancer–decoy pair; without it the contact animation is disabled for these runs. Interleaved local windows are partitioned by anchor proximity to avoid duplicating source sequence. The supplied p99 value appears in the existing enhancer disclosure and the full sweep remains in Model checks.
+- The same toggle adds/removes the actual A/B intervals in the genomic map and both
+  IGV panes. The map uses true genomic coordinates and a schematic dashed arc,
+  without fabricating a Hi-C heatmap. IGV panes use a checked-in GRCh38
+  chromosome-size reference and do not show nucleotide sequence. Cached RefSeq
+  gene models cover the six pipeline analysis windows, with live Ensembl
+  annotations outside those windows (see below). The sourced pipeline RefSeq
+  TSS is always shown, independently of anchor visibility.
+- CLOuD9, LADL and BPCL appear as compact expandable literature options below the
+  staple target regions. They are not per-locus recommendations: compatibility and
+  binding off-targets have not been assessed. There is no bottom strategies table.
+
+Source-hash, shortlist, risk-gate, confidence, coordinate and geometry checks run
+with `npm test`. Contract validation also covers the generated records. The
+frontend changes stay inside `site/`; pipeline/scoring code and shared contracts
+are unchanged.
 
 ## MYC / K562 case study
 
@@ -216,13 +283,51 @@ precomputed-record flow. An unknown symbol also attempts live resolution.
   selected interval. Changing a hit keeps the lower pane's navigation intact.
   The selected interval uses its ranking colour; the gene stays blue. Unknown
   enhancer strand is left unspecified.
-- Reference sequence comes from UCSC's public GRCh38 twoBit file via HTTP range
-  requests. Canonical transcripts, exons and CDS are fetched by region from
-  Ensembl. Browser coordinates are shown in 1-based notation. No ENCODE assay
-  tracks are included; those require a biologically appropriate cell context.
+- Track names sit in a fixed left gutter, clear of the plotted intervals. Green
+  Anchor A/B rows match the staple panel and molecular labels. Browser coordinates
+  are shown in 1-based notation; stored intervals are 0-based, half-open.
+- The checked-in `public/data/reference/hg38.chrom.sizes` supplies chromosome
+  lengths; nucleotide sequence is not loaded. RefSeq gene models for the six
+  pipeline windows are in `public/data/reference/k562-refseq.json`, sourced from
+  UCSC's `ncbiRefSeqCurated` track. Each window records its source URL and payload
+  SHA-256. One representative per gene/strand is chosen by preferring NM_ coding
+  transcripts, then longest spliced length, genomic span and accession. These
+  are **not claimed to be canonical** and do not replace the pipeline's TSS
+  convention. Outside the cached coverage, Ensembl supplies live canonical models.
+- Non-illustrative records with explicit **K562 / GRCh38** context load the four
+  ENCODE signal tracks below in both panes. Other cell types, unknown contexts
+  and fixtures do not receive these tracks. They provide experimental context;
+  they do not alter the shortlist, scores or proposed designs.
 - The IGV code loads only when its tab is opened. API failures have visible
   error/retry states. External APIs and the reference host require a network
   connection and CORS support; no credentials or backend service are required.
+
+### K562 experimental tracks
+
+Pinned released GRCh38 bigWig files from each experiment's default analysis:
+
+| Track | Experiment | Signal file |
+| --- | --- | --- |
+| H3K4me3 ChIP-seq | ENCSR668LDD | [ENCFF253TOF](https://www.encodeproject.org/files/ENCFF253TOF/) |
+| H3K27ac ChIP-seq | ENCSR000AKP | [ENCFF381NDD](https://www.encodeproject.org/files/ENCFF381NDD/) |
+| H3K27me3 ChIP-seq | ENCSR000AKQ | [ENCFF242ENK](https://www.encodeproject.org/files/ENCFF242ENK/) |
+| ATAC-seq | ENCSR868FGK | [ENCFF102ARJ](https://www.encodeproject.org/files/ENCFF102ARJ/) |
+
+These are pooled biological replicates (1/2 for H3K4me3; 1/2/3 for the others),
+reported as **fold change over control/background**, not probabilities. Tracks
+stream public byte ranges only when the browser opens, with mean aggregation and
+independent vertical autoscaling per track and pane. Heights are therefore not a
+shared quantitative scale. Links, output units and ENCODE audit flags are available
+under **Tracks & sources**. The source metadata, checksums and pinned cloud URLs
+are recorded in `src/data/k562-tracks.json`.
+
+The selected experiments have quality flags: H3K27ac includes an extremely-low-read-depth
+error; H3K27me3 includes insufficient-depth noncompliance; H3K4me3 has control-related
+warnings; ATAC-seq has a library-complexity warning. They remain visible in the
+sources disclosure and should be considered when interpreting the signals.
+A failed signal load receives one retry, then a visible error rather than a
+fabricated zero track. Cached gene models and selected intervals remain usable
+independently of the remote signal service.
 
 Live genes without supplied regulatory records open their gene annotation and
 show an empty enhancer pane. Reference annotations do not predict regulatory
@@ -269,12 +374,19 @@ Recheck the dependency before adding server rendering or deploying a server.
   with system fallbacks when unavailable. Serif emphasis uses system Georgia.
 - The logo, conceptual diagrams and DNA thread are original SVG/CSS artwork.
 - The landing-page loop panel is adapted from the team's `LoopPanel.astro` on
-  `feat/site` (9732ea7), retaining its scroll-driven expansion, Bezier curves and
-  contact glow. It is a schematic, not a measured chromatin conformation or a
-  simulation conserving contour length. Reduced motion shows the final state.
+  `feat/site` (9732ea7), retaining its scroll-driven expansion and blue/copper
+  palette with a warm contact glow. A lazy-loaded Three.js scene now renders
+  shaded molecular spheres and bonds around a continuously bending double helix.
+  Its travelling bends and loop closure are illustrative, not molecular dynamics,
+  a measured conformation, an atomic structure or a contour-conserving simulation.
+  Rendering stops off-screen, in background tabs, while paused and during video
+  playback. Reduced motion shows a still folded model. The locally generated
+  `public/images/landing-dna.svg` is the static fallback when WebGL is unavailable.
 - “visit the cell” opens the user-supplied film in a full-screen modal with a
-  crossfade and subtle zoom. The original 30-second, 1080p H.264 MP4 is stored at
+  crossfade and subtle zoom. The replacement 40-second, 1080p H.264 MP4 is stored at
   `public/media/rewire-bio-cell.mp4` (no audio track; fast-start metadata retained).
+  Source: `WhatsApp Video 2026-10-04 at 12.27.57.mp4`, copied without transcoding.
+  The video URL carries a content-version query to refresh earlier cached copies.
   Video loading begins on click. Native playback controls, a Close button and
   Escape support playback and return to the same page position; reopening starts
   the film again. Keyboard focus stays in the modal and returns to the launch

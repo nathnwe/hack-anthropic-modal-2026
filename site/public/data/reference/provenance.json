@@ -1,0 +1,7 @@
+{
+  "assembly": "GRCh38",
+  "source": "https://api.genome.ucsc.edu/list/chromosomes?genome=hg38",
+  "retrieved": "2026-10-04",
+  "selection": "Primary chromosomes only; sizes copied without alteration",
+  "source_response_sha256": "9631054481a877b324c4407251549f8482e1d6673c8cb6a2890cc9c348f2e940"
+}

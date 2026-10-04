@@ -1,0 +1,95 @@
+{
+ "gene": "MYC",
+ "mode": "down",
+ "window": "chr8:127000000-129000000",
+ "seconds": 6,
+ "flagged_in_window": [],
+ "target_tpm": 140.76,
+ "baseline_T": 708.71,
+ "permitted_anchors": 173,
+ "genes_expressed": 1,
+ "genes": 2,
+ "excluded_flagged": [],
+ "n_scored": 197,
+ "n_meeting_goal": 1,
+ "dropped": {
+  "noop": 3,
+  "no_anchor": 0,
+  "duplicate": 0,
+  "blocked_by_risk": 0,
+  "below_min_effect": 196
+ },
+ "best": {
+  "name": "MYC v 127740kb->127270kb",
+  "mode": "down",
+  "target": "MYC",
+  "target_tpm": 140.76,
+  "target_flag": null,
+  "baseline_T": 708.71,
+  "enhancer_kb": 127740,
+  "enhancer_abc_share": 0.124,
+  "anchor_a_kb": 127745,
+  "anchor_b_kb": 127270,
+  "decoy_kb": 127270,
+  "separation_kb": 475,
+  "q": 40.54,
+  "delta_target": -0.1036,
+  "sweep": [
+   -0.0016,
+   -0.0037,
+   -0.0072,
+   -0.0093,
+   -0.0177
+  ],
+  "delta_at_p99": -0.0177,
+  "sign_stable": true,
+  "confidence": "CONFIDENT",
+  "risk": {
+   "tier": "CLEAR",
+   "score": 0.0,
+   "worst_gene": null,
+   "n_flagged_in_window": 0,
+   "reason": "no other ClinGen dosage-sensitive gene in the window"
+  },
+  "unflagged_collateral_over_tau": [],
+  "rank": 1
+ },
+ "best_below_floor": null,
+ "ranked_top5": [
+  {
+   "name": "MYC v 127740kb->127270kb",
+   "mode": "down",
+   "target": "MYC",
+   "target_tpm": 140.76,
+   "target_flag": null,
+   "baseline_T": 708.71,
+   "enhancer_kb": 127740,
+   "enhancer_abc_share": 0.124,
+   "anchor_a_kb": 127745,
+   "anchor_b_kb": 127270,
+   "decoy_kb": 127270,
+   "separation_kb": 475,
+   "q": 40.54,
+   "delta_target": -0.1036,
+   "sweep": [
+    -0.0016,
+    -0.0037,
+    -0.0072,
+    -0.0093,
+    -0.0177
+   ],
+   "delta_at_p99": -0.0177,
+   "sign_stable": true,
+   "confidence": "CONFIDENT",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 1
+  }
+ ]
+}

@@ -11,6 +11,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "export:pipeline": "node scripts/export-pipeline.mjs",
     "test": "node --experimental-strip-types --test src/lib/*.test.ts"
   },
   "dependencies": {

@@ -1,0 +1,150 @@
+{
+  "retrieved": "2026-10-04T11:39:24.495779+00:00",
+  "selection": "Released pooled GRCh38 signals in each experiment\u2019s default analysis. Untreated K562, no genetic modifications recorded. Context tracks only; not added to the pipeline score.",
+  "tracks": [
+    {
+      "id": "encode-ENCFF253TOF",
+      "name": "H3K4me3",
+      "color": "#81569b",
+      "accession": "ENCFF253TOF",
+      "experiment": "ENCSR668LDD",
+      "analysis": "ENCAN646APS",
+      "biosample": "K562",
+      "assembly": "GRCh38",
+      "status": "released",
+      "assay": "Histone ChIP-seq",
+      "target": "H3K4me3",
+      "output_type": "fold change over control",
+      "biological_replicates": [
+        1,
+        2
+      ],
+      "url": "https://encode-public.s3.amazonaws.com/2020/10/20/a33b0716-5340-4602-95be-51eeeb6f691f/ENCFF253TOF.bigWig",
+      "file_url": "https://www.encodeproject.org/files/ENCFF253TOF/",
+      "experiment_url": "https://www.encodeproject.org/experiments/ENCSR668LDD/",
+      "lab": "Bradley Bernstein, Broad",
+      "md5sum": "2bf6f3904a5d1a23828fc38edb509497",
+      "file_size": 1109764853,
+      "experiment_audits": {
+        "WARNING": [
+          "control low read depth",
+          "inconsistent control read length",
+          "inconsistent platforms",
+          "missing controlled_by"
+        ]
+      }
+    },
+    {
+      "id": "encode-ENCFF381NDD",
+      "name": "H3K27ac",
+      "color": "#ad5641",
+      "accession": "ENCFF381NDD",
+      "experiment": "ENCSR000AKP",
+      "analysis": "ENCAN866TOS",
+      "biosample": "K562",
+      "assembly": "GRCh38",
+      "status": "released",
+      "assay": "Histone ChIP-seq",
+      "target": "H3K27ac",
+      "output_type": "fold change over control",
+      "biological_replicates": [
+        1,
+        2,
+        3
+      ],
+      "url": "https://encode-public.s3.amazonaws.com/2022/06/14/a3a5887a-bfe4-4c51-856e-986d8d40cfe2/ENCFF381NDD.bigWig",
+      "file_url": "https://www.encodeproject.org/files/ENCFF381NDD/",
+      "experiment_url": "https://www.encodeproject.org/experiments/ENCSR000AKP/",
+      "lab": "Bradley Bernstein, Broad",
+      "md5sum": "f4d6c7f5a2940fddc57929ca8d71d84d",
+      "file_size": 1511112441,
+      "experiment_audits": {
+        "WARNING": [
+          "control low read depth",
+          "inconsistent platforms",
+          "low read depth",
+          "low read length",
+          "matching md5 sums",
+          "mild to moderate bottlenecking",
+          "missing controlled_by",
+          "mixed read lengths",
+          "moderate library complexity"
+        ],
+        "ERROR": [
+          "extremely low read depth"
+        ]
+      }
+    },
+    {
+      "id": "encode-ENCFF242ENK",
+      "name": "H3K27me3",
+      "color": "#2a6fa8",
+      "accession": "ENCFF242ENK",
+      "experiment": "ENCSR000AKQ",
+      "analysis": "ENCAN481RKU",
+      "biosample": "K562",
+      "assembly": "GRCh38",
+      "status": "released",
+      "assay": "Histone ChIP-seq",
+      "target": "H3K27me3",
+      "output_type": "fold change over control",
+      "biological_replicates": [
+        1,
+        2,
+        3
+      ],
+      "url": "https://encode-public.s3.amazonaws.com/2022/06/16/c9e15712-7cb9-453e-8b49-80e70709b234/ENCFF242ENK.bigWig",
+      "file_url": "https://www.encodeproject.org/files/ENCFF242ENK/",
+      "experiment_url": "https://www.encodeproject.org/experiments/ENCSR000AKQ/",
+      "lab": "Bradley Bernstein, Broad",
+      "md5sum": "7e8079860c22dc474e0e32c3f3567f56",
+      "file_size": 1476326780,
+      "experiment_audits": {
+        "WARNING": [
+          "inconsistent control read length",
+          "inconsistent platforms",
+          "low read length",
+          "matching md5 sums",
+          "mild to moderate bottlenecking",
+          "missing controlled_by",
+          "mixed read lengths",
+          "moderate library complexity"
+        ],
+        "NOT_COMPLIANT": [
+          "control insufficient read depth",
+          "insufficient read depth"
+        ]
+      }
+    },
+    {
+      "id": "encode-ENCFF102ARJ",
+      "name": "ATAC-seq",
+      "color": "#475563",
+      "accession": "ENCFF102ARJ",
+      "experiment": "ENCSR868FGK",
+      "analysis": "ENCAN824UKX",
+      "biosample": "K562",
+      "assembly": "GRCh38",
+      "status": "released",
+      "assay": "ATAC-seq",
+      "target": null,
+      "output_type": "fold change over control",
+      "biological_replicates": [
+        1,
+        2,
+        3
+      ],
+      "url": "https://encode-public.s3.amazonaws.com/2021/03/16/b790ea43-824d-4934-840b-cb3612634cfd/ENCFF102ARJ.bigWig",
+      "file_url": "https://www.encodeproject.org/files/ENCFF102ARJ/",
+      "experiment_url": "https://www.encodeproject.org/experiments/ENCSR868FGK/",
+      "lab": "Michael Snyder, Stanford",
+      "md5sum": "55f5a2e4590784a960b785a31ed4b85a",
+      "file_size": 4514690311,
+      "experiment_audits": {
+        "WARNING": [
+          "moderate library complexity"
+        ]
+      }
+    }
+  ]
+}

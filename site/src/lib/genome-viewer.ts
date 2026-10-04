@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import type { PipelineDesign } from "./pipeline-results";
 import {
   foldedDNA,
   foldedFrame,
@@ -79,6 +80,8 @@ export class GenomeViewer {
   private record: GeneRecord | null = null;
   private cre: CRE | null = null;
   private selectedKey = "";
+  private design: PipelineDesign | null = null;
+  private anchorMarkers: THREE.Mesh[] = [];
   private observer: ResizeObserver;
   private visibility: IntersectionObserver;
   private abort = new AbortController();
@@ -207,6 +210,15 @@ export class GenomeViewer {
       new THREE.MeshBasicMaterial({ color: this.elementColor }),
     );
     this.model.add(this.geneMarker, this.elementMarker);
+    this.anchorMarkers = [0, 1].map(() => {
+      const marker = new THREE.Mesh(
+        new THREE.SphereGeometry(0.65, 16, 12),
+        new THREE.MeshPhongMaterial({ color: 0x52683f, shininess: 35 }),
+      );
+      marker.visible = false;
+      this.model.add(marker);
+      return marker;
+    });
     this.scene.add(this.model);
     const smoke = document.createElement("canvas");
     smoke.width = smoke.height = 192;
@@ -327,7 +339,12 @@ export class GenomeViewer {
     this.stage.dataset.state = "ready";
   }
 
-  update(record: GeneRecord, cre: CRE | null, color = "#ad5641") {
+  update(
+    record: GeneRecord,
+    cre: CRE | null,
+    color = "#ad5641",
+    design: PipelineDesign | null = null,
+  ) {
     const key = JSON.stringify([
       record.gene.symbol,
       record.gene.chrom,
@@ -336,6 +353,7 @@ export class GenomeViewer {
       cre,
       record.illustrative,
       color,
+      design?.id,
     ]);
     if (key === this.selectedKey) return;
     this.selectedKey = key;
@@ -344,9 +362,32 @@ export class GenomeViewer {
       this.elementColor,
     );
     this.record = record;
+    this.design = design;
     this.cre = cre;
     this.locus = cre ? locusWindow(record, cre) : null;
-    this.cutaway = this.locus ? foldedDNA(this.locus) : null;
+    if (this.locus && design) {
+      this.locus.start = Math.min(
+        this.locus.start,
+        design.anchor_a.start,
+        design.anchor_b.start,
+      );
+      this.locus.end = Math.max(
+        this.locus.end,
+        design.anchor_a.end,
+        design.anchor_b.end,
+      );
+    }
+    this.cutaway = this.locus
+      ? foldedDNA(
+          this.locus,
+          design
+            ? {
+                gene: (design.anchor_b.start + design.anchor_b.end) / 2,
+                element: (design.anchor_a.start + design.anchor_a.end) / 2,
+              }
+            : undefined,
+        )
+      : null;
     this.viewMode = this.cutaway ? "folded" : "full";
     this.playing = false;
     this.progress = 0;
@@ -364,21 +405,38 @@ export class GenomeViewer {
     this.stage.dataset.state = "ready";
     byId("dna-fallback").hidden = true;
     byId("dna-controls").hidden = false;
+    byId("dna-label-anchor-a").textContent = "A · Near enhancer";
+    byId("dna-label-anchor-b").textContent = design?.mode === "down" ? "B · Decoy region" : `B · Near ${record.gene.symbol}`;
     byId("dna-label-gene").textContent = `${record.gene.symbol} · TSS`;
-    byId("dna-label-element").textContent = elementLabel(record, cre!);
+    byId("dna-label-element").textContent = design
+      ? "Regulatory element"
+      : elementLabel(record, cre!);
     const locus = this.locus!;
     byId("dna-distance").hidden = false;
-    const separation = Math.abs(locus.midpoint - locus.tss);
+    const separation = design
+      ? design.separation_kb * 1000
+      : Math.abs(locus.midpoint - locus.tss);
     byId("dna-separation").textContent = `${formatNumber(separation)} bp apart`;
-    byId("dna-coordinate-kind").textContent = record.illustrative
-      ? "Placeholder coordinates"
-      : record.caseStudy
-        ? record.caseStudy.assembly
-        : "Record coordinates";
+    byId("dna-distance-kind").textContent = design
+      ? "Along DNA · anchor A → anchor B"
+      : "Along DNA · reference TSS → element midpoint";
+    byId("dna-anchor-note").hidden = !design;
+    byId("dna-coordinate-kind").textContent = design
+      ? "GRCh38 · 5 kb bins"
+      : record.illustrative
+        ? "Placeholder coordinates"
+        : record.analysis
+          ? "GRCh38"
+          : record.caseStudy
+            ? record.caseStudy.assembly
+            : "Record coordinates";
     this.stage.dataset.separationBp = String(separation);
     this.stage.dataset.element = cre!.id;
-    byId<HTMLButtonElement>("dna-play").disabled = locus.overlap;
-    byId<HTMLInputElement>("dna-progress").disabled = locus.overlap;
+    this.stage.dataset.design = design?.id || "";
+    const previewUnavailable = locus.overlap || (!design && record.analysis?.supported_modes[0] === "down");
+    byId<HTMLButtonElement>("dna-play").disabled = previewUnavailable;
+    byId<HTMLButtonElement>("dna-play").title = previewUnavailable && !locus.overlap ? "Enable Visualise staple design to preview the enhancer–decoy tether." : "";
+    byId<HTMLInputElement>("dna-progress").disabled = previewUnavailable;
     this.setProgress(0);
     this.focusView("folded");
     this.resize();
@@ -417,10 +475,11 @@ export class GenomeViewer {
     this.stage.dataset.totalBp = String(
       folded ? folded.end - folded.start : shown,
     );
-    byId("dna-omitted-count").textContent = `${formatNumber(omitted)} bp`;
+    byId("dna-omitted-count").textContent =
+      `${formatNumber(omitted)} bp${this.design ? " across gaps" : ""}`;
     byId("dna-omission").setAttribute(
       "aria-label",
-      `${formatNumber(omitted)} base pairs omitted in the compressed interval`,
+      `${formatNumber(omitted)} base pairs across ${this.design ? "all compressed intervals" : "the compressed interval"}`,
     );
     byId("dna-omission").hidden = !folded;
     this.renderer.domElement.setAttribute(
@@ -463,8 +522,19 @@ export class GenomeViewer {
       child.scale.set(width * (1.65 - i * 0.12), width * (1.2 + i * 0.06), 1);
       (child as THREE.Sprite).material.opacity = 0.6;
     });
-    const a = this.center(this.locus.tss),
-      b = this.center(this.locus.midpoint);
+    const a = this.center(
+        this.design
+          ? (this.design.anchor_b.start + this.design.anchor_b.end) / 2
+          : this.locus.tss,
+      ),
+      b = this.center(
+        this.design
+          ? (this.design.anchor_a.start + this.design.anchor_a.end) / 2
+          : this.locus.midpoint,
+      );
+    this.anchorMarkers[0].position.copy(b);
+    this.anchorMarkers[1].position.copy(a);
+    this.anchorMarkers.forEach((m) => (m.visible = !!this.design));
     this.contact.geometry.dispose();
     this.contact.geometry = new THREE.BufferGeometry().setFromPoints([a, b]);
     this.contact.computeLineDistances();
@@ -559,7 +629,9 @@ export class GenomeViewer {
       (height * this.stage.clientWidth) / Math.max(1, this.stage.clientHeight);
     const folded = this.viewMode === "folded" && this.cutaway;
     const ranges = folded
-      ? folded.arms
+      ? folded.arms.flatMap<{ start: number; end: number }>(
+          (a) => a.display?.windows ?? [a],
+        )
       : height < 130
         ? detailIntervals(
             this.locus,
@@ -780,21 +852,24 @@ export class GenomeViewer {
     const bounds = new THREE.Box3();
     for (const progress of [0, 0.25, 0.5, 0.75, 1])
       for (const arm of this.cutaway.arms)
-        for (let i = 0; i <= 64; i++)
-          bounds.expandByPoint(
-            foldedAnchor(
-              arm.start + ((arm.end - arm.start) * i) / 64,
-              progress,
-              this.cutaway,
-            ),
-          );
+        for (const range of arm.display?.windows ?? [arm])
+          for (let i = 0; i <= 64; i++)
+            bounds.expandByPoint(
+              foldedAnchor(
+                range.start + ((range.end - range.start) * i) / 64,
+                progress,
+                this.cutaway,
+              ),
+            );
     // Same camera target for every example: the promoter stays on the lower row.
-    const center = new THREE.Vector3(1, 1, 0),
+    const center = this.design
+        ? bounds.getCenter(new THREE.Vector3())
+        : new THREE.Vector3(1, 1, 0),
       size = bounds.getSize(new THREE.Vector3());
     // Keep the same molecular magnification across the three source examples.
     // Their compressed gaps can then look different without shrinking the DNA.
     this.viewWidth = Math.max(27, size.x * 0.56 + 1.2);
-    this.viewHeight = 15.5;
+    this.viewHeight = this.design ? Math.max(20, size.y * 0.55) : 15.5;
     this.camera.near = 0.01;
     this.camera.far = 500;
     this.camera.zoom = 1;
@@ -843,7 +918,7 @@ export class GenomeViewer {
   }
 
   private togglePlayback() {
-    if (!this.locus || this.lostContext) return;
+    if (!this.locus || this.lostContext || byId<HTMLButtonElement>("dna-play").disabled) return;
     if (this.reducedMotion.matches) {
       this.playing = false;
       this.setProgress(this.progress > 0.5 ? 0 : 1);
@@ -945,6 +1020,19 @@ export class GenomeViewer {
       label.style.left = `${Math.max(half + 8, Math.min(width - half - 8, folded ? x : x + side * (half + 10)))}px`;
       label.style.top = `${Math.max(22, Math.min(height - 42, y + (folded ? -side * 28 : side * 34)))}px`;
     }
+    for (const [i, key] of ["a", "b"].entries()) {
+      const label = byId(`dna-label-anchor-${key}`);
+      label.hidden = !this.design;
+      if (!this.design) continue;
+      const r = key === "a" ? this.design.anchor_a : this.design.anchor_b;
+      const point = this.center((r.start + r.end) / 2).project(this.camera);
+      label.hidden = Math.abs(point.x) > 1.1 || Math.abs(point.y) > 1.1;
+      label.textContent = key === "b" && this.design.mode === "down"
+        ? "B · Decoy region"
+        : `${key.toUpperCase()} · anchor region`;
+      label.style.left = `${Math.max(65, Math.min(width - 65, (point.x * 0.5 + 0.5) * width))}px`;
+      label.style.top = `${Math.max(20, Math.min(height - 20, (-point.y * 0.5 + 0.5) * height + (i === 0 ? -25 : 25)))}px`;
+    }
     const label = byId("dna-omission");
     if (this.viewMode === "folded" && this.cutaway) {
       const point = hazeCenter(this.cutaway, this.progress).project(
@@ -1001,6 +1089,8 @@ export class GenomeViewer {
     byId("dna-omission").hidden = true;
     this.haze.visible = false;
     byId("dna-label-gene").hidden = byId("dna-label-element").hidden = true;
+    byId("dna-label-anchor-a").hidden = byId("dna-label-anchor-b").hidden =
+      true;
     this.stage.dataset.state = "unavailable";
   }
 
@@ -1011,6 +1101,10 @@ export class GenomeViewer {
     this.observer.disconnect();
     this.visibility.disconnect();
     this.controls.dispose();
+    this.anchorMarkers.forEach((m) => {
+      m.geometry.dispose();
+      (m.material as THREE.Material).dispose();
+    });
     this.spheres.geometry.dispose();
     this.bonds.geometry.dispose();
     (this.spheres.material as THREE.Material).dispose();

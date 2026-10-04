@@ -1,6 +1,5 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Strategies from "../components/Strategies.astro";
 import GenomeViewer from "../components/GenomeViewer.astro";
 import type { GeneRecord } from "../lib/records";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -12,6 +11,8 @@ const manifest = Object.entries(files).map(([path, r]) => ({
   symbol: r.gene.symbol,
   file: path.split("/").pop(),
   direction: r.gene.direction,
+  analysis: !!r.analysis,
+  modes: r.analysis?.supported_modes,
 }));
 ---
 
@@ -62,14 +63,15 @@ const manifest = Object.entries(files).map(([path, r]) => ({
         <nav aria-label="Results sections">
           <a href="#elements">Elements</a>
           <a href="#landscape">Viewer</a>
-          <a href="#methods">Strategies</a>
+          <a href="#selected-design" id="design-nav">
+            Design
+          </a>
         </nav>
         <label class="small">
           Direction{" "}
           <select id="intent-select" aria-label="Regulation direction">
             <option value="up">Upregulate</option>
             <option value="down">Downregulate</option>
-            <option value="off">Silence</option>
           </select>
         </label>
       </div>
@@ -187,7 +189,6 @@ const manifest = Object.entries(files).map(([path, r]) => ({
           </details>
         </section>
       </div>
-      <Strategies />
       <section class="limitations">
         <span class="eyebrow">What remains unknown</span>
         <p>

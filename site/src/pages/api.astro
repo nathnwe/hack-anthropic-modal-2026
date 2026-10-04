@@ -8,7 +8,7 @@ const files = Object.entries(
     import: "default",
   }),
 );
-const example = `const response = await fetch('${base}/data/case-studies/myc-k562.json');
+const example = `const response = await fetch('${base}/data/runx1.json');
 if (!response.ok) throw new Error('Record unavailable');
 const record = await response.json();
 
@@ -17,26 +17,35 @@ if (record.illustrative === true) {
   console.info('Placeholder data — not a finding');
 }
 
-console.log(record.symbol, record.links);`;
+// These are precomputed model results, not live inference.
+const designs = record.analysis.designs.filter(d =>
+  d.status === 'shortlisted' && d.risk.tier !== 'BLOCKED'
+);
+console.log(record.gene.symbol, designs);
+// delta_target is regulatory-input change, not expression.`;
 ---
 
 <Layout title="Data API — Rewire Bio" page="api">
   <div class="page-shell api-shell">
     <div class="api-intro">
-      <p class="eyebrow">Open by design</p>
+      <p class="eyebrow">Data API</p>
       <h1>
-        The data,
-        <br />
-        <em>in plain sight.</em>
+        Records &amp;
+        <br /> provenance.
       </h1>
       <p class="lead">
-        One gene. One JSON file.
+        One gene and direction. One JSON file.
         <br />
         Every field available to inspect.
       </p>
       <p>
         These are precomputed static records served with the site. No API key,
         server-side computation or live prediction is involved.
+      </p>
+      <p>
+        LDLR, NSD1, RUNX1, NF1, MECP2 and MYC have K562 pipeline analyses using
+        measured Hi-C at 5 kb resolution. MECP2 includes both directions; MYC
+        includes downregulation. All simulations are experimentally unvalidated.
       </p>
       <p>
         Live gene search separately uses{" "}
@@ -78,7 +87,11 @@ console.log(record.symbol, record.links);`;
             <a href={`${base}/data/${path.split("/").pop()}`}>
               <span class="mono">{path.split("/").pop()}</span>
               <span class="tag">
-                {r.illustrative ? "Placeholder" : "Record"}
+                {r.illustrative
+                  ? "Placeholder"
+                  : r.analysis
+                    ? "K562 analysis"
+                    : "Record"}
               </span>
               <span aria-hidden="true">↗</span>
             </a>
@@ -91,9 +104,9 @@ console.log(record.symbol, record.links);`;
         <p class="placeholder-note">
           <span aria-hidden="true">◇</span>
           <span>
-            <strong>Keep the label attached.</strong> The fixture records below
-            have <code>illustrative: true</code>. Their annotations, coordinates
-            and scores are placeholders.
+            <strong>Preserve data status.</strong> The MYC, SHANK3 and PMP22
+            fixture records have <code>illustrative: true</code>. Their
+            annotations, coordinates and scores are placeholders.
           </span>
         </p>
       </section>
@@ -110,8 +123,11 @@ console.log(record.symbol, record.links);`;
           <div>
             <dt>locus</dt>
             <dd>
-              Cell type, TAD interval, regulatory elements with rE2G scores, and
-              contact endpoints with strengths.
+              Cell type and genomic scope. In these pipeline exports,
+              <code>scope_kind: analysis_window</code> identifies the 2 Mb
+              interval stored in the legacy <code>tad</code> field. No TAD was
+              called. The <code>cres</code> and <code>contacts</code> arrays are
+              empty: rE2G scores and contact matrices were not exported.
             </dd>
           </div>
           <div>
@@ -124,20 +140,37 @@ console.log(record.symbol, record.links);`;
           <div>
             <dt>risks</dt>
             <dd>
-              Flags attached to a staple ID, with severity and a description.
+              Flags attached to shortlisted staple IDs. LOW maps to low and
+              ELEVATED to medium. CLEAR has no flags; its distinct meaning is
+              preserved in <code>analysis</code>. BLOCKED designs are excluded
+              from <code>staples</code> and retained as rejected analyses.
             </dd>
           </div>
           <div>
             <dt>ranking</dt>
             <dd>
-              Staple-level composite score, ordinal tier A/B/C, rationale and
-              method recommendation. Scores are not calibrated probabilities.
+              The legacy contract permits composite scores and A/B/C tiers.
+              Pipeline exports leave this array empty because the run supplies
+              neither those scores nor a method recommendation.
+            </dd>
+          </div>
+          <div>
+            <dt>analysis</dt>
+            <dd>
+              Versioned extension permitted by the existing schema. Contains
+              original ranks, confidence labels, risk gates, 5 kb element and
+              anchor bins, contact-strength sweeps and unmodified source output.
+              Quantitative ΔT/T describes regulatory input only. The source file
+              hash, GRCh38 reference annotation and coordinate convention are
+              included.
             </dd>
           </div>
         </dl>
         <p class="small muted">
-          The contract does not specify genome assembly, coordinate convention,
-          contact resolution, enhancer potency or engineering achievability.
+          No shared-schema change is required. Consumers of the legacy fields
+          should inspect <code>analysis</code> before interpreting these
+          records. An empty array indicates unavailable metrics, not a
+          biological zero.
         </p>
       </section>
     </div>

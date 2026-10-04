@@ -1,0 +1,798 @@
+{
+  "illustrative": false,
+  "gene": {
+    "symbol": "MECP2",
+    "chrom": "chrX",
+    "tss": 154097717,
+    "disease": "Rett syndrome (loss of function)",
+    "direction": "too_little",
+    "evidence": [
+      "Pipeline results: https://github.com/nathnwe/hack-anthropic-modal-2026/blob/3d7ad7dc0e1b47b1d51ef7dab1724b7a18666bf1/docs/results-report.md",
+      "ClinGen dosage sensitivity: https://ftp.clinicalgenome.org/ClinGen_gene_curation_list_GRCh38.tsv",
+      "PMID: 31206249",
+      "PMID: 10508514",
+      "PMID: 16647997"
+    ]
+  },
+  "locus": {
+    "cell_type": "K562",
+    "tad": {
+      "chrom": "chrX",
+      "start": 153060000,
+      "end": 155060000
+    },
+    "scope_kind": "analysis_window",
+    "cres": [],
+    "contacts": []
+  },
+  "staples": [
+    {
+      "id": "mecp2_up-a154130000-b154100000",
+      "anchor_a": {
+        "chrom": "chrX",
+        "start": 154130000,
+        "end": 154135000
+      },
+      "anchor_b": {
+        "chrom": "chrX",
+        "start": 154100000,
+        "end": 154105000
+      },
+      "mode": "up",
+      "predicted_delta": "increase_at_reference_strength"
+    },
+    {
+      "id": "mecp2_up-a153995000-b154100000",
+      "anchor_a": {
+        "chrom": "chrX",
+        "start": 153995000,
+        "end": 154000000
+      },
+      "anchor_b": {
+        "chrom": "chrX",
+        "start": 154100000,
+        "end": 154105000
+      },
+      "mode": "up",
+      "predicted_delta": "increase_at_reference_strength"
+    }
+  ],
+  "risks": [
+    {
+      "staple_id": "mecp2_up-a154130000-b154100000",
+      "flags": [
+        {
+          "type": "clingen_regulatory_input",
+          "severity": "low",
+          "gene": "IKBKG",
+          "detail": "IKBKG (haploinsufficient) +0.4%"
+        }
+      ]
+    },
+    {
+      "staple_id": "mecp2_up-a153995000-b154100000",
+      "flags": [
+        {
+          "type": "clingen_regulatory_input",
+          "severity": "low",
+          "gene": "AVPR2",
+          "detail": "AVPR2 (haploinsufficient) -0.4%"
+        }
+      ]
+    }
+  ],
+  "ranking": [],
+  "analysis": {
+    "version": 1,
+    "run_id": "mecp2_up-k562-2026-10-04",
+    "source_path": "data/derived/demo_mecp2_up.json",
+    "source_snapshot": "pipeline-source/demo_mecp2_up.json",
+    "source_revision": "3d7ad7dc0e1b47b1d51ef7dab1724b7a18666bf1",
+    "source_sha256": "29a0d08680ab486ba20c81c7d7a91d7dbdbaeb2809b945ad7f4367d77f9cadeb",
+    "coordinate_system": "0-based, half-open 5 kb bins; reference TSS follows RefSeq txStart/txEnd boundary convention",
+    "window_kind": "analysis_window",
+    "reference": {
+      "assembly": "GRCh38",
+      "chrom": "chrX",
+      "start": 154021572,
+      "end": 154097717,
+      "tss": 154097717,
+      "strand": "-",
+      "id": "NM_001316337.2",
+      "name": "MECP2",
+      "url": "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=ncbiRefSeqCurated;chrom=chrX;start=153060000;end=155060000"
+    },
+    "annotation_retrieved": "2026-10-04T12:08:32.571297+00:00",
+    "metric": "relative_regulatory_input_change",
+    "supported_modes": [
+      "up"
+    ],
+    "sweep_percentiles": [
+      50,
+      75,
+      90,
+      95,
+      99
+    ],
+    "designs": [
+      {
+        "name": "MECP2 <- 154135kb",
+        "mode": "up",
+        "target": "MECP2",
+        "target_tpm": 24.23,
+        "target_flag": "haploinsufficient",
+        "baseline_T": 311.07,
+        "enhancer_kb": 154135,
+        "anchor_a_kb": 154130,
+        "anchor_b_kb": 154100,
+        "separation_kb": 30,
+        "q": 112.377,
+        "delta_target": 0.1956,
+        "sweep": [
+          -0.0048,
+          -0.0085,
+          -0.0006,
+          0.0074,
+          0.03
+        ],
+        "delta_at_p99": 0.03,
+        "sign_stable": false,
+        "confidence": "TENTATIVE",
+        "risk": {
+          "tier": "LOW",
+          "score": 0.0043,
+          "worst_gene": "IKBKG",
+          "n_flagged_in_window": 8,
+          "reason": "IKBKG (haploinsufficient) +0.4%"
+        },
+        "unflagged_collateral_over_tau": [
+          {
+            "gene": "OPN1LW",
+            "delta": -0.2338
+          }
+        ],
+        "rank": 1,
+        "id": "mecp2_up-a154130000-b154100000",
+        "status": "shortlisted",
+        "anchor_a": {
+          "chrom": "chrX",
+          "start": 154130000,
+          "end": 154135000
+        },
+        "anchor_b": {
+          "chrom": "chrX",
+          "start": 154100000,
+          "end": 154105000
+        },
+        "element": {
+          "id": "mecp2_up-e154135000",
+          "chrom": "chrX",
+          "start": 154135000,
+          "end": 154140000,
+          "type": "enhancer"
+        }
+      },
+      {
+        "name": "MECP2 <- 154000kb",
+        "mode": "up",
+        "target": "MECP2",
+        "target_tpm": 24.23,
+        "target_flag": "haploinsufficient",
+        "baseline_T": 311.07,
+        "enhancer_kb": 154000,
+        "anchor_a_kb": 153995,
+        "anchor_b_kb": 154100,
+        "separation_kb": 105,
+        "q": 56.501,
+        "delta_target": 0.1636,
+        "sweep": [
+          0.0003,
+          0.0013,
+          0.0107,
+          0.0291,
+          0.0642
+        ],
+        "delta_at_p99": 0.0642,
+        "sign_stable": true,
+        "confidence": "CONFIDENT",
+        "risk": {
+          "tier": "LOW",
+          "score": 0.0036,
+          "worst_gene": "AVPR2",
+          "n_flagged_in_window": 8,
+          "reason": "AVPR2 (haploinsufficient) -0.4%"
+        },
+        "unflagged_collateral_over_tau": [],
+        "rank": 2,
+        "id": "mecp2_up-a153995000-b154100000",
+        "status": "shortlisted",
+        "anchor_a": {
+          "chrom": "chrX",
+          "start": 153995000,
+          "end": 154000000
+        },
+        "anchor_b": {
+          "chrom": "chrX",
+          "start": 154100000,
+          "end": 154105000
+        },
+        "element": {
+          "id": "mecp2_up-e154000000",
+          "chrom": "chrX",
+          "start": 154000000,
+          "end": 154005000,
+          "type": "enhancer"
+        }
+      },
+      {
+        "name": "MECP2 <- 153895kb",
+        "mode": "up",
+        "target": "MECP2",
+        "target_tpm": 24.23,
+        "target_flag": "haploinsufficient",
+        "baseline_T": 311.07,
+        "enhancer_kb": 153895,
+        "anchor_a_kb": 153890,
+        "anchor_b_kb": 154100,
+        "separation_kb": 210,
+        "q": 73.877,
+        "delta_target": 0.4389,
+        "sweep": [
+          0.0015,
+          0.0094,
+          0.0297,
+          0.04,
+          0.0747
+        ],
+        "delta_at_p99": 0.0747,
+        "sign_stable": true,
+        "confidence": "CONFIDENT",
+        "risk": {
+          "tier": "BLOCKED",
+          "score": 0.2039,
+          "worst_gene": "AVPR2",
+          "n_flagged_in_window": 8,
+          "reason": "AVPR2 (haploinsufficient) -20.4% -- ClinGen dosage sensitivity"
+        },
+        "unflagged_collateral_over_tau": [],
+        "rank": null,
+        "id": "mecp2_up-a153890000-b154100000",
+        "status": "blocked",
+        "anchor_a": {
+          "chrom": "chrX",
+          "start": 153890000,
+          "end": 153895000
+        },
+        "anchor_b": {
+          "chrom": "chrX",
+          "start": 154100000,
+          "end": 154105000
+        },
+        "element": {
+          "id": "mecp2_up-e153895000",
+          "chrom": "chrX",
+          "start": 153895000,
+          "end": 153900000,
+          "type": "enhancer"
+        }
+      },
+      {
+        "name": "MECP2 <- 154540kb",
+        "mode": "up",
+        "target": "MECP2",
+        "target_tpm": 24.23,
+        "target_flag": "haploinsufficient",
+        "baseline_T": 311.07,
+        "enhancer_kb": 154540,
+        "anchor_a_kb": 154520,
+        "anchor_b_kb": 154100,
+        "separation_kb": 420,
+        "q": 7.063,
+        "delta_target": 0.0216,
+        "sweep": null,
+        "delta_at_p99": null,
+        "sign_stable": false,
+        "confidence": "TENTATIVE",
+        "risk": {
+          "tier": "LOW",
+          "score": 0.0012,
+          "worst_gene": "IKBKG",
+          "n_flagged_in_window": 8,
+          "reason": "IKBKG (haploinsufficient) -0.1%"
+        },
+        "unflagged_collateral_over_tau": [],
+        "rank": null,
+        "id": "mecp2_up-a154520000-b154100000",
+        "status": "below_floor",
+        "anchor_a": {
+          "chrom": "chrX",
+          "start": 154520000,
+          "end": 154525000
+        },
+        "anchor_b": {
+          "chrom": "chrX",
+          "start": 154100000,
+          "end": 154105000
+        },
+        "element": {
+          "id": "mecp2_up-e154540000",
+          "chrom": "chrX",
+          "start": 154540000,
+          "end": 154545000,
+          "type": "enhancer"
+        }
+      },
+      {
+        "name": "MECP2 <- 153815kb",
+        "mode": "up",
+        "target": "MECP2",
+        "target_tpm": 24.23,
+        "target_flag": "haploinsufficient",
+        "baseline_T": 311.07,
+        "enhancer_kb": 153815,
+        "anchor_a_kb": 153810,
+        "anchor_b_kb": 154100,
+        "separation_kb": 290,
+        "q": 10.687,
+        "delta_target": 0.0194,
+        "sweep": null,
+        "delta_at_p99": null,
+        "sign_stable": false,
+        "confidence": "TENTATIVE",
+        "risk": {
+          "tier": "LOW",
+          "score": 0.0008,
+          "worst_gene": "BCAP31",
+          "n_flagged_in_window": 8,
+          "reason": "BCAP31 (haploinsufficient) -0.1%"
+        },
+        "unflagged_collateral_over_tau": [],
+        "rank": null,
+        "id": "mecp2_up-a153810000-b154100000",
+        "status": "below_floor",
+        "anchor_a": {
+          "chrom": "chrX",
+          "start": 153810000,
+          "end": 153815000
+        },
+        "anchor_b": {
+          "chrom": "chrX",
+          "start": 154100000,
+          "end": 154105000
+        },
+        "element": {
+          "id": "mecp2_up-e153815000",
+          "chrom": "chrX",
+          "start": 153815000,
+          "end": 153820000,
+          "type": "enhancer"
+        }
+      },
+      {
+        "name": "MECP2 <- 153505kb",
+        "mode": "up",
+        "target": "MECP2",
+        "target_tpm": 24.23,
+        "target_flag": "haploinsufficient",
+        "baseline_T": 311.07,
+        "enhancer_kb": 153505,
+        "anchor_a_kb": 153510,
+        "anchor_b_kb": 154100,
+        "separation_kb": 590,
+        "q": 5.034,
+        "delta_target": 0.0136,
+        "sweep": null,
+        "delta_at_p99": null,
+        "sign_stable": false,
+        "confidence": "TENTATIVE",
+        "risk": {
+          "tier": "LOW",
+          "score": 0.0002,
+          "worst_gene": "IKBKG",
+          "n_flagged_in_window": 8,
+          "reason": "IKBKG (haploinsufficient) +0.0%"
+        },
+        "unflagged_collateral_over_tau": [],
+        "rank": null,
+        "id": "mecp2_up-a153510000-b154100000",
+        "status": "below_floor",
+        "anchor_a": {
+          "chrom": "chrX",
+          "start": 153510000,
+          "end": 153515000
+        },
+        "anchor_b": {
+          "chrom": "chrX",
+          "start": 154100000,
+          "end": 154105000
+        },
+        "element": {
+          "id": "mecp2_up-e153505000",
+          "chrom": "chrX",
+          "start": 153505000,
+          "end": 153510000,
+          "type": "enhancer"
+        }
+      },
+      {
+        "name": "MECP2 <- 153225kb",
+        "mode": "up",
+        "target": "MECP2",
+        "target_tpm": 24.23,
+        "target_flag": "haploinsufficient",
+        "baseline_T": 311.07,
+        "enhancer_kb": 153225,
+        "anchor_a_kb": 153230,
+        "anchor_b_kb": 154100,
+        "separation_kb": 870,
+        "q": 2.319,
+        "delta_target": 0.011,
+        "sweep": null,
+        "delta_at_p99": null,
+        "sign_stable": false,
+        "confidence": "TENTATIVE",
+        "risk": {
+          "tier": "LOW",
+          "score": 0.0001,
+          "worst_gene": "BCAP31",
+          "n_flagged_in_window": 8,
+          "reason": "BCAP31 (haploinsufficient) -0.0%"
+        },
+        "unflagged_collateral_over_tau": [],
+        "rank": null,
+        "id": "mecp2_up-a153230000-b154100000",
+        "status": "below_floor",
+        "anchor_a": {
+          "chrom": "chrX",
+          "start": 153230000,
+          "end": 153235000
+        },
+        "anchor_b": {
+          "chrom": "chrX",
+          "start": 154100000,
+          "end": 154105000
+        },
+        "element": {
+          "id": "mecp2_up-e153225000",
+          "chrom": "chrX",
+          "start": 153225000,
+          "end": 153230000,
+          "type": "enhancer"
+        }
+      }
+    ],
+    "source": {
+      "label": "MECP2 · Rett syndrome (loss) · FLAGGED neighbours",
+      "window": "chrX:153060000-155060000",
+      "targets": [
+        "MECP2"
+      ],
+      "direction": "up",
+      "provenance": {
+        "retrieved": "2026-10-04",
+        "window": "chrX:153060000-155060000",
+        "bins": 400,
+        "bin_bp": 5000,
+        "hic": {
+          "file": "ENCFF621AIY",
+          "experiment": "ENCSR479XDG",
+          "cell": "K562",
+          "assembly": "GRCh38",
+          "balancing": "Juicer SCALE (no KR at 5 kb)"
+        },
+        "dnase": {
+          "experiment": "ENCSR000EKS",
+          "peaks": "ENCFF070TML",
+          "signal": "ENCFF972GVB"
+        },
+        "genes": "UCSC ncbiRefSeqCurated hg38",
+        "ctcf": "UCSC jaspar2022, TFName == CTCF, all hits in window",
+        "rna": "ENCODE polyA+ RNA-seq ENCSR000AEM rep 1 (ENCFF222UVT), joined to RefSeq by TSS +/-500 bp",
+        "dosage": "ClinGen gene dosage curation list GRCh38 (score 3 only)",
+        "not_covered": [
+          "COSMIC Cancer Gene Census (login)",
+          "DepMap common essential (verification page)"
+        ],
+        "counts": {
+          "dnase_peaks": 194,
+          "candidate_elements": 77,
+          "coding_genes": 64,
+          "ctcf_sites": 40,
+          "flagged_genes": 9
+        }
+      },
+      "config": {
+        "TAU": 0.1,
+        "ELEVATED_AT": 0.02,
+        "MIN_EFFECT": 0.1,
+        "TOP_ENHANCERS": 10,
+        "EXPRESSED_TPM": 1,
+        "MIN_SEPARATION_BINS": 6,
+        "ANCHOR_REACH": 8,
+        "FLANK_BINS": 2,
+        "TSS_PAD_BINS": 0,
+        "MAX_CONFIDENT_DISTANCE_KB": 500,
+        "SIGMA_BINS": 3,
+        "RENORM_ITERS": 100,
+        "DOWN": {
+          "DECOY_REACH_BINS": 100,
+          "DECOY_KEEP_OUT_BINS": 12,
+          "N_DECOYS": 40,
+          "DOWN_ENHANCERS": 5
+        }
+      },
+      "tests_evaluated": {
+        "abstention": "NOT RUN: UniversalEPI not used, constant False",
+        "provenance": "constant: measured Hi-C",
+        "distance": "live",
+        "sign_stability": "live"
+      },
+      "anchor_space": {
+        "genes_expressed": 41,
+        "genes": 58,
+        "elements_protected": 68,
+        "elements": 77,
+        "atac_peaks": 120,
+        "bins_near_open_chromatin": 282,
+        "forbidden_bins": 266,
+        "permitted_anchors": 80,
+        "bins": 400,
+        "excluded_genes": [
+          "OPN1MW",
+          "OPN1MW2",
+          "OPN1MW3",
+          "CTAG1A",
+          "F8",
+          "F8A1"
+        ],
+        "excluded_flagged": [
+          "F8"
+        ]
+      },
+      "flagged_genes_in_window": {
+        "SLC6A8": "haploinsufficient",
+        "BCAP31": "haploinsufficient",
+        "ABCD1": "haploinsufficient",
+        "L1CAM": "haploinsufficient",
+        "AVPR2": "haploinsufficient",
+        "MECP2": "haploinsufficient",
+        "FLNA": "haploinsufficient",
+        "IKBKG": "haploinsufficient",
+        "F8": "haploinsufficient"
+      },
+      "n_staples_scored": 12,
+      "n_meeting_dose_goal": 2,
+      "dropped": {
+        "noop": 0,
+        "no_anchor": 1,
+        "duplicate": 2,
+        "blocked_by_risk": 1,
+        "below_min_effect": 7
+      },
+      "ranked": [
+        {
+          "name": "MECP2 <- 154135kb",
+          "mode": "up",
+          "target": "MECP2",
+          "target_tpm": 24.23,
+          "target_flag": "haploinsufficient",
+          "baseline_T": 311.07,
+          "enhancer_kb": 154135,
+          "anchor_a_kb": 154130,
+          "anchor_b_kb": 154100,
+          "separation_kb": 30,
+          "q": 112.377,
+          "delta_target": 0.1956,
+          "sweep": [
+            -0.0048,
+            -0.0085,
+            -0.0006,
+            0.0074,
+            0.03
+          ],
+          "delta_at_p99": 0.03,
+          "sign_stable": false,
+          "confidence": "TENTATIVE",
+          "risk": {
+            "tier": "LOW",
+            "score": 0.0043,
+            "worst_gene": "IKBKG",
+            "n_flagged_in_window": 8,
+            "reason": "IKBKG (haploinsufficient) +0.4%"
+          },
+          "unflagged_collateral_over_tau": [
+            {
+              "gene": "OPN1LW",
+              "delta": -0.2338
+            }
+          ],
+          "rank": 1
+        },
+        {
+          "name": "MECP2 <- 154000kb",
+          "mode": "up",
+          "target": "MECP2",
+          "target_tpm": 24.23,
+          "target_flag": "haploinsufficient",
+          "baseline_T": 311.07,
+          "enhancer_kb": 154000,
+          "anchor_a_kb": 153995,
+          "anchor_b_kb": 154100,
+          "separation_kb": 105,
+          "q": 56.501,
+          "delta_target": 0.1636,
+          "sweep": [
+            0.0003,
+            0.0013,
+            0.0107,
+            0.0291,
+            0.0642
+          ],
+          "delta_at_p99": 0.0642,
+          "sign_stable": true,
+          "confidence": "CONFIDENT",
+          "risk": {
+            "tier": "LOW",
+            "score": 0.0036,
+            "worst_gene": "AVPR2",
+            "n_flagged_in_window": 8,
+            "reason": "AVPR2 (haploinsufficient) -0.4%"
+          },
+          "unflagged_collateral_over_tau": [],
+          "rank": 2
+        }
+      ],
+      "best_below_floor": [
+        {
+          "name": "MECP2 <- 153895kb",
+          "mode": "up",
+          "target": "MECP2",
+          "target_tpm": 24.23,
+          "target_flag": "haploinsufficient",
+          "baseline_T": 311.07,
+          "enhancer_kb": 153895,
+          "anchor_a_kb": 153890,
+          "anchor_b_kb": 154100,
+          "separation_kb": 210,
+          "q": 73.877,
+          "delta_target": 0.4389,
+          "sweep": [
+            0.0015,
+            0.0094,
+            0.0297,
+            0.04,
+            0.0747
+          ],
+          "delta_at_p99": 0.0747,
+          "sign_stable": true,
+          "confidence": "CONFIDENT",
+          "risk": {
+            "tier": "BLOCKED",
+            "score": 0.2039,
+            "worst_gene": "AVPR2",
+            "n_flagged_in_window": 8,
+            "reason": "AVPR2 (haploinsufficient) -20.4% -- ClinGen dosage sensitivity"
+          },
+          "unflagged_collateral_over_tau": [],
+          "rank": null
+        },
+        {
+          "name": "MECP2 <- 154540kb",
+          "mode": "up",
+          "target": "MECP2",
+          "target_tpm": 24.23,
+          "target_flag": "haploinsufficient",
+          "baseline_T": 311.07,
+          "enhancer_kb": 154540,
+          "anchor_a_kb": 154520,
+          "anchor_b_kb": 154100,
+          "separation_kb": 420,
+          "q": 7.063,
+          "delta_target": 0.0216,
+          "sweep": null,
+          "delta_at_p99": null,
+          "sign_stable": false,
+          "confidence": "TENTATIVE",
+          "risk": {
+            "tier": "LOW",
+            "score": 0.0012,
+            "worst_gene": "IKBKG",
+            "n_flagged_in_window": 8,
+            "reason": "IKBKG (haploinsufficient) -0.1%"
+          },
+          "unflagged_collateral_over_tau": [],
+          "rank": null
+        },
+        {
+          "name": "MECP2 <- 153815kb",
+          "mode": "up",
+          "target": "MECP2",
+          "target_tpm": 24.23,
+          "target_flag": "haploinsufficient",
+          "baseline_T": 311.07,
+          "enhancer_kb": 153815,
+          "anchor_a_kb": 153810,
+          "anchor_b_kb": 154100,
+          "separation_kb": 290,
+          "q": 10.687,
+          "delta_target": 0.0194,
+          "sweep": null,
+          "delta_at_p99": null,
+          "sign_stable": false,
+          "confidence": "TENTATIVE",
+          "risk": {
+            "tier": "LOW",
+            "score": 0.0008,
+            "worst_gene": "BCAP31",
+            "n_flagged_in_window": 8,
+            "reason": "BCAP31 (haploinsufficient) -0.1%"
+          },
+          "unflagged_collateral_over_tau": [],
+          "rank": null
+        },
+        {
+          "name": "MECP2 <- 153505kb",
+          "mode": "up",
+          "target": "MECP2",
+          "target_tpm": 24.23,
+          "target_flag": "haploinsufficient",
+          "baseline_T": 311.07,
+          "enhancer_kb": 153505,
+          "anchor_a_kb": 153510,
+          "anchor_b_kb": 154100,
+          "separation_kb": 590,
+          "q": 5.034,
+          "delta_target": 0.0136,
+          "sweep": null,
+          "delta_at_p99": null,
+          "sign_stable": false,
+          "confidence": "TENTATIVE",
+          "risk": {
+            "tier": "LOW",
+            "score": 0.0002,
+            "worst_gene": "IKBKG",
+            "n_flagged_in_window": 8,
+            "reason": "IKBKG (haploinsufficient) +0.0%"
+          },
+          "unflagged_collateral_over_tau": [],
+          "rank": null
+        },
+        {
+          "name": "MECP2 <- 153225kb",
+          "mode": "up",
+          "target": "MECP2",
+          "target_tpm": 24.23,
+          "target_flag": "haploinsufficient",
+          "baseline_T": 311.07,
+          "enhancer_kb": 153225,
+          "anchor_a_kb": 153230,
+          "anchor_b_kb": 154100,
+          "separation_kb": 870,
+          "q": 2.319,
+          "delta_target": 0.011,
+          "sweep": null,
+          "delta_at_p99": null,
+          "sign_stable": false,
+          "confidence": "TENTATIVE",
+          "risk": {
+            "tier": "LOW",
+            "score": 0.0001,
+            "worst_gene": "BCAP31",
+            "n_flagged_in_window": 8,
+            "reason": "BCAP31 (haploinsufficient) -0.0%"
+          },
+          "unflagged_collateral_over_tau": [],
+          "rank": null
+        }
+      ]
+    },
+    "omitted_nonranked": 5,
+    "limitations": [
+      "Simulated regulatory input, not expression change. No engineered contact has been experimentally validated.",
+      "K562 demonstration; disease-relevant tissue transfer has not been tested.",
+      "Risk screening covers ClinGen dosage sensitivity only. COSMIC and DepMap were not assessed.",
+      "The strongest natural contact at this separation is the reference setting, above the p99 sweep setting.",
+      "5 kb candidate anchor regions; guide sequences, PAM availability and binding off-targets have not been assessed."
+    ]
+  }
+}

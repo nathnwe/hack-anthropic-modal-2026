@@ -1,0 +1,266 @@
+{
+ "label": "LDLR \u00b7 familial hypercholesterolaemia \u00b7 FLAGGED neighbours (SMARCA4, PRKCSH)",
+ "window": "chr19:10110000-12110000",
+ "targets": [
+  "LDLR"
+ ],
+ "direction": "up",
+ "provenance": {
+  "retrieved": "2026-10-04",
+  "window": "chr19:10110000-12110000",
+  "bins": 400,
+  "bin_bp": 5000,
+  "hic": {
+   "file": "ENCFF621AIY",
+   "experiment": "ENCSR479XDG",
+   "cell": "K562",
+   "assembly": "GRCh38",
+   "balancing": "Juicer SCALE (no KR at 5 kb)"
+  },
+  "dnase": {
+   "experiment": "ENCSR000EKS",
+   "peaks": "ENCFF070TML",
+   "signal": "ENCFF972GVB"
+  },
+  "genes": "UCSC ncbiRefSeqCurated hg38",
+  "ctcf": "UCSC jaspar2022, TFName == CTCF, all hits in window",
+  "rna": "ENCODE polyA+ RNA-seq ENCSR000AEM rep 1 (ENCFF222UVT), joined to RefSeq by TSS +/-500 bp",
+  "dosage": "ClinGen gene dosage curation list GRCh38 (score 3 only)",
+  "not_covered": [
+   "COSMIC Cancer Gene Census (login)",
+   "DepMap common essential (verification page)"
+  ],
+  "counts": {
+   "dnase_peaks": 323,
+   "candidate_elements": 111,
+   "coding_genes": 66,
+   "ctcf_sites": 54,
+   "flagged_genes": 3
+  }
+ },
+ "config": {
+  "TAU": 0.1,
+  "ELEVATED_AT": 0.02,
+  "MIN_EFFECT": 0.1,
+  "TOP_ENHANCERS": 10,
+  "EXPRESSED_TPM": 1.0,
+  "MIN_SEPARATION_BINS": 6,
+  "ANCHOR_REACH": 8,
+  "FLANK_BINS": 2,
+  "TSS_PAD_BINS": 0,
+  "MAX_CONFIDENT_DISTANCE_KB": 500,
+  "SIGMA_BINS": 3.0,
+  "RENORM_ITERS": 100,
+  "DOWN": {
+   "DECOY_REACH_BINS": 100,
+   "DECOY_KEEP_OUT_BINS": 12,
+   "N_DECOYS": 40,
+   "DOWN_ENHANCERS": 5
+  }
+ },
+ "tests_evaluated": {
+  "abstention": "NOT RUN: UniversalEPI not used, constant False",
+  "provenance": "constant: measured Hi-C",
+  "distance": "live",
+  "sign_stability": "live"
+ },
+ "anchor_space": {
+  "genes_expressed": 53,
+  "genes": 66,
+  "elements_protected": 92,
+  "elements": 111,
+  "atac_peaks": 173,
+  "bins_near_open_chromatin": 353,
+  "forbidden_bins": 293,
+  "permitted_anchors": 99,
+  "bins": 400,
+  "excluded_genes": [],
+  "excluded_flagged": []
+ },
+ "flagged_genes_in_window": {
+  "SMARCA4": "haploinsufficient",
+  "LDLR": "haploinsufficient",
+  "PRKCSH": "haploinsufficient"
+ },
+ "n_staples_scored": 13,
+ "n_meeting_dose_goal": 1,
+ "dropped": {
+  "noop": 0,
+  "no_anchor": 1,
+  "duplicate": 1,
+  "blocked_by_risk": 0,
+  "below_min_effect": 12
+ },
+ "ranked": [
+  {
+   "name": "LDLR <- 10460kb",
+   "mode": "up",
+   "target": "LDLR",
+   "target_tpm": 44.1,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 373.83,
+   "enhancer_kb": 10460,
+   "anchor_a_kb": 10470,
+   "anchor_b_kb": 11080,
+   "separation_kb": 610,
+   "q": 4.378,
+   "delta_target": 0.1014,
+   "sweep": [
+    0.0,
+    0.0,
+    0.0173,
+    0.025,
+    0.0676
+   ],
+   "delta_at_p99": 0.0676,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0002,
+    "worst_gene": "SMARCA4",
+    "n_flagged_in_window": 2,
+    "reason": "SMARCA4 (haploinsufficient) -0.0%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 1
+  }
+ ],
+ "best_below_floor": [
+  {
+   "name": "LDLR <- 11240kb",
+   "mode": "up",
+   "target": "LDLR",
+   "target_tpm": 44.1,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 373.83,
+   "enhancer_kb": 11240,
+   "anchor_a_kb": 11255,
+   "anchor_b_kb": 11080,
+   "separation_kb": 175,
+   "q": 15.402,
+   "delta_target": 0.0698,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0012,
+    "worst_gene": "PRKCSH",
+    "n_flagged_in_window": 2,
+    "reason": "PRKCSH (haploinsufficient) -0.1%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  {
+   "name": "LDLR <- 10450kb",
+   "mode": "up",
+   "target": "LDLR",
+   "target_tpm": 44.1,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 373.83,
+   "enhancer_kb": 10450,
+   "anchor_a_kb": 10440,
+   "anchor_b_kb": 11080,
+   "separation_kb": 640,
+   "q": 3.377,
+   "delta_target": 0.0661,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0008,
+    "worst_gene": "SMARCA4",
+    "n_flagged_in_window": 2,
+    "reason": "SMARCA4 (haploinsufficient) -0.1%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  {
+   "name": "LDLR <- 10600kb",
+   "mode": "up",
+   "target": "LDLR",
+   "target_tpm": 44.1,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 373.83,
+   "enhancer_kb": 10600,
+   "anchor_a_kb": 10595,
+   "anchor_b_kb": 11080,
+   "separation_kb": 485,
+   "q": 3.801,
+   "delta_target": 0.045,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0001,
+    "worst_gene": "SMARCA4",
+    "n_flagged_in_window": 2,
+    "reason": "SMARCA4 (haploinsufficient) -0.0%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  {
+   "name": "LDLR <- 11695kb",
+   "mode": "up",
+   "target": "LDLR",
+   "target_tpm": 44.1,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 373.83,
+   "enhancer_kb": 11695,
+   "anchor_a_kb": 11690,
+   "anchor_b_kb": 11080,
+   "separation_kb": 610,
+   "q": 4.378,
+   "delta_target": 0.0381,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0005,
+    "worst_gene": "PRKCSH",
+    "n_flagged_in_window": 2,
+    "reason": "PRKCSH (haploinsufficient) -0.1%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  {
+   "name": "LDLR <- 11635kb",
+   "mode": "up",
+   "target": "LDLR",
+   "target_tpm": 44.1,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 373.83,
+   "enhancer_kb": 11635,
+   "anchor_a_kb": 11630,
+   "anchor_b_kb": 11080,
+   "separation_kb": 550,
+   "q": 3.378,
+   "delta_target": 0.0244,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0001,
+    "worst_gene": "SMARCA4",
+    "n_flagged_in_window": 2,
+    "reason": "SMARCA4 (haploinsufficient) -0.0%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  }
+ ]
+}

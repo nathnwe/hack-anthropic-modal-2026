@@ -1,0 +1,54 @@
+{
+ "gene": "MSH6",
+ "mode": "up",
+ "window": "chr2:46795000-48795000",
+ "seconds": 520,
+ "flagged_in_window": [
+  "MSH2",
+  "MSH6"
+ ],
+ "target_tpm": 57.85,
+ "baseline_T": 429.23,
+ "permitted_anchors": 138,
+ "genes_expressed": 9,
+ "genes": 15,
+ "excluded_flagged": [],
+ "n_scored": 12,
+ "n_meeting_goal": 0,
+ "dropped": {
+  "noop": 0,
+  "no_anchor": 3,
+  "duplicate": 0,
+  "blocked_by_risk": 0,
+  "below_min_effect": 12
+ },
+ "best": null,
+ "best_below_floor": {
+  "name": "MSH6 <- 47335kb",
+  "mode": "up",
+  "target": "MSH6",
+  "target_tpm": 57.85,
+  "target_flag": "haploinsufficient",
+  "baseline_T": 429.23,
+  "enhancer_kb": 47335,
+  "anchor_a_kb": 47330,
+  "anchor_b_kb": 47760,
+  "separation_kb": 430,
+  "q": 17.741,
+  "delta_target": 0.0252,
+  "sweep": null,
+  "delta_at_p99": null,
+  "sign_stable": false,
+  "confidence": "TENTATIVE",
+  "risk": {
+   "tier": "LOW",
+   "score": 0.0048,
+   "worst_gene": "MSH2",
+   "n_flagged_in_window": 1,
+   "reason": "MSH2 (haploinsufficient) -0.5%"
+  },
+  "unflagged_collateral_over_tau": [],
+  "rank": null
+ },
+ "ranked_top5": []
+}

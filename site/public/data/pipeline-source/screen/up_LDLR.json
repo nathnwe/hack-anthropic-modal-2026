@@ -1,0 +1,95 @@
+{
+ "gene": "LDLR",
+ "mode": "up",
+ "window": "chr19:10110000-12110000",
+ "seconds": 1,
+ "flagged_in_window": [
+  "LDLR",
+  "PRKCSH",
+  "SMARCA4"
+ ],
+ "target_tpm": 44.1,
+ "baseline_T": 373.83,
+ "permitted_anchors": 99,
+ "genes_expressed": 53,
+ "genes": 66,
+ "excluded_flagged": [],
+ "n_scored": 13,
+ "n_meeting_goal": 1,
+ "dropped": {
+  "noop": 0,
+  "no_anchor": 1,
+  "duplicate": 1,
+  "blocked_by_risk": 0,
+  "below_min_effect": 12
+ },
+ "best": {
+  "name": "LDLR <- 10460kb",
+  "mode": "up",
+  "target": "LDLR",
+  "target_tpm": 44.1,
+  "target_flag": "haploinsufficient",
+  "baseline_T": 373.83,
+  "enhancer_kb": 10460,
+  "anchor_a_kb": 10470,
+  "anchor_b_kb": 11080,
+  "separation_kb": 610,
+  "q": 4.378,
+  "delta_target": 0.1014,
+  "sweep": [
+   0.0,
+   0.0,
+   0.0173,
+   0.025,
+   0.0676
+  ],
+  "delta_at_p99": 0.0676,
+  "sign_stable": false,
+  "confidence": "TENTATIVE",
+  "risk": {
+   "tier": "LOW",
+   "score": 0.0002,
+   "worst_gene": "SMARCA4",
+   "n_flagged_in_window": 2,
+   "reason": "SMARCA4 (haploinsufficient) -0.0%"
+  },
+  "unflagged_collateral_over_tau": [],
+  "rank": 1
+ },
+ "best_below_floor": null,
+ "ranked_top5": [
+  {
+   "name": "LDLR <- 10460kb",
+   "mode": "up",
+   "target": "LDLR",
+   "target_tpm": 44.1,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 373.83,
+   "enhancer_kb": 10460,
+   "anchor_a_kb": 10470,
+   "anchor_b_kb": 11080,
+   "separation_kb": 610,
+   "q": 4.378,
+   "delta_target": 0.1014,
+   "sweep": [
+    0.0,
+    0.0,
+    0.0173,
+    0.025,
+    0.0676
+   ],
+   "delta_at_p99": 0.0676,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0002,
+    "worst_gene": "SMARCA4",
+    "n_flagged_in_window": 2,
+    "reason": "SMARCA4 (haploinsufficient) -0.0%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 1
+  }
+ ]
+}

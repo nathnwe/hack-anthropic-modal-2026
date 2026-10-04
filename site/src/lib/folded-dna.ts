@@ -7,6 +7,12 @@ export type FoldedArm = {
   anchor: number;
   side: -1 | 1;
   role: "gene" | "element";
+  display?: {
+    start: number;
+    end: number;
+    anchor: number;
+    windows: { start: number; end: number; offset: number }[];
+  };
 };
 type ArmPose = { centers: Vector3[]; tangents: Vector3[] };
 type FoldVariation = {
@@ -59,8 +65,89 @@ function foldVariation(locus: LocusWindow): FoldVariation {
 
 // Explanatory composition, not an inferred TAD or molecular-dynamics trajectory.
 // Genomic order and counts remain exact even when the enhancer is upstream.
-export function foldedDNA(locus: LocusWindow): FoldedDNA | null {
+export function foldedDNA(
+  locus: LocusWindow,
+  anchors?: { gene: number; element: number },
+): FoldedDNA | null {
   if (locus.overlap) return null;
+  if (anchors) {
+    // Four actual local DNA windows: promoter, enhancer, and the two anchor-bin
+    // centres. The gaps between windows have no molecular geometry. Display
+    // offsets compress gaps only; one rung still represents one local bp.
+    const interleaved = Math.max(Math.min(locus.tss, anchors.gene), Math.min(locus.midpoint, anchors.element))
+      <= Math.min(Math.max(locus.tss, anchors.gene), Math.max(locus.midpoint, anchors.element));
+    // A decoy can lie beyond the enhancer, so the TSS and enhancer belong to
+    // the same genomic arm. Assign local windows by genomic proximity instead
+    // of duplicating overlapping sequence on two arms. Existing promoter
+    // staples retain their original two-arm composition.
+    const sites = [locus.tss, locus.midpoint];
+    const nearB = (p: number) => Math.abs(p - anchors.gene) <= Math.abs(p - anchors.element);
+    const arms = (
+      [
+        ["gene", interleaved ? sites.filter(nearB) : [locus.tss], anchors.gene],
+        ["element", interleaved ? sites.filter((p) => !nearB(p)) : [locus.midpoint], anchors.element],
+      ] as const
+    )
+      .map(([role, features, anchor]) => {
+        const spans = [
+          ...features.map((feature) => ({
+            start: Math.max(locus.start, Math.floor(feature) - 36),
+            end: Math.min(locus.end, Math.floor(feature) + 36),
+          })),
+          {
+            start: Math.max(locus.start, Math.floor(anchor) - 64),
+            end: Math.min(locus.end, Math.floor(anchor) + 64),
+          },
+        ].sort((a, b) => a.start - b.start);
+        const ranges: {start: number; end: number}[] = [];
+        for (const span of spans) {
+          const last = ranges.at(-1);
+          if (last && span.start <= last.end) last.end = Math.max(last.end, span.end);
+          else ranges.push({...span});
+        }
+        let offset = 0;
+        const windows = ranges.map((r) => {
+          const out = { ...r, offset };
+          offset += r.end - r.start + 24;
+          return out;
+        });
+        const w = windows.find((w) => anchor >= w.start && anchor <= w.end)!;
+        return {
+          start: ranges[0].start,
+          end: ranges.at(-1)!.end,
+          anchor,
+          side: 1,
+          role,
+          display: {
+            start: 0,
+            end: offset - 24,
+            anchor: w.offset + anchor - w.start,
+            windows,
+          },
+        } as FoldedArm;
+      })
+      .sort((a, b) => a.start - b.start);
+    if (arms[0].end >= arms[1].start) return null;
+    arms[0].side = -1;
+    arms[1].side = 1;
+    const shownBp = arms.reduce(
+      (sum, a) =>
+        sum + a.display!.windows.reduce((n, w) => n + w.end - w.start, 0),
+      0,
+    );
+    const omittedBp = arms[1].end - arms[0].start - shownBp;
+    const emphasis = clamp((Math.log10(omittedBp) - 3) / 3.5);
+    return {
+      arms,
+      shownBp,
+      omittedBp,
+      start: arms[0].start,
+      end: arms[1].end,
+      separation: 25 + emphasis * 5,
+      hazeWidth: 8 + emphasis * 4,
+      variation: foldVariation(locus),
+    };
+  }
   const low = Math.min(locus.tss, locus.midpoint),
     high = Math.max(locus.tss, locus.midpoint);
   const outer = Math.min(64, Math.floor((high - low) / 4));
@@ -164,14 +251,17 @@ function pose(display: FoldedDNA, p: number) {
   if (display.pose?.progress === p) return display.pose.arms;
   const arms = display.arms.map((arm): ArmPose => {
     const orientation = -arm.side;
-    const step = (arm.end - arm.start) / FRAMES;
+    const start = arm.display?.start ?? arm.start,
+      end = arm.display?.end ?? arm.end,
+      anchor = arm.display?.anchor ?? arm.anchor;
+    const step = (end - start) / FRAMES;
     const qAt = (i: number) =>
-      (arm.start + step * i - arm.anchor) * RISE_NM * orientation;
+      (start + step * i - anchor) * RISE_NM * orientation;
     const centers = new Array<Vector3>(FRAMES + 1);
     const tangents = Array.from({ length: FRAMES + 1 }, (_, i) =>
       tangent(qAt(i), arm, p, display.variation).multiplyScalar(orientation),
     );
-    const anchorIndex = Math.floor((arm.anchor - arm.start) / step);
+    const anchorIndex = Math.floor((anchor - start) / step);
     // Integrate outward on both sides of the exact anchor, including half-base sites.
     for (const direction of [-1, 1]) {
       let previousQ = 0;
@@ -212,7 +302,17 @@ export function foldedFrame(
     );
   const arm = display.arms[index],
     p = clamp(progress);
-  const frame = clamp((position - arm.start) / (arm.end - arm.start)) * FRAMES;
+  const local = arm.display?.windows.find(
+    (w) => position >= w.start && position <= w.end,
+  );
+  if (arm.display && !local)
+    throw new Error(
+      "No molecular geometry exists inside a compressed local gap.",
+    );
+  const mapped = local ? local.offset + position - local.start : position;
+  const start = arm.display?.start ?? arm.start,
+    end = arm.display?.end ?? arm.end;
+  const frame = clamp((mapped - start) / (end - start)) * FRAMES;
   const lo = Math.min(FRAMES - 1, Math.floor(frame)),
     f = frame - lo;
   const current = pose(display, p)[index];
@@ -231,7 +331,12 @@ export function foldedFrame(
   const binormal = new Vector3().crossVectors(direction, normal).normalize();
   const inner = arm.side < 0 ? arm.end - position : position - arm.start;
   const outer = arm.side < 0 ? position - arm.start : arm.end - position;
-  const fade = Math.min(smooth(inner / 34), smooth(outer / 14));
+  const fade = local
+    ? Math.min(
+        smooth((position - local.start) / 14),
+        smooth((local.end - position) / 14),
+      )
+    : Math.min(smooth(inner / 34), smooth(outer / 14));
   return { center, normal, binormal, fade };
 }
 export function foldedAnchor(

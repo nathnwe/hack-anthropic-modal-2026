@@ -168,6 +168,7 @@ export async function liveGeneRecord(symbol: string): Promise<GeneRecord> {
 }
 export function genomeReference(record: GeneRecord): ReferenceGene | null {
   if (record.illustrative) return null;
+  if (record.analysis) return record.analysis.reference;
   if (record.reference) return record.reference;
   const c = record.caseStudy;
   if (!c || c.assembly !== "GRCh38") return null;

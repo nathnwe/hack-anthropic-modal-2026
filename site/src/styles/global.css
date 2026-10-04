@@ -2700,3 +2700,637 @@ pre code {
     font-size: 12px;
   }
 }
+
+/* Enhancer-first analysis: selection above, associated anchor pair below. */
+.pipeline-results .exploration-grid {
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 44px;
+}
+.pipeline-results .notice {
+  padding: 18px 22px;
+  align-items: center;
+}
+.pipeline-results .notice p {
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+.pipeline-results .element-select {
+  grid-template-columns: 23px minmax(0, 1fr) 65px;
+  padding: 20px 12px;
+  gap: 10px;
+}
+.pipeline-results .element-name strong {
+  font-size: 16px;
+}
+.pipeline-results .element-name > .small {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+}
+.pipeline-results .element-metric {
+  font-size: 10px;
+}
+.enhancer-detail {
+  display: block;
+  padding: 6px 20px 22px 45px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.enhancer-detail p {
+  margin: 7px 0;
+}
+.reference-score {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+}
+.reference-score span {
+  font-size: 12px;
+}
+.reference-score strong {
+  font-size: 21px;
+  font-weight: 550;
+  letter-spacing: -0.04em;
+}
+.enhancer-detail .response-conclusion {
+  color: var(--ink);
+}
+.associated-design {
+  margin-top: 44px;
+}
+.associated-design .section-heading {
+  margin-bottom: 20px;
+}
+.design-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.design-summary .eyebrow {
+  font-size: 10px;
+  margin: 0;
+}
+.anchor-pair {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}
+.anchor-pair > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.anchor-pair dt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.anchor-pair dt span {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 1px solid #52683f55;
+  color: var(--accent);
+  font: 10px var(--mono);
+  flex-shrink: 0;
+}
+.anchor-pair dd {
+  font: 11px var(--mono);
+  margin: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+.anchor-distance {
+  margin: 20px 0 6px;
+  font-size: 12px;
+}
+.anchor-distance span {
+  color: var(--muted);
+}
+.design-resolution {
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 0;
+}
+.design-checks {
+  margin-top: 24px;
+  border-block: 1px solid var(--line);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.design-checks > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0;
+}
+.design-checks > summary span {
+  color: var(--accent);
+  font-size: 18px;
+}
+.design-checks ul {
+  padding-left: 18px;
+}
+.design-checks > p:last-child {
+  margin-bottom: 20px;
+}
+.sweep-table {
+  width: 100%;
+  margin: 18px 0;
+  font-size: 11px;
+  border-collapse: collapse;
+}
+.sweep-table caption {
+  text-align: left;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+.sweep-table th,
+.sweep-table td {
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  padding: 7px 0;
+  font-weight: 400;
+}
+.sweep-table td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.suggested-strategies {
+  margin-top: 28px;
+}
+.suggested-strategies h3 {
+  font-size: 18px;
+  font-weight: 550;
+  letter-spacing: -0.025em;
+}
+.suggested-strategies > p {
+  margin: 8px 0 14px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.method-option {
+  border-bottom: 1px solid var(--line);
+}
+.method-option summary {
+  display: grid;
+  grid-template-columns: 75px minmax(0, 1fr) 16px;
+  gap: 10px;
+  align-items: center;
+  padding: 17px 0;
+}
+.method-option summary strong {
+  font-size: 12px;
+  font-weight: 550;
+}
+.method-option summary > span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.method-option summary b {
+  font-size: 18px;
+  color: var(--accent);
+  font-weight: 400;
+}
+.method-option[open] summary b,
+.design-checks[open] > summary span {
+  transform: rotate(45deg);
+}
+.method-option > div {
+  padding: 0 0 18px;
+  font-size: 12px;
+  line-height: 1.75;
+}
+.method-option > div p {
+  margin: 0 0 10px;
+}
+.method-option a {
+  color: var(--accent);
+  font-size: 11px;
+}
+.design-visibility {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  font-size: 11px;
+}
+.design-visibility > label {
+  cursor: pointer;
+}
+.design-visibility > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 0 6px 4px;
+  font-size: 11px;
+}
+.switch-track {
+  width: 30px;
+  height: 18px;
+  border-radius: 20px;
+  background: #b6b9aa;
+  padding: 3px;
+  transition: background 160ms ease;
+}
+.switch-track i {
+  display: block;
+  width: 12px;
+  height: 12px;
+  background: #fffefb;
+  border-radius: 50%;
+  transition: transform 160ms ease;
+}
+.design-visibility [aria-checked="true"] .switch-track {
+  background: var(--accent);
+}
+.design-visibility [aria-checked="true"] .switch-track i {
+  transform: translateX(12px);
+}
+#show-design-state {
+  width: 20px;
+  text-align: left;
+}
+.dna-label-anchor {
+  font-size: 9px;
+  border-left-color: #52683f;
+  padding: 5px 7px;
+  background: #f9f8f2c9;
+}
+.dna-anchor-note {
+  font-size: 10px;
+  line-height: 1.6;
+  padding: 0 15px 14px;
+  margin: 0;
+}
+.legacy-examples {
+  margin-top: 20px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.legacy-examples .example-buttons {
+  margin-top: 12px;
+}
+@media (max-width: 1100px) {
+  .pipeline-results .exploration-grid {
+    gap: 28px;
+  }
+  .anchor-pair > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .anchor-pair dd {
+    margin-left: 35px;
+    text-align: left;
+  }
+}
+@media (max-width: 1000px) {
+  .pipeline-results .exploration-grid {
+    grid-template-columns: 1fr;
+  }
+  .pipeline-results .viewer-section {
+    position: static;
+  }
+  .anchor-pair > div {
+    flex-direction: row;
+    align-items: center;
+  }
+  .anchor-pair dd {
+    margin-left: 0;
+    text-align: right;
+  }
+}
+@media (max-width: 600px) {
+  .pipeline-results .map-panel {
+    padding: 18px 12px;
+  }
+  .pipeline-results .viewer-selection {
+    align-items: flex-start;
+  }
+  .pipeline-results .viewer-selection h3 {
+    font-size: 18px;
+  }
+  .pipeline-results .notice strong {
+    font-size: 12px;
+  }
+  .pipeline-results .element-select {
+    grid-template-columns: 23px minmax(0, 1fr);
+    padding-inline: 8px;
+  }
+  .pipeline-results .element-metric {
+    display: none;
+  }
+  .anchor-pair > div {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  .anchor-pair dd {
+    margin-left: 35px;
+    text-align: left;
+  }
+  .reference-score {
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+  .enhancer-detail {
+    padding-left: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .switch-track,
+  .switch-track i {
+    transition: none;
+  }
+}
+
+/* Compact staple panel and a quiet, labelled experimental-track browser. */
+.pipeline-results #record-notice {
+  padding: 14px 18px;
+  gap: 12px;
+  font-size: 12px;
+}
+.analysis-status {
+  margin-left: auto;
+  color: var(--muted);
+}
+.pipeline-results .element-select {
+  grid-template-columns: 23px minmax(0, 1fr);
+  padding-block: 17px;
+}
+.associated-design {
+  margin-top: 32px;
+  padding: 24px;
+  background: #faf8f080;
+  border: 1px solid #52683f24;
+  border-radius: 8px;
+}
+.associated-design .section-heading {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.associated-design .section-heading h2 {
+  font-size: 26px;
+}
+.associated-design .tag {
+  font-size: 9px;
+  flex-shrink: 0;
+}
+.staple-regions h3,
+.suggested-strategies h3 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  margin: 0 0 14px;
+}
+.anchor-pair {
+  gap: 13px;
+}
+.anchor-pair dt {
+  color: #52683f;
+  font-weight: 550;
+}
+.anchor-pair dt span {
+  background: #52683f;
+  color: #fffefb;
+  width: 23px;
+  height: 23px;
+  border: 0;
+}
+.anchor-pair dd {
+  font-size: 10px;
+}
+.anchor-distance {
+  font-size: 11px;
+  margin: 14px 0 0;
+  color: var(--muted);
+}
+.design-checks {
+  margin-top: 8px;
+  border: 0;
+}
+.design-checks > summary {
+  font-size: 11px;
+  padding: 10px 0 0;
+}
+.design-checks[open] {
+  margin-bottom: 16px;
+}
+.suggested-strategies {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.method-option summary {
+  padding: 12px 0;
+  grid-template-columns: 62px minmax(0, 1fr) 12px;
+  gap: 8px;
+}
+.method-option:last-child {
+  border-bottom: 0;
+}
+.method-option:last-child summary {
+  padding-bottom: 0;
+}
+.method-option:last-child[open] summary {
+  padding-bottom: 12px;
+}
+.design-visibility {
+  padding-bottom: 16px;
+}
+.design-visibility > button {
+  gap: 12px;
+  background: #e9edde;
+  padding: 10px 13px;
+  border: 1px solid #52683f66;
+  border-radius: 6px;
+  color: #3f5433;
+}
+.design-visibility > button:hover {
+  background: #dce5cc;
+}
+.design-visibility .switch-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+.design-visibility > button[aria-checked="true"] {
+  background: #dce5cc;
+  border-color: #52683f;
+}
+.switch-track {
+  width: 36px;
+  height: 22px;
+  padding: 3px;
+}
+.switch-track i {
+  width: 16px;
+  height: 16px;
+}
+.design-visibility [aria-checked="true"] .switch-track i {
+  transform: translateX(14px);
+}
+.dna-label-anchor {
+  color: #3f5433;
+  background: #e9eddeee;
+  border-left-color: #52683f;
+}
+.genome-browser-credit {
+  margin: 2px 0 12px;
+  font-size: 11px;
+}
+.genome-browser-credit > summary {
+  display: inline-block;
+  padding: 5px 0;
+  color: var(--accent);
+  cursor: pointer;
+}
+.genome-browser-credit > summary::after {
+  content: " +";
+  margin-left: 5px;
+}
+.genome-browser-credit[open] > summary::after {
+  content: " −";
+}
+.genome-browser-credit > div {
+  padding-top: 8px;
+  line-height: 1.75;
+}
+#igv-assay-sources ul {
+  padding-left: 18px;
+}
+#igv-assay-sources li {
+  margin-bottom: 12px;
+}
+.igv-pane {
+  margin: 16px 0 24px;
+  padding-top: 14px;
+}
+.igv-pane > p:empty {
+  display: none;
+}
+.igv-pane h4 {
+  font-size: 16px;
+  font-weight: 550;
+}
+.igv-pane header {
+  gap: 12px;
+}
+.igv-pane > .mono {
+  font-size: 10px;
+  margin: 6px 0 10px;
+}
+.igv-frame {
+  position: relative;
+  padding-left: 100px;
+  background: #fffefb;
+  border: 1px solid #dedfd4;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.igv-container {
+  margin: 0;
+  min-height: 100px;
+}
+.igv-track-names {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100px;
+  background: #f4f5ed;
+  border-right: 1px solid #dedfd4;
+}
+.igv-track-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2px 8px;
+  border-bottom: 1px solid #e6e8dc;
+  color: var(--track-color);
+  font-size: 11px;
+  line-height: 1.25;
+}
+.igv-track-name > a,
+.igv-track-name > span {
+  font-weight: 600;
+  color: inherit;
+}
+.igv-track-name small {
+  display: block;
+  font-size: 8px;
+  margin-top: 3px;
+  color: var(--muted);
+}
+.igv-track-name.is-anchor {
+  background: #e7eddf;
+}
+.igv-track-name.is-anchor small {
+  color: #52683f;
+}
+#igv-error {
+  padding: 9px 12px;
+  font-size: 11px;
+  gap: 12px;
+  margin: 10px 0;
+}
+#igv-error p {
+  margin: 0;
+}
+.pipeline-results .viewer-section:has(#browser-panel:not([hidden])) {
+  position: static;
+}
+#igv-content[aria-busy="true"] {
+  opacity: 1;
+}
+@media (max-width: 1100px) and (min-width: 1001px) {
+  .associated-design {
+    padding: 20px;
+  }
+  .method-option summary > span {
+    font-size: 10px;
+  }
+}
+@media (max-width: 600px) {
+  .associated-design {
+    padding: 20px;
+  }
+  .associated-design .section-heading h2 {
+    font-size: 24px;
+  }
+  .pipeline-results #record-notice {
+    flex-wrap: wrap;
+  }
+  .analysis-status {
+    margin-left: 22px;
+  }
+  .igv-frame {
+    padding-left: 76px;
+  }
+  .igv-track-names {
+    width: 76px;
+  }
+  .igv-track-name {
+    font-size: 10px;
+    padding-inline: 5px;
+  }
+  .igv-track-name small {
+    font-size: 7px;
+  }
+}

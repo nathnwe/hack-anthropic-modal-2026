@@ -52,7 +52,7 @@ test("score and distance sorts select genuinely different first candidates", () 
     const sorted = sortElements(r, criterion);
     const metric = (c: (typeof sorted)[number]) =>
       criterion === "re2g"
-        ? -c.score_rE2G
+        ? -(c.score_rE2G ?? -Infinity)
         : Math.abs((c.start + c.end) / 2 - r.gene.tss);
     assert.ok(sorted.every((c, i) => !i || metric(c) >= metric(sorted[i - 1])));
   }

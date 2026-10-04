@@ -8,6 +8,14 @@ const records = Object.values(
     import: "default",
   }),
 ).sort((a, b) => a.gene.symbol.localeCompare(b.gene.symbol));
+const analyses = [...new Set(records.filter((r) => r.analysis).map((r) => r.gene.symbol))].map((symbol) => {
+  const runs = records.filter((r) => r.analysis && r.gene.symbol === symbol);
+  const record = runs.find((r) => r.analysis!.supported_modes.includes("up")) || runs[0];
+  return { symbol, name: runs.map((r) => r.gene.disease).join(" / "), modes: runs.flatMap((r) => r.analysis!.supported_modes), record };
+});
+const suggestedTargets = ["NF1", "MYC", "LDLR"].flatMap((symbol) =>
+  analyses.filter((a) => a.symbol === symbol).map((a) => a.record),
+);
 ---
 
 <Layout title="Workbench — Rewire Bio" page="workbench">
@@ -57,6 +65,9 @@ const records = Object.values(
         action={`${base}/results/`}
         method="get"
         data-symbols={JSON.stringify(records.map((r) => r.gene.symbol))}
+        data-analyses={JSON.stringify(
+          analyses.map(({symbol, name, modes}) => ({symbol, name, modes})),
+        )}
       >
         <label class="field-label" for="gene">
           Target gene
@@ -74,7 +85,7 @@ const records = Object.values(
             maxlength="60"
             autocomplete="off"
             spellcheck="false"
-            aria-describedby="gene-help dataset-scope form-error"
+            aria-describedby="gene-help form-error"
           />
         </div>
         <input id="gene-source" name="source" value="reference" type="hidden" />
@@ -105,36 +116,34 @@ const records = Object.values(
         </fieldset>
         <p class="form-error" id="form-error" role="alert" hidden></p>
         <button class="button dark submit-button" type="submit">
-          View locus <span aria-hidden="true">→</span>
+          Explore <span aria-hidden="true">→</span>
         </button>
-        <p class="small muted" id="dataset-scope">
-          Gene annotations for human genes. Regulatory data for examples only.
-        </p>
       </form>
       <div class="example-picker">
-        <span class="eyebrow">Example datasets</span>
+        <span class="eyebrow">Suggested targets</span>
         <div class="example-buttons">
-          {records.map((r) => (
-            <button
-              type="button"
-              class="example-button"
-              data-gene={r.gene.symbol}
-              data-mode={
-                r.gene.symbol === "MYC"
-                  ? "up"
-                  : r.gene.direction === "too_much"
-                    ? "down"
-                    : "up"
-              }
-            >
-              <strong>{r.gene.symbol}</strong>
-              <span>{r.gene.symbol === "MYC" ? "rE2G" : "Illustrative"}</span>
-            </button>
-          ))}
+          {suggestedTargets.map((r) => (
+              <button
+                type="button"
+                class="example-button"
+                data-gene={r.gene.symbol}
+                data-source="analysis"
+                data-mode={
+                  r.gene.direction === "too_much"
+                      ? "down"
+                      : "up"
+                }
+              >
+                <strong>{r.gene.symbol}</strong>
+                <span>
+                  {r.analysis!.source.n_meeting_dose_goal}{" "}
+                  {r.analysis!.source.n_meeting_dose_goal === 1
+                    ? "design"
+                    : "designs"}
+                </span>
+              </button>
+            ))}
         </div>
-        <p class="small muted">
-          Predicted effects are experimentally unvalidated.
-        </p>
       </div>
     </div>
   </div>

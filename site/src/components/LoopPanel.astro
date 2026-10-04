@@ -1,12 +1,20 @@
 ---
 // Adapted from the team's LoopPanel.astro on feat/site (9732ea7).
-// Preserve its scroll-driven expansion, strand curves and contact glow.
+// Preserve its scroll-driven expansion, copy and contact colours.
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-const videoUrl = `${base}/media/rewire-bio-cell.mp4`;
+// Version the URL so returning visitors receive the replacement film.
+const videoUrl = `${base}/media/rewire-bio-cell.mp4?v=a4b274dd0b9f`;
 ---
 
 <section class="loop-panel-wrap" id="loop-film" aria-labelledby="loop-title">
   <div class="loop-panel">
+    <img
+      class="loop-poster"
+      src={`${base}/images/landing-dna.svg`}
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+    />
     <canvas class="loop-canvas" aria-hidden="true"></canvas>
     <div class="loop-vignette" aria-hidden="true"></div>
     <div class="loop-panel-copy">
@@ -28,10 +36,26 @@ const videoUrl = `${base}/media/rewire-bio-cell.mp4`;
         </span>
       </a>
     </div>
+    <button
+      class="loop-motion"
+      type="button"
+      aria-label="Pause DNA animation"
+      title="Pause DNA animation"
+      data-paused="false"
+      hidden
+    >
+      <svg class="motion-pause" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 6v12M15 6v12" />
+      </svg>
+      <svg class="motion-play" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m9 6 9 6-9 6Z" />
+      </svg>
+    </button>
     <p class="sr-only">
-      A schematic chromatin fibre folds into a loop as the selected enhancer and
-      promoter approach one another. This illustrates a proposed contact, not a
-      measured structure or a prediction of its effect on expression.
+      An idealised 3D DNA double helix bends into a loop. Blue and copper
+      backbones surround the base pairs, with a warm glow as the two regions
+      approach. This is a schematic illustration, not a measured structure or a
+      molecular-dynamics simulation.
     </p>
   </div>
 </section>
@@ -82,7 +106,7 @@ const videoUrl = `${base}/media/rewire-bio-cell.mp4`;
   .loop-panel {
     position: relative;
     overflow: hidden;
-    min-height: max(640px, 80svh);
+    min-height: max(780px, 95svh);
     width: 100%;
     background:
       radial-gradient(130% 100% at 50% 118%, #16304a 0%, transparent 58%),
@@ -94,6 +118,7 @@ const videoUrl = `${base}/media/rewire-bio-cell.mp4`;
       linear-gradient(176deg, #06090d 0%, #0b1017 50%, #080c12 100%);
   }
   .loop-canvas,
+  .loop-poster,
   .loop-vignette {
     position: absolute;
     inset: 0;
@@ -101,11 +126,36 @@ const videoUrl = `${base}/media/rewire-bio-cell.mp4`;
     height: 100%;
     pointer-events: none;
   }
+  .loop-canvas,
+  .loop-poster {
+    top: 38%;
+    height: 62%;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 9%,
+      black 91%,
+      transparent
+    );
+  }
+  .loop-poster {
+    object-fit: cover;
+    opacity: 0.8;
+  }
+  .loop-canvas {
+    opacity: 0;
+  }
+  .has-molecular-scene .loop-canvas {
+    opacity: 1;
+  }
+  .has-molecular-scene .loop-poster {
+    visibility: hidden;
+  }
   .loop-vignette {
     background: radial-gradient(
-      85% 65% at 50% 50%,
-      transparent 25%,
-      rgb(4 6 9 / 72%) 100%
+      100% 85% at 50% 55%,
+      transparent 45%,
+      rgb(4 6 9 / 45%) 100%
     );
   }
   .loop-panel-copy {
@@ -148,6 +198,42 @@ const videoUrl = `${base}/media/rewire-bio-cell.mp4`;
   }
   .film-play-icon {
     font-size: 10px;
+  }
+  .loop-motion {
+    position: absolute;
+    right: clamp(20px, 4vw, 60px);
+    bottom: 22px;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 11px;
+    border-radius: 50%;
+    border: 1px solid rgb(245 241 230 / 22%);
+    background: rgb(6 9 13 / 40%);
+    color: #c7ced3;
+  }
+  .loop-motion[hidden] {
+    display: none;
+  }
+  .loop-motion:hover {
+    background: rgb(245 241 230 / 10%);
+  }
+  .loop-motion:focus-visible {
+    outline-color: #8ebbe0;
+  }
+  .loop-motion svg {
+    width: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+  }
+  .loop-motion .motion-play,
+  .loop-motion[data-paused="true"] .motion-pause {
+    display: none;
+  }
+  .loop-motion[data-paused="true"] .motion-play {
+    display: block;
   }
   .loop-canvas,
   .loop-panel-copy {
@@ -276,7 +362,15 @@ const videoUrl = `${base}/media/rewire-bio-cell.mp4`;
       padding-top: 40px;
     }
     .loop-panel {
-      min-height: max(620px, 80svh);
+      min-height: max(700px, 90svh);
+    }
+    .loop-canvas,
+    .loop-poster {
+      top: 42%;
+      height: 58%;
+    }
+    .loop-poster {
+      object-fit: contain;
     }
     .loop-panel-copy {
       padding: 66px 25px 0;

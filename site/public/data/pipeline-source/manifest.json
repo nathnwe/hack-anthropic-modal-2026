@@ -1,0 +1,82 @@
+{
+  "revision": "3d7ad7dc0e1b47b1d51ef7dab1724b7a18666bf1",
+  "repository": "https://github.com/nathnwe/hack-anthropic-modal-2026",
+  "files": {
+    "data/derived/demo_ldlr.json": {
+      "file": "demo_ldlr.json",
+      "sha256": "bca1463175d5c5fe497431db95574b52a13d7e39489495a99e33d9e01e784c35"
+    },
+    "data/derived/demo_mecp2_down.json": {
+      "file": "demo_mecp2_down.json",
+      "sha256": "1572cf8492923b9d8368e29a9089d4c30b6a3718b50232366ae4638299c25ed7"
+    },
+    "data/derived/demo_mecp2_up.json": {
+      "file": "demo_mecp2_up.json",
+      "sha256": "29a0d08680ab486ba20c81c7d7a91d7dbdbaeb2809b945ad7f4367d77f9cadeb"
+    },
+    "data/derived/demo_myc_down.json": {
+      "file": "demo_myc_down.json",
+      "sha256": "0320739e400868f0dec1f1abb3f5c0ccf0b2e9b00f5097b9c0b89dcb85d4d727"
+    },
+    "data/derived/demo_nf1.json": {
+      "file": "demo_nf1.json",
+      "sha256": "ff6f5e71b20c208bf4a486a158fb8aa822a7a0581e4d6d2512898ea91d7a3ea0"
+    },
+    "data/derived/demo_nsd1.json": {
+      "file": "demo_nsd1.json",
+      "sha256": "745dfcba47fa0b8bdea37bbcce9709e3071db8e6a8b5b094d8d9acfe9cacb2d7"
+    },
+    "data/derived/demo_runx1.json": {
+      "file": "demo_runx1.json",
+      "sha256": "84492ac5b213afb881e4e95a83cd852221ca813742b24e846206714754bc86dc"
+    },
+    "data/derived/screen/down_LMNB1.json": {
+      "file": "screen/down_LMNB1.json",
+      "sha256": "74065a7990f4287c3e5f4e3341fa8f79c08c5731b1bcec51c1a5ec533a27b4c9"
+    },
+    "data/derived/screen/down_MECP2.json": {
+      "file": "screen/down_MECP2.json",
+      "sha256": "56d3fa44e362580998f948626feb0b3932a8591349b008d8591db2672cce918f"
+    },
+    "data/derived/screen/down_MYC.json": {
+      "file": "screen/down_MYC.json",
+      "sha256": "2a9434b4577e474cc75796a7408dc23f60dd0134a773523e63c7ab4c4faaedca"
+    },
+    "data/derived/screen/down_PLP1.json": {
+      "file": "screen/down_PLP1.json",
+      "sha256": "f846816ce1ed2416332c4570e8ad0bb63488da658b1bae42a31235dc302bd104"
+    },
+    "data/derived/screen/down_TPSAB1.json": {
+      "file": "screen/down_TPSAB1.json",
+      "sha256": "56c63e474790f052d13937cf4cf7e4b75f008cf111bfcf8b088d5a67be6cb480"
+    },
+    "data/derived/screen/up_AAGAB.json": {
+      "file": "screen/up_AAGAB.json",
+      "sha256": "6e46a5a90b91e01f16c9b809a57394ff4fc19c7b3513515218b2ac45b49413af"
+    },
+    "data/derived/screen/up_ADNP.json": {
+      "file": "screen/up_ADNP.json",
+      "sha256": "9047faaa87d3c623d448f4518f667e4e1a7682ffc0dc6bcf9a2f64db4b634938"
+    },
+    "data/derived/screen/up_LDLR.json": {
+      "file": "screen/up_LDLR.json",
+      "sha256": "14e2a426fd388dcc146cd08e45714ad07091bef6b135199e9f76a3b970451e4f"
+    },
+    "data/derived/screen/up_MSH6.json": {
+      "file": "screen/up_MSH6.json",
+      "sha256": "43b84cda908c57b4e356aed0a592f52ee9a19d37186eafcdabedc35d83c73dc9"
+    },
+    "data/derived/screen/up_PQBP1.json": {
+      "file": "screen/up_PQBP1.json",
+      "sha256": "7c2334d05f416c64e7dfc44b1521001f6f2eb12eaeb7a8438e4c056cb4c87b5c"
+    },
+    "data/derived/screen_results.json": {
+      "file": "screen_results.json",
+      "sha256": "875e137a9cf577bed4404c47174d3b2b94f48b7e15fce9d3c1cdbb1d385959e4"
+    },
+    "data/derived/website_results.json": {
+      "file": "website_results.json",
+      "sha256": "bc5cdf69abbf0c785c8c9cf2c76260dbd1d9d4601e7a581e5f09e7bf33dc2443"
+    }
+  }
+}

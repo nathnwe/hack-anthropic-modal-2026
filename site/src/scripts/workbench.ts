@@ -5,6 +5,21 @@ const input = document.querySelector<HTMLInputElement>("#gene")!;
 const source = document.querySelector<HTMLInputElement>("#gene-source")!;
 const list = document.querySelector<HTMLElement>("#gene-suggestions")!;
 const status = document.querySelector<HTMLElement>("#gene-help")!;
+const analyses: (GeneSuggestion & {modes: string[]})[] = JSON.parse(form.dataset.analyses || "[]");
+const available = (symbol: string) =>
+  analyses.some((a) => a.symbol === symbol.toUpperCase());
+const directionNotice = () => {
+  const down =
+    form.querySelector<HTMLInputElement>('input[name="intent"]:checked')
+      ?.value === "down";
+  if (available(input.value))
+    status.textContent = analyses.find((a) => a.symbol === input.value.toUpperCase())?.modes.includes(down ? "down" : "up")
+      ? `${input.value.toUpperCase()} · K562 analysis available`
+      : `No ${down ? "downregulation" : "upregulation"} analysis yet. Choose ${down ? "upregulate" : "downregulate"} to inspect the K562 designs.`;
+};
+form
+  .querySelectorAll('input[name="intent"]')
+  .forEach((r) => r.addEventListener("change", directionNotice));
 let items: GeneSuggestion[] = [],
   active = -1,
   timer: ReturnType<typeof setTimeout>,
@@ -23,10 +38,13 @@ function cancel() {
 }
 function choose(index: number) {
   input.value = items[index].symbol;
-  source.value = "reference";
+  source.value = available(input.value) ? "analysis" : "reference";
   close();
-  status.textContent = items[index].name;
+  status.textContent = available(input.value)
+    ? `${items[index].name} · K562 analysis available`
+    : `${items[index].name} · reference annotation only`;
   input.focus();
+  directionNotice();
 }
 function highlight() {
   list
@@ -35,6 +53,21 @@ function highlight() {
   if (active >= 0)
     input.setAttribute("aria-activedescendant", `gene-option-${active}`);
   else input.removeAttribute("aria-activedescendant");
+}
+function renderSuggestions(next: GeneSuggestion[]) {
+  items = next;
+  active = -1;
+  list.innerHTML = items
+    .map(
+      (g, i) =>
+        `<li id="gene-option-${i}" role="option" aria-selected="false" data-option="${i}"><strong>${esc(g.symbol)}${available(g.symbol) ? " · K562" : ""}</strong><span>${esc(g.name)}${available(g.symbol) ? " — analysis available" : " — annotation only"}</span></li>`,
+    )
+    .join("");
+  list.hidden = !items.length;
+  input.setAttribute("aria-expanded", String(items.length > 0));
+  status.textContent = items.length
+    ? `${items.length} matches · ↑ ↓ to select, Enter to confirm.`
+    : "No suggestions found. Try another symbol or name.";
 }
 input.addEventListener("input", () => {
   source.value = "reference";
@@ -46,26 +79,27 @@ input.addEventListener("input", () => {
     status.textContent = "";
     return;
   }
+  const local = analyses.filter((g) =>
+    (g.symbol + " " + g.name).toUpperCase().includes(query.toUpperCase()),
+  );
+  if (local.length) renderSuggestions(local);
   timer = setTimeout(async () => {
     const request = new AbortController();
     controller = request;
-    status.textContent = "Searching…";
+    if (!local.length) status.textContent = "Searching…";
     try {
-      const result = await suggestGenes(query, request.signal);
+      let result: GeneSuggestion[];
+      try {
+        result = await suggestGenes(query, request.signal);
+      } catch (error) {
+        if (!local.length) throw error;
+        result = [];
+      }
       if (request.signal.aborted || input.value.trim() !== query) return;
-      items = result;
-      active = -1;
-      list.innerHTML = items
-        .map(
-          (g, i) =>
-            `<li id="gene-option-${i}" role="option" aria-selected="false" data-option="${i}"><strong>${esc(g.symbol)}</strong><span>${esc(g.name)}</span></li>`,
-        )
-        .join("");
-      list.hidden = !items.length;
-      input.setAttribute("aria-expanded", String(items.length > 0));
-      status.textContent = items.length
-        ? `${items.length} matches · ↑ ↓ to select, Enter to confirm.`
-        : "No suggestions found. Try another symbol or name.";
+      renderSuggestions([
+        ...local,
+        ...result.filter((g) => !local.some((l) => l.symbol === g.symbol)),
+      ]);
     } catch {
       if (!request.signal.aborted)
         status.textContent = "Gene search unavailable. Try an example dataset.";
@@ -102,19 +136,21 @@ input.addEventListener("blur", cancel);
 form.addEventListener("submit", () => {
   controller?.abort();
   input.value = input.value.trim().toUpperCase();
+  if (available(input.value) && source.value !== "sample") source.value = "analysis";
 });
 document.querySelectorAll<HTMLButtonElement>("[data-gene]").forEach((button) =>
   button.addEventListener("click", () => {
     controller?.abort();
     clearTimeout(timer);
     input.value = button.dataset.gene!;
-    source.value = "sample";
+    source.value = button.dataset.source || "sample";
     close();
     form.querySelector<HTMLInputElement>(
       `input[value="${button.dataset.mode}"]`,
     )!.checked = true;
-    status.textContent =
-      input.value === "MYC"
+    status.textContent = source.value === "analysis"
+      ? `${input.value} · K562 analysis available`
+      : input.value === "MYC"
         ? "MYC · rE2G predictions"
         : `${input.value} · illustrative data`;
   }),

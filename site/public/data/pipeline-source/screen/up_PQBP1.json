@@ -1,0 +1,116 @@
+{
+ "gene": "PQBP1",
+ "mode": "up",
+ "window": "chrX:47900000-49900000",
+ "seconds": 405,
+ "flagged_in_window": [
+  "EBP",
+  "PORCN",
+  "PQBP1",
+  "SLC35A2",
+  "WAS",
+  "WDR45"
+ ],
+ "target_tpm": 127.25,
+ "baseline_T": 649.75,
+ "permitted_anchors": 99,
+ "genes_expressed": 37,
+ "genes": 48,
+ "excluded_flagged": [],
+ "n_scored": 10,
+ "n_meeting_goal": 1,
+ "dropped": {
+  "noop": 0,
+  "no_anchor": 2,
+  "duplicate": 3,
+  "blocked_by_risk": 3,
+  "below_min_effect": 5
+ },
+ "best": {
+  "name": "PQBP1 <- 48735kb",
+  "mode": "up",
+  "target": "PQBP1",
+  "target_tpm": 127.25,
+  "target_flag": "haploinsufficient",
+  "baseline_T": 649.75,
+  "enhancer_kb": 48735,
+  "anchor_a_kb": 48730,
+  "anchor_b_kb": 48885,
+  "separation_kb": 155,
+  "q": 64.809,
+  "delta_target": 0.1102,
+  "sweep": [
+   0.0,
+   0.0002,
+   -0.0011,
+   -0.0036,
+   0.0155
+  ],
+  "delta_at_p99": 0.0155,
+  "sign_stable": false,
+  "confidence": "TENTATIVE",
+  "risk": {
+   "tier": "ELEVATED",
+   "score": 0.0755,
+   "worst_gene": "SLC35A2",
+   "n_flagged_in_window": 5,
+   "reason": "SLC35A2 (haploinsufficient) +7.5%"
+  },
+  "unflagged_collateral_over_tau": [
+   {
+    "gene": "GAGE2A",
+    "delta": -0.1504
+   },
+   {
+    "gene": "TIMM17B",
+    "delta": 0.1102
+   }
+  ],
+  "rank": 1
+ },
+ "best_below_floor": null,
+ "ranked_top5": [
+  {
+   "name": "PQBP1 <- 48735kb",
+   "mode": "up",
+   "target": "PQBP1",
+   "target_tpm": 127.25,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 649.75,
+   "enhancer_kb": 48735,
+   "anchor_a_kb": 48730,
+   "anchor_b_kb": 48885,
+   "separation_kb": 155,
+   "q": 64.809,
+   "delta_target": 0.1102,
+   "sweep": [
+    0.0,
+    0.0002,
+    -0.0011,
+    -0.0036,
+    0.0155
+   ],
+   "delta_at_p99": 0.0155,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "ELEVATED",
+    "score": 0.0755,
+    "worst_gene": "SLC35A2",
+    "n_flagged_in_window": 5,
+    "reason": "SLC35A2 (haploinsufficient) +7.5%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "GAGE2A",
+     "delta": -0.1504
+    },
+    {
+     "gene": "TIMM17B",
+     "delta": 0.1102
+    }
+   ],
+   "rank": 1
+  }
+ ]
+}

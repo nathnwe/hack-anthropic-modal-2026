@@ -1,4 +1,5 @@
 import { viewerDialog } from "../lib/viewer-dialog";
+import { selectRecord, type RecordEntry } from "../lib/analysis-routing";
 import { rankingColors } from "../lib/element-colors";
 import { liveGeneRecord } from "../lib/live-genes";
 import { k562Record, K562_VIEWER_IDS, type K562Dataset } from "../lib/k562";
@@ -23,11 +24,11 @@ import {
 const get = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 const app = get("results-app");
-const manifest: { symbol: string; file: string; direction: string | null }[] =
-  JSON.parse(app.dataset.manifest || "[]");
+const manifest: RecordEntry[] = JSON.parse(app.dataset.manifest || "[]");
 const base = app.dataset.base || "";
 const disposeDialog = viewerDialog();
 let record: GeneRecord;
+let pipelineUI: import("./pipeline-results").PipelineResults | null = null;
 let mode: Mode;
 let activeElement: string | null = null;
 let genomeViewer: import("../lib/genome-viewer").GenomeViewer | null = null;
@@ -69,6 +70,10 @@ function syncBrowserViewer() {
     });
 }
 function setView(view: typeof currentView) {
+  if (pipelineUI) {
+    pipelineUI.setView(view);
+    return;
+  }
   currentView = view;
   for (const [key, panel] of [
     ["3d", "dna-panel"],
@@ -122,6 +127,7 @@ const dispose = () => {
   disposeDialog();
   genomeViewer?.dispose();
   browserViewer?.dispose();
+  pipelineUI?.dispose();
 };
 window.addEventListener("pagehide", (event) => {
   if (!event.persisted) dispose();
@@ -179,7 +185,7 @@ function renderElements() {
           criterion === "distance"
             ? `${fmt(distance)} bp`
             : criterion === "re2g"
-              ? cre.score_rE2G.toFixed(3)
+              ? (cre.score_rE2G?.toFixed(3) ?? "Not supplied")
               : strength === null
                 ? "Not recorded"
                 : String(strength);
@@ -371,18 +377,18 @@ async function loadRecord() {
   const symbol = (params.get("gene") || manifest[0]?.symbol || "")
     .trim()
     .toUpperCase();
-  const entry = manifest.find((item) => item.symbol === symbol);
   try {
     const requested = params.get("intent");
     if (requested !== null && !isMode(requested))
       throw new Error("The requested regulation direction is not supported.");
+    const entry = selectRecord(manifest, symbol, requested, params.get("source"));
     mode = requested || (entry?.direction === "too_much" ? "down" : "up");
-    if (params.get("source") === "reference" || !entry) {
+    if ((params.get("source") === "reference" && !entry?.analysis) || !entry) {
       record = await liveGeneRecord(symbol);
       get("json-link").hidden = true;
     } else {
       const file =
-        symbol === "MYC"
+        symbol === "MYC" && !entry.analysis
           ? "case-studies/myc-k562.json"
           : encodeURIComponent(entry.file);
       const response = await fetch(`${base}/data/${file}`);
@@ -392,7 +398,7 @@ async function loadRecord() {
         );
       const data = await response.json();
       record =
-        symbol === "MYC"
+        symbol === "MYC" && !entry.analysis
           ? k562Record(data as K562Dataset, K562_VIEWER_IDS)
           : data;
       get<HTMLAnchorElement>("json-link").href = `${base}/data/${file}`;
@@ -407,7 +413,14 @@ async function loadRecord() {
       throw new Error(
         "The returned record is incomplete or does not match this gene.",
       );
-    renderRecord();
+    if (record.analysis) {
+      const { PipelineResults } = await import("./pipeline-results");
+      const modes = manifest.filter((e) => e.symbol === symbol && e.analysis).flatMap((e) => e.modes || []);
+      pipelineUI = new PipelineResults(record, mode, modes);
+    } else {
+      get('design-nav').hidden=true;
+      renderRecord();
+    }
   } catch (error) {
     get("loading-state").hidden = true;
     get("record-view").hidden = true;
@@ -419,10 +432,12 @@ async function loadRecord() {
   }
 }
 get<HTMLSelectElement>("rank-select").addEventListener("change", () => {
+  if (record.analysis) return;
   renderElements();
   drawMap();
 });
 get<HTMLSelectElement>("intent-select").addEventListener("change", () => {
+  if (record.analysis) return;
   const value = get<HTMLSelectElement>("intent-select").value;
   if (!isMode(value)) return;
   mode = value;
@@ -435,7 +450,7 @@ get<HTMLSelectElement>("intent-select").addEventListener("change", () => {
 let lastMapWidth = 0;
 new ResizeObserver(([entry]) => {
   const width = Math.round(entry.contentRect.width);
-  if (record && width > 0 && width !== lastMapWidth) {
+  if (record && !record.analysis && width > 0 && width !== lastMapWidth) {
     lastMapWidth = width;
     drawMap();
   }

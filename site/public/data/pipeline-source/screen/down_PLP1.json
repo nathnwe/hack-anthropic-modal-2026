@@ -1,0 +1,64 @@
+{
+ "gene": "PLP1",
+ "mode": "down",
+ "window": "chrX:102780000-104780000",
+ "seconds": 6,
+ "flagged_in_window": [
+  "PLP1"
+ ],
+ "target_tpm": 0.0,
+ "baseline_T": 15.38,
+ "permitted_anchors": 132,
+ "genes_expressed": 10,
+ "genes": 26,
+ "excluded_flagged": [],
+ "n_scored": 198,
+ "n_meeting_goal": 0,
+ "dropped": {
+  "noop": 2,
+  "no_anchor": 0,
+  "duplicate": 0,
+  "blocked_by_risk": 0,
+  "below_min_effect": 198
+ },
+ "best": null,
+ "best_below_floor": {
+  "name": "PLP1 v 103795kb->103595kb",
+  "mode": "down",
+  "target": "PLP1",
+  "target_tpm": 0.0,
+  "target_flag": "haploinsufficient",
+  "baseline_T": 15.38,
+  "enhancer_kb": 103795,
+  "enhancer_abc_share": 0.182,
+  "anchor_a_kb": 103800,
+  "anchor_b_kb": 103595,
+  "decoy_kb": 103595,
+  "separation_kb": 205,
+  "q": 32.02,
+  "delta_target": -0.0415,
+  "sweep": null,
+  "delta_at_p99": null,
+  "sign_stable": false,
+  "confidence": "TENTATIVE",
+  "risk": {
+   "tier": "CLEAR",
+   "score": 0.0,
+   "worst_gene": null,
+   "n_flagged_in_window": 0,
+   "reason": "no other ClinGen dosage-sensitive gene in the window"
+  },
+  "unflagged_collateral_over_tau": [
+   {
+    "gene": "TCEAL3",
+    "delta": 0.3399
+   },
+   {
+    "gene": "TCEAL4",
+    "delta": 0.1875
+   }
+  ],
+  "rank": null
+ },
+ "ranked_top5": []
+}

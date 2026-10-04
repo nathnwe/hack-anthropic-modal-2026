@@ -1,0 +1,361 @@
+{
+ "label": "NSD1 \u00b7 Sotos syndrome \u00b7 FLAGGED neighbour (DDX41)",
+ "window": "chr5:176215000-178215000",
+ "targets": [
+  "NSD1"
+ ],
+ "direction": "up",
+ "provenance": {
+  "retrieved": "2026-10-04",
+  "window": "chr5:176215000-178215000",
+  "bins": 400,
+  "bin_bp": 5000,
+  "hic": {
+   "file": "ENCFF621AIY",
+   "experiment": "ENCSR479XDG",
+   "cell": "K562",
+   "assembly": "GRCh38",
+   "balancing": "Juicer SCALE (no KR at 5 kb)"
+  },
+  "dnase": {
+   "experiment": "ENCSR000EKS",
+   "peaks": "ENCFF070TML",
+   "signal": "ENCFF972GVB"
+  },
+  "genes": "UCSC ncbiRefSeqCurated hg38",
+  "ctcf": "UCSC jaspar2022, TFName == CTCF, all hits in window",
+  "rna": "ENCODE polyA+ RNA-seq ENCSR000AEM rep 1 (ENCFF222UVT), joined to RefSeq by TSS +/-500 bp",
+  "dosage": "ClinGen gene dosage curation list GRCh38 (score 3 only)",
+  "not_covered": [
+   "COSMIC Cancer Gene Census (login)",
+   "DepMap common essential (verification page)"
+  ],
+  "counts": {
+   "dnase_peaks": 191,
+   "candidate_elements": 72,
+   "coding_genes": 44,
+   "ctcf_sites": 34,
+   "flagged_genes": 2
+  }
+ },
+ "config": {
+  "TAU": 0.1,
+  "ELEVATED_AT": 0.02,
+  "MIN_EFFECT": 0.1,
+  "TOP_ENHANCERS": 10,
+  "EXPRESSED_TPM": 1.0,
+  "MIN_SEPARATION_BINS": 6,
+  "ANCHOR_REACH": 8,
+  "FLANK_BINS": 2,
+  "TSS_PAD_BINS": 0,
+  "MAX_CONFIDENT_DISTANCE_KB": 500,
+  "SIGMA_BINS": 3.0,
+  "RENORM_ITERS": 100,
+  "DOWN": {
+   "DECOY_REACH_BINS": 100,
+   "DECOY_KEEP_OUT_BINS": 12,
+   "N_DECOYS": 40,
+   "DOWN_ENHANCERS": 5
+  }
+ },
+ "tests_evaluated": {
+  "abstention": "NOT RUN: UniversalEPI not used, constant False",
+  "provenance": "constant: measured Hi-C",
+  "distance": "live",
+  "sign_stability": "live"
+ },
+ "anchor_space": {
+  "genes_expressed": 33,
+  "genes": 43,
+  "elements_protected": 57,
+  "elements": 72,
+  "atac_peaks": 103,
+  "bins_near_open_chromatin": 258,
+  "forbidden_bins": 212,
+  "permitted_anchors": 98,
+  "bins": 400,
+  "excluded_genes": [
+   "FAM153A"
+  ],
+  "excluded_flagged": []
+ },
+ "flagged_genes_in_window": {
+  "NSD1": "haploinsufficient",
+  "DDX41": "haploinsufficient"
+ },
+ "n_staples_scored": 8,
+ "n_meeting_dose_goal": 3,
+ "dropped": {
+  "noop": 0,
+  "no_anchor": 2,
+  "duplicate": 5,
+  "blocked_by_risk": 0,
+  "below_min_effect": 4
+ },
+ "ranked": [
+  {
+   "name": "NSD1 <- 177365kb",
+   "mode": "up",
+   "target": "NSD1",
+   "target_tpm": 11.69,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 883.32,
+   "enhancer_kb": 177365,
+   "anchor_a_kb": 177345,
+   "anchor_b_kb": 177125,
+   "separation_kb": 220,
+   "q": 255.005,
+   "delta_target": 0.4002,
+   "sweep": [
+    0.0,
+    -0.0003,
+    -0.0034,
+    -0.0082,
+    -0.0052
+   ],
+   "delta_at_p99": -0.0052,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0188,
+    "worst_gene": "DDX41",
+    "n_flagged_in_window": 1,
+    "reason": "DDX41 (haploinsufficient) -1.9%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "LMAN2",
+     "delta": 0.1377
+    }
+   ],
+   "rank": 1
+  },
+  {
+   "name": "NSD1 <- 177400kb",
+   "mode": "up",
+   "target": "NSD1",
+   "target_tpm": 11.69,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 883.32,
+   "enhancer_kb": 177400,
+   "anchor_a_kb": 177410,
+   "anchor_b_kb": 177125,
+   "separation_kb": 285,
+   "q": 716.611,
+   "delta_target": 0.3608,
+   "sweep": [
+    -0.0003,
+    -0.0014,
+    -0.0042,
+    -0.0071,
+    -0.0025
+   ],
+   "delta_at_p99": -0.0025,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0195,
+    "worst_gene": "DDX41",
+    "n_flagged_in_window": 1,
+    "reason": "DDX41 (haploinsufficient) -1.9%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "PFN3",
+     "delta": -0.1869
+    },
+    {
+     "gene": "GRK6",
+     "delta": 0.1097
+    }
+   ],
+   "rank": 2
+  },
+  {
+   "name": "NSD1 <- 176615kb",
+   "mode": "up",
+   "target": "NSD1",
+   "target_tpm": 11.69,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 883.32,
+   "enhancer_kb": 176615,
+   "anchor_a_kb": 176600,
+   "anchor_b_kb": 177125,
+   "separation_kb": 525,
+   "q": 106.088,
+   "delta_target": 0.1751,
+   "sweep": [
+    0.0,
+    -0.0,
+    -0.0011,
+    0.0021,
+    0.0251
+   ],
+   "delta_at_p99": 0.0251,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0048,
+    "worst_gene": "DDX41",
+    "n_flagged_in_window": 1,
+    "reason": "DDX41 (haploinsufficient) -0.5%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 3
+  }
+ ],
+ "best_below_floor": [
+  {
+   "name": "NSD1 <- 177455kb",
+   "mode": "up",
+   "target": "NSD1",
+   "target_tpm": 11.69,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 883.32,
+   "enhancer_kb": 177455,
+   "anchor_a_kb": 177475,
+   "anchor_b_kb": 177125,
+   "separation_kb": 350,
+   "q": 26.794,
+   "delta_target": 0.0623,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0068,
+    "worst_gene": "DDX41",
+    "n_flagged_in_window": 1,
+    "reason": "DDX41 (haploinsufficient) -0.7%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  {
+   "name": "NSD1 <- 176660kb",
+   "mode": "up",
+   "target": "NSD1",
+   "target_tpm": 11.69,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 883.32,
+   "enhancer_kb": 176660,
+   "anchor_a_kb": 176665,
+   "anchor_b_kb": 177125,
+   "separation_kb": 460,
+   "q": 26.737,
+   "delta_target": 0.0521,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0013,
+    "worst_gene": "DDX41",
+    "n_flagged_in_window": 1,
+    "reason": "DDX41 (haploinsufficient) -0.1%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  {
+   "name": "NSD1 <- 178160kb",
+   "mode": "up",
+   "target": "NSD1",
+   "target_tpm": 11.69,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 883.32,
+   "enhancer_kb": 178160,
+   "anchor_a_kb": 178155,
+   "anchor_b_kb": 177125,
+   "separation_kb": 1030,
+   "q": 12.215,
+   "delta_target": 0.0081,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0005,
+    "worst_gene": "DDX41",
+    "n_flagged_in_window": 1,
+    "reason": "DDX41 (haploinsufficient) -0.1%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  {
+   "name": "NSD1 <- 178120kb",
+   "mode": "up",
+   "target": "NSD1",
+   "target_tpm": 11.69,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 883.32,
+   "enhancer_kb": 178120,
+   "anchor_a_kb": 178105,
+   "anchor_b_kb": 177125,
+   "separation_kb": 980,
+   "q": 142.991,
+   "delta_target": -0.0278,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.005,
+    "worst_gene": "DDX41",
+    "n_flagged_in_window": 1,
+    "reason": "DDX41 (haploinsufficient) -0.5%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "N4BP3",
+     "delta": 0.52
+    }
+   ],
+   "rank": null
+  },
+  {
+   "name": "NSD1 <- 177555kb",
+   "mode": "up",
+   "target": "NSD1",
+   "target_tpm": 11.69,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 883.32,
+   "enhancer_kb": 177555,
+   "anchor_a_kb": 177545,
+   "anchor_b_kb": 177125,
+   "separation_kb": 420,
+   "q": 639.236,
+   "delta_target": -0.0477,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "BLOCKED",
+    "score": 0.1238,
+    "worst_gene": "DDX41",
+    "n_flagged_in_window": 1,
+    "reason": "DDX41 (haploinsufficient) +12.4% -- ClinGen dosage sensitivity"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "FAM193B",
+     "delta": 0.3767
+    },
+    {
+     "gene": "DOK3",
+     "delta": 0.1132
+    }
+   ],
+   "rank": null
+  }
+ ]
+}
