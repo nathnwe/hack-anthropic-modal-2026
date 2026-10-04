@@ -1,155 +1,190 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Mark from "../components/Mark.astro";
 import Thread from "../components/Thread.astro";
+import { team } from "../data/team";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
-<Layout title="Rewire Bio — A new connection" page="home">
+<Layout
+  title="Rewire Bio — 3D genome engineering"
+  description="A research workbench for prioritising regulatory contacts and candidate interventions in 3D genome engineering."
+  page="home"
+>
   <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-topline eyebrow">
-      <span class="status-dot"></span> Exploring the architecture of expression
+    <div class="hero-content">
+      <p class="hero-topline eyebrow landing-reveal">3D genome engineering</p>
+      <div class="hero-grid">
+        <h1 id="hero-title" class="landing-reveal">
+          Rewiring gene dosage without <em>rewriting the genome.</em>
+        </h1>
+        <div class="hero-aside landing-reveal reveal-delay-2">
+          <p class="hero-description">
+            Gene expression depends in part on which regions of DNA make
+            contact. Rewire Bio helps prioritise these contacts for targeted
+            changes in gene regulation.
+          </p>
+          <a class="button dark" href={`${base}/workbench/`}>
+            Open workbench <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
     </div>
-    <div class="hero-lockup">
-      <Mark class="hero-mark" />
-      <h1 id="hero-title">
-        Rewire Bio<span>.</span>
-      </h1>
-    </div>
-    <p class="hero-description">
-      The next possibility is already in the genome.
-      <br />
-      Let’s find the connection.
-    </p>
-    <a class="button dark" href={`${base}/workbench/`}>
-      Explore the workbench <span aria-hidden="true">↗</span>
-    </a>
-    <div class="hero-bottom">
-      <span class="mono">3D GENOME ENGINEERING</span>
+    <div class="hero-bottom landing-reveal reveal-delay-3">
+      <span class="mono">RESEARCH PROTOTYPE</span>
       <a href="#about">
-        A different perspective <span aria-hidden="true">↓</span>
+        About the project <span aria-hidden="true">↓</span>
       </a>
-      <span class="mono">ANTHROPIC × MODAL ’26</span>
+      <span class="mono">ANTHROPIC × MODAL 2026</span>
     </div>
   </section>
   <div class="story">
     <Thread />
-    <section id="about" class="story-section about-section">
-      <p class="eyebrow section-kicker">01 / The idea</p>
-      <div class="story-copy">
-        <h2>
-          Same genome.
+    <section
+      id="about"
+      class="story-section about-section"
+      aria-labelledby="about-title"
+    >
+      <p class="eyebrow section-kicker">01 / About</p>
+      <div class="story-copy landing-reveal">
+        <h2 id="about-title">
+          Regulation in
           <br />
-          <em>New connections.</em>
+          <em>three dimensions.</em>
         </h2>
         <p class="lead">
-          What if we could change how a gene is regulated by changing what it
-          connects to?
+          DNA folding brings distant regulatory elements into contact with gene
+          promoters.
         </p>
+        <!-- Scientific basis: Morgan et al., 2017, doi:10.1038/ncomms15993.
+             Effects depend on locus and cellular context; this is not a claim
+             of validated effects for the workbench's candidate contacts. -->
         <p>
-          Rewire Bio explores an approach to gene regulation through the
-          genome’s three-dimensional architecture. Our ambition is to bring
-          existing regulatory elements into useful new relationships with a
-          gene.
-        </p>
-        <p>
-          Start with a target. Explore its neighbourhood. Find a connection
-          worth investigating.
+          Altering these contacts can change gene expression without changing
+          the DNA sequence. Rewire Bio explores which contacts to target and how
+          they might be engineered.
         </p>
         <a class="text-link" href={`${base}/workbench/`}>
-          See the idea in practice <span aria-hidden="true">↗</span>
+          Explore the workbench <span aria-hidden="true">↗</span>
         </a>
       </div>
     </section>
-    <section class="story-section approach-section">
-      <p class="eyebrow section-kicker">02 / The workbench</p>
-      <div class="story-copy">
-        <h2>
-          From a question
+    <section
+      class="story-section approach-section"
+      aria-labelledby="approach-title"
+    >
+      <p class="eyebrow section-kicker">02 / Workbench</p>
+      <div class="story-copy landing-reveal">
+        <h2 id="approach-title">
+          Prioritise
           <br />
-          to a <em>shortlist.</em>
+          <em>regulatory contacts.</em>
         </h2>
         <ol class="approach-list">
           <li>
             <span class="mono">01</span>
             <div>
-              <h3>Choose a direction.</h3>
+              <h3>Gene and direction</h3>
               <p>
-                Name a target gene and the change in expression you want to
-                explore.
+                Select a target gene and an increase or decrease in expression.
               </p>
             </div>
           </li>
           <li>
             <span class="mono">02</span>
             <div>
-              <h3>Read the neighbourhood.</h3>
-              <p>
-                Explore regulatory elements and promoter contacts within its
-                topological domain.
-              </p>
+              <h3>Regulatory elements</h3>
+              <p>Compare available scores, genomic positions and evidence.</p>
             </div>
           </li>
           <li>
             <span class="mono">03</span>
             <div>
-              <h3>Inspect the possibilities.</h3>
+              <h3>Candidate interventions</h3>
               <p>
-                Compare candidate anchor pairs, reported tiers, risk flags and
-                potential stapling methods.
+                Inspect proposed contacts, risk flags and DNA stapling
+                strategies.
               </p>
             </div>
           </li>
         </ol>
         <p class="research-note">
-          <span class="status-dot"></span> A research prototype. Current
-          examples use labelled placeholder data. In silico predictions need
-          experimental validation.
+          <span class="status-dot"></span> Example records are labelled.
+          Predictions are in silico and require experimental validation.
         </p>
       </div>
     </section>
-    <section id="team" class="story-section team-section">
-      <p class="eyebrow section-kicker">03 / The people</p>
-      <div class="story-copy">
-        <h2>
-          Different disciplines.
-          <br />
-          <em>Shared curiosity.</em>
-        </h2>
-        <p class="lead">
-          Built at the intersection of regulatory biology, computation and
-          design.
-        </p>
-        <p>
-          A project for the Anthropic × Modal 2026 hackathon. Our work brings
-          together genomic mapping, transparent ranking and an interface for
-          asking better questions.
-        </p>
-        <div class="team-roles">
-          <span>Genomics & pipeline</span>
-          <span>Scoring & science</span>
-          <span>Interface & visualisation</span>
+    <section
+      id="team"
+      class="story-section team-section"
+      aria-labelledby="team-title"
+    >
+      <p class="eyebrow section-kicker">03 / Team</p>
+      <div class="team-content">
+        <div class="story-copy landing-reveal">
+          <h2 id="team-title">The team.</h2>
+          <p>Built for the Anthropic × Modal 2026 hackathon.</p>
         </div>
-        <p class="small muted">
-          Team member details will be added before launch.
-        </p>
+        <div class="team-grid">
+          {team.map((person, index) => (
+            <article
+              class:list={[
+                "team-profile",
+                "landing-reveal",
+                `reveal-delay-${index + 1}`,
+              ]}
+              aria-labelledby={`team-${person.id}`}
+            >
+              <div class="team-portrait">
+                <img
+                  src={`${base}/images/team/${person.id}.webp`}
+                  alt={person.name}
+                  width={person.imageSize}
+                  height={person.imageSize}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <p class="team-role">{person.role}</p>
+              <h3 id={`team-${person.id}`}>{person.name}</h3>
+              <p class="team-bio">{person.bio}</p>
+              <a
+                class="team-link"
+                href={person.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${person.name} on LinkedIn`}
+              >
+                LinkedIn <span aria-hidden="true">↗</span>
+              </a>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
-    <section id="contact" class="story-section contact-section">
-      <p class="eyebrow section-kicker">04 / Keep exploring</p>
-      <div class="story-copy">
-        <h2>
-          Good science starts
+    <section
+      id="contact"
+      class="story-section contact-section"
+      aria-labelledby="contact-title"
+    >
+      <p class="eyebrow section-kicker">04 / Contact</p>
+      <div class="story-copy landing-reveal">
+        <h2 id="contact-title">
+          Discuss the
           <br />
-          with a <em>connection.</em>
+          <em>research.</em>
         </h2>
-        <p class="lead">
-          Explore the prototype, inspect the data, or join the conversation
-          around the project.
+        <p>
+          Interested in testing a locus or contributing data? Contact the team
+          through the profiles above, or open an issue on GitHub.
         </p>
         <div class="contact-actions">
-          <a class="button dark" href={`${base}/workbench/`}>
-            Open workbench <span aria-hidden="true">↗</span>
+          <a
+            class="button dark"
+            href="https://github.com/nathnwe/hack-anthropic-modal-2026/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Get in touch <span aria-hidden="true">↗</span>
           </a>
           <a
             class="text-link"
@@ -157,38 +192,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
             target="_blank"
             rel="noopener noreferrer"
           >
-            Find us on GitHub ↗
+            View the code <span aria-hidden="true">↗</span>
           </a>
         </div>
       </div>
     </section>
   </div>
   <script>
-    const story = document.querySelector<HTMLElement>(".story");
-    const thread = document.querySelector<SVGPathElement>(".thread-progress");
-    const media = matchMedia("(prefers-reduced-motion: reduce)");
-    let scheduled = false;
-    function draw() {
-      scheduled = false;
-      if (!story || !thread) return;
-      const rect = story.getBoundingClientRect();
-      const progress = media.matches
-        ? 1
-        : Math.max(
-            0,
-            Math.min(1, (innerHeight * 0.65 - rect.top) / rect.height),
-          );
-      thread.style.strokeDashoffset = String(1 - progress);
-    }
-    function queueDraw() {
-      if (!scheduled) {
-        scheduled = true;
-        requestAnimationFrame(draw);
-      }
-    }
-    addEventListener("scroll", queueDraw, { passive: true });
-    addEventListener("resize", queueDraw);
-    media.addEventListener("change", queueDraw);
-    draw();
+    import "../scripts/landing";
   </script>
 </Layout>
