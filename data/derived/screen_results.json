@@ -1,0 +1,1021 @@
+[
+ {
+  "gene": "LMNB1",
+  "mode": "down",
+  "window": "chr5:125800000-127800000",
+  "seconds": 5,
+  "flagged_in_window": [
+   "LMNB1"
+  ],
+  "target_tpm": 74.28,
+  "baseline_T": 658.1,
+  "permitted_anchors": 106,
+  "genes_expressed": 6,
+  "genes": 11,
+  "excluded_flagged": [],
+  "n_scored": 159,
+  "n_meeting_goal": 0,
+  "dropped": {
+   "noop": 1,
+   "no_anchor": 0,
+   "duplicate": 40,
+   "blocked_by_risk": 0,
+   "below_min_effect": 159
+  },
+  "best": null,
+  "best_below_floor": {
+   "name": "LMNB1 v 126780kb->126410kb",
+   "mode": "down",
+   "target": "LMNB1",
+   "target_tpm": 74.28,
+   "target_flag": "triplosensitive",
+   "baseline_T": 658.1,
+   "enhancer_kb": 126780,
+   "enhancer_abc_share": 0.15,
+   "anchor_a_kb": 126785,
+   "anchor_b_kb": 126410,
+   "decoy_kb": 126410,
+   "separation_kb": 375,
+   "q": 29.031,
+   "delta_target": -0.0687,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  "ranked_top5": []
+ },
+ {
+  "gene": "MECP2",
+  "mode": "down",
+  "window": "chrX:153060000-155060000",
+  "seconds": 4,
+  "flagged_in_window": [
+   "ABCD1",
+   "AVPR2",
+   "BCAP31",
+   "F8",
+   "FLNA",
+   "IKBKG",
+   "L1CAM",
+   "MECP2",
+   "SLC6A8"
+  ],
+  "target_tpm": 24.23,
+  "baseline_T": 311.07,
+  "permitted_anchors": 80,
+  "genes_expressed": 41,
+  "genes": 58,
+  "excluded_flagged": [
+   "F8"
+  ],
+  "n_scored": 130,
+  "n_meeting_goal": 1,
+  "dropped": {
+   "noop": 1,
+   "no_anchor": 0,
+   "duplicate": 0,
+   "blocked_by_risk": 0,
+   "below_min_effect": 67
+  },
+  "best": {
+   "name": "MECP2 v 154120kb->154300kb",
+   "mode": "down",
+   "target": "MECP2",
+   "target_tpm": 24.23,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 311.07,
+   "enhancer_kb": 154120,
+   "enhancer_abc_share": 0.204,
+   "anchor_a_kb": 154115,
+   "anchor_b_kb": 154300,
+   "decoy_kb": 154300,
+   "separation_kb": 185,
+   "q": 381.354,
+   "delta_target": -0.1097,
+   "sweep": [
+    -0.0001,
+    -0.0003,
+    -0.0011,
+    -0.0021,
+    -0.0068
+   ],
+   "delta_at_p99": -0.0068,
+   "sign_stable": true,
+   "confidence": "CONFIDENT",
+   "risk": {
+    "tier": "ELEVATED",
+    "score": 0.0224,
+    "worst_gene": "FLNA",
+    "n_flagged_in_window": 8,
+    "reason": "FLNA (haploinsufficient) +2.2%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "TEX28",
+     "delta": 1.0002
+    },
+    {
+     "gene": "TKTL1",
+     "delta": 1.0002
+    },
+    {
+     "gene": "OPN1LW",
+     "delta": -0.1846
+    }
+   ],
+   "rank": 1
+  },
+  "best_below_floor": null,
+  "ranked_top5": [
+   {
+    "name": "MECP2 v 154120kb->154300kb",
+    "mode": "down",
+    "target": "MECP2",
+    "target_tpm": 24.23,
+    "target_flag": "haploinsufficient",
+    "baseline_T": 311.07,
+    "enhancer_kb": 154120,
+    "enhancer_abc_share": 0.204,
+    "anchor_a_kb": 154115,
+    "anchor_b_kb": 154300,
+    "decoy_kb": 154300,
+    "separation_kb": 185,
+    "q": 381.354,
+    "delta_target": -0.1097,
+    "sweep": [
+     -0.0001,
+     -0.0003,
+     -0.0011,
+     -0.0021,
+     -0.0068
+    ],
+    "delta_at_p99": -0.0068,
+    "sign_stable": true,
+    "confidence": "CONFIDENT",
+    "risk": {
+     "tier": "ELEVATED",
+     "score": 0.0224,
+     "worst_gene": "FLNA",
+     "n_flagged_in_window": 8,
+     "reason": "FLNA (haploinsufficient) +2.2%"
+    },
+    "unflagged_collateral_over_tau": [
+     {
+      "gene": "TEX28",
+      "delta": 1.0002
+     },
+     {
+      "gene": "TKTL1",
+      "delta": 1.0002
+     },
+     {
+      "gene": "OPN1LW",
+      "delta": -0.1846
+     }
+    ],
+    "rank": 1
+   }
+  ]
+ },
+ {
+  "gene": "MYC",
+  "mode": "down",
+  "window": "chr8:127000000-129000000",
+  "seconds": 6,
+  "flagged_in_window": [],
+  "target_tpm": 140.76,
+  "baseline_T": 708.71,
+  "permitted_anchors": 173,
+  "genes_expressed": 1,
+  "genes": 2,
+  "excluded_flagged": [],
+  "n_scored": 197,
+  "n_meeting_goal": 1,
+  "dropped": {
+   "noop": 3,
+   "no_anchor": 0,
+   "duplicate": 0,
+   "blocked_by_risk": 0,
+   "below_min_effect": 196
+  },
+  "best": {
+   "name": "MYC v 127740kb->127270kb",
+   "mode": "down",
+   "target": "MYC",
+   "target_tpm": 140.76,
+   "target_flag": null,
+   "baseline_T": 708.71,
+   "enhancer_kb": 127740,
+   "enhancer_abc_share": 0.124,
+   "anchor_a_kb": 127745,
+   "anchor_b_kb": 127270,
+   "decoy_kb": 127270,
+   "separation_kb": 475,
+   "q": 40.54,
+   "delta_target": -0.1036,
+   "sweep": [
+    -0.0016,
+    -0.0037,
+    -0.0072,
+    -0.0093,
+    -0.0177
+   ],
+   "delta_at_p99": -0.0177,
+   "sign_stable": true,
+   "confidence": "CONFIDENT",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 1
+  },
+  "best_below_floor": null,
+  "ranked_top5": [
+   {
+    "name": "MYC v 127740kb->127270kb",
+    "mode": "down",
+    "target": "MYC",
+    "target_tpm": 140.76,
+    "target_flag": null,
+    "baseline_T": 708.71,
+    "enhancer_kb": 127740,
+    "enhancer_abc_share": 0.124,
+    "anchor_a_kb": 127745,
+    "anchor_b_kb": 127270,
+    "decoy_kb": 127270,
+    "separation_kb": 475,
+    "q": 40.54,
+    "delta_target": -0.1036,
+    "sweep": [
+     -0.0016,
+     -0.0037,
+     -0.0072,
+     -0.0093,
+     -0.0177
+    ],
+    "delta_at_p99": -0.0177,
+    "sign_stable": true,
+    "confidence": "CONFIDENT",
+    "risk": {
+     "tier": "CLEAR",
+     "score": 0.0,
+     "worst_gene": null,
+     "n_flagged_in_window": 0,
+     "reason": "no other ClinGen dosage-sensitive gene in the window"
+    },
+    "unflagged_collateral_over_tau": [],
+    "rank": 1
+   }
+  ]
+ },
+ {
+  "gene": "PLP1",
+  "mode": "down",
+  "window": "chrX:102780000-104780000",
+  "seconds": 6,
+  "flagged_in_window": [
+   "PLP1"
+  ],
+  "target_tpm": 0.0,
+  "baseline_T": 15.38,
+  "permitted_anchors": 132,
+  "genes_expressed": 10,
+  "genes": 26,
+  "excluded_flagged": [],
+  "n_scored": 198,
+  "n_meeting_goal": 0,
+  "dropped": {
+   "noop": 2,
+   "no_anchor": 0,
+   "duplicate": 0,
+   "blocked_by_risk": 0,
+   "below_min_effect": 198
+  },
+  "best": null,
+  "best_below_floor": {
+   "name": "PLP1 v 103795kb->103595kb",
+   "mode": "down",
+   "target": "PLP1",
+   "target_tpm": 0.0,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 15.38,
+   "enhancer_kb": 103795,
+   "enhancer_abc_share": 0.182,
+   "anchor_a_kb": 103800,
+   "anchor_b_kb": 103595,
+   "decoy_kb": 103595,
+   "separation_kb": 205,
+   "q": 32.02,
+   "delta_target": -0.0415,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "CLEAR",
+    "score": 0.0,
+    "worst_gene": null,
+    "n_flagged_in_window": 0,
+    "reason": "no other ClinGen dosage-sensitive gene in the window"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "TCEAL3",
+     "delta": 0.3399
+    },
+    {
+     "gene": "TCEAL4",
+     "delta": 0.1875
+    }
+   ],
+   "rank": null
+  },
+  "ranked_top5": []
+ },
+ {
+  "gene": "TPSAB1",
+  "mode": "down",
+  "window": "chr16:240000-2240000",
+  "seconds": 6,
+  "flagged_in_window": [
+   "PKD1",
+   "TPSAB1",
+   "TSC2"
+  ],
+  "target_tpm": 0.0,
+  "baseline_T": 283.28,
+  "permitted_anchors": 82,
+  "genes_expressed": 69,
+  "genes": 93,
+  "excluded_flagged": [],
+  "n_scored": 196,
+  "n_meeting_goal": 0,
+  "dropped": {
+   "noop": 4,
+   "no_anchor": 0,
+   "duplicate": 0,
+   "blocked_by_risk": 0,
+   "below_min_effect": 182
+  },
+  "best": null,
+  "best_below_floor": {
+   "name": "TPSAB1 v 1265kb->1010kb",
+   "mode": "down",
+   "target": "TPSAB1",
+   "target_tpm": 0.0,
+   "target_flag": "triplosensitive",
+   "baseline_T": 283.28,
+   "enhancer_kb": 1265,
+   "enhancer_abc_share": 0.224,
+   "anchor_a_kb": 1260,
+   "anchor_b_kb": 1010,
+   "decoy_kb": 1010,
+   "separation_kb": 250,
+   "q": 76.906,
+   "delta_target": -0.0483,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0011,
+    "worst_gene": "PKD1",
+    "n_flagged_in_window": 2,
+    "reason": "PKD1 (haploinsufficient) +0.1%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "TPSD1",
+     "delta": -0.1441
+    }
+   ],
+   "rank": null
+  },
+  "ranked_top5": []
+ },
+ {
+  "gene": "AAGAB",
+  "mode": "up",
+  "window": "chr15:66230000-68230000",
+  "seconds": 477,
+  "flagged_in_window": [
+   "AAGAB",
+   "SMAD3"
+  ],
+  "target_tpm": 39.47,
+  "baseline_T": 244.06,
+  "permitted_anchors": 153,
+  "genes_expressed": 15,
+  "genes": 18,
+  "excluded_flagged": [],
+  "n_scored": 13,
+  "n_meeting_goal": 4,
+  "dropped": {
+   "noop": 0,
+   "no_anchor": 0,
+   "duplicate": 2,
+   "blocked_by_risk": 0,
+   "below_min_effect": 9
+  },
+  "best": {
+   "name": "AAGAB <- 66670kb",
+   "mode": "up",
+   "target": "AAGAB",
+   "target_tpm": 39.47,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 244.06,
+   "enhancer_kb": 66670,
+   "anchor_a_kb": 66665,
+   "anchor_b_kb": 67245,
+   "separation_kb": 580,
+   "q": 5.794,
+   "delta_target": 0.2006,
+   "sweep": [
+    0.0,
+    0.0056,
+    0.0213,
+    0.0344,
+    0.0775
+   ],
+   "delta_at_p99": 0.0775,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0001,
+    "worst_gene": "SMAD3",
+    "n_flagged_in_window": 1,
+    "reason": "SMAD3 (haploinsufficient) +0.0%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "IQCH",
+     "delta": 0.2006
+    }
+   ],
+   "rank": 1
+  },
+  "best_below_floor": null,
+  "ranked_top5": [
+   {
+    "name": "AAGAB <- 66670kb",
+    "mode": "up",
+    "target": "AAGAB",
+    "target_tpm": 39.47,
+    "target_flag": "haploinsufficient",
+    "baseline_T": 244.06,
+    "enhancer_kb": 66670,
+    "anchor_a_kb": 66665,
+    "anchor_b_kb": 67245,
+    "separation_kb": 580,
+    "q": 5.794,
+    "delta_target": 0.2006,
+    "sweep": [
+     0.0,
+     0.0056,
+     0.0213,
+     0.0344,
+     0.0775
+    ],
+    "delta_at_p99": 0.0775,
+    "sign_stable": false,
+    "confidence": "TENTATIVE",
+    "risk": {
+     "tier": "LOW",
+     "score": 0.0001,
+     "worst_gene": "SMAD3",
+     "n_flagged_in_window": 1,
+     "reason": "SMAD3 (haploinsufficient) +0.0%"
+    },
+    "unflagged_collateral_over_tau": [
+     {
+      "gene": "IQCH",
+      "delta": 0.2006
+     }
+    ],
+    "rank": 1
+   },
+   {
+    "name": "AAGAB <- 66800kb",
+    "mode": "up",
+    "target": "AAGAB",
+    "target_tpm": 39.47,
+    "target_flag": "haploinsufficient",
+    "baseline_T": 244.06,
+    "enhancer_kb": 66800,
+    "anchor_a_kb": 66795,
+    "anchor_b_kb": 67245,
+    "separation_kb": 450,
+    "q": 9.919,
+    "delta_target": 0.1701,
+    "sweep": [
+     0.013,
+     0.0196,
+     0.045,
+     0.0616,
+     0.1025
+    ],
+    "delta_at_p99": 0.1025,
+    "sign_stable": true,
+    "confidence": "CONFIDENT",
+    "risk": {
+     "tier": "LOW",
+     "score": 0.0005,
+     "worst_gene": "SMAD3",
+     "n_flagged_in_window": 1,
+     "reason": "SMAD3 (haploinsufficient) +0.0%"
+    },
+    "unflagged_collateral_over_tau": [
+     {
+      "gene": "IQCH",
+      "delta": 0.1701
+     }
+    ],
+    "rank": 2
+   },
+   {
+    "name": "AAGAB <- 66850kb",
+    "mode": "up",
+    "target": "AAGAB",
+    "target_tpm": 39.47,
+    "target_flag": "haploinsufficient",
+    "baseline_T": 244.06,
+    "enhancer_kb": 66850,
+    "anchor_a_kb": 66845,
+    "anchor_b_kb": 67245,
+    "separation_kb": 400,
+    "q": 12.463,
+    "delta_target": 0.1683,
+    "sweep": [
+     0.0012,
+     0.0027,
+     0.0204,
+     0.0304,
+     0.0893
+    ],
+    "delta_at_p99": 0.0893,
+    "sign_stable": true,
+    "confidence": "CONFIDENT",
+    "risk": {
+     "tier": "LOW",
+     "score": 0.0011,
+     "worst_gene": "SMAD3",
+     "n_flagged_in_window": 1,
+     "reason": "SMAD3 (haploinsufficient) +0.1%"
+    },
+    "unflagged_collateral_over_tau": [
+     {
+      "gene": "IQCH",
+      "delta": 0.1683
+     }
+    ],
+    "rank": 3
+   },
+   {
+    "name": "AAGAB <- 66630kb",
+    "mode": "up",
+    "target": "AAGAB",
+    "target_tpm": 39.47,
+    "target_flag": "haploinsufficient",
+    "baseline_T": 244.06,
+    "enhancer_kb": 66630,
+    "anchor_a_kb": 66625,
+    "anchor_b_kb": 67245,
+    "separation_kb": 620,
+    "q": 5.927,
+    "delta_target": 0.1289,
+    "sweep": [
+     0.0,
+     0.0103,
+     0.0256,
+     0.0362,
+     0.0606
+    ],
+    "delta_at_p99": 0.0606,
+    "sign_stable": false,
+    "confidence": "TENTATIVE",
+    "risk": {
+     "tier": "LOW",
+     "score": 0.0005,
+     "worst_gene": "SMAD3",
+     "n_flagged_in_window": 1,
+     "reason": "SMAD3 (haploinsufficient) +0.0%"
+    },
+    "unflagged_collateral_over_tau": [
+     {
+      "gene": "IQCH",
+      "delta": 0.1289
+     }
+    ],
+    "rank": 4
+   }
+  ]
+ },
+ {
+  "gene": "ADNP",
+  "mode": "up",
+  "window": "chr20:49910000-51910000",
+  "seconds": 382,
+  "flagged_in_window": [
+   "ADNP",
+   "SALL4"
+  ],
+  "target_tpm": 15.53,
+  "baseline_T": 346.92,
+  "permitted_anchors": 182,
+  "genes_expressed": 15,
+  "genes": 18,
+  "excluded_flagged": [],
+  "n_scored": 12,
+  "n_meeting_goal": 2,
+  "dropped": {
+   "noop": 0,
+   "no_anchor": 2,
+   "duplicate": 1,
+   "blocked_by_risk": 0,
+   "below_min_effect": 9
+  },
+  "best": {
+   "name": "ADNP <- 50635kb",
+   "mode": "up",
+   "target": "ADNP",
+   "target_tpm": 15.53,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 346.92,
+   "enhancer_kb": 50635,
+   "anchor_a_kb": 50640,
+   "anchor_b_kb": 50920,
+   "separation_kb": 280,
+   "q": 20.622,
+   "delta_target": 0.1048,
+   "sweep": [
+    -0.0004,
+    -0.0014,
+    0.0033,
+    0.0147,
+    0.0279
+   ],
+   "delta_at_p99": 0.0279,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0005,
+    "worst_gene": "SALL4",
+    "n_flagged_in_window": 1,
+    "reason": "SALL4 (haploinsufficient) +0.1%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 1
+  },
+  "best_below_floor": null,
+  "ranked_top5": [
+   {
+    "name": "ADNP <- 50635kb",
+    "mode": "up",
+    "target": "ADNP",
+    "target_tpm": 15.53,
+    "target_flag": "haploinsufficient",
+    "baseline_T": 346.92,
+    "enhancer_kb": 50635,
+    "anchor_a_kb": 50640,
+    "anchor_b_kb": 50920,
+    "separation_kb": 280,
+    "q": 20.622,
+    "delta_target": 0.1048,
+    "sweep": [
+     -0.0004,
+     -0.0014,
+     0.0033,
+     0.0147,
+     0.0279
+    ],
+    "delta_at_p99": 0.0279,
+    "sign_stable": false,
+    "confidence": "TENTATIVE",
+    "risk": {
+     "tier": "LOW",
+     "score": 0.0005,
+     "worst_gene": "SALL4",
+     "n_flagged_in_window": 1,
+     "reason": "SALL4 (haploinsufficient) +0.1%"
+    },
+    "unflagged_collateral_over_tau": [],
+    "rank": 1
+   },
+   {
+    "name": "ADNP <- 50990kb",
+    "mode": "up",
+    "target": "ADNP",
+    "target_tpm": 15.53,
+    "target_flag": "haploinsufficient",
+    "baseline_T": 346.92,
+    "enhancer_kb": 50990,
+    "anchor_a_kb": 50995,
+    "anchor_b_kb": 50920,
+    "separation_kb": 75,
+    "q": 21.65,
+    "delta_target": 0.1047,
+    "sweep": [
+     -0.0022,
+     0.0103,
+     0.023,
+     0.0374,
+     0.0771
+    ],
+    "delta_at_p99": 0.0771,
+    "sign_stable": false,
+    "confidence": "TENTATIVE",
+    "risk": {
+     "tier": "LOW",
+     "score": 0.0047,
+     "worst_gene": "SALL4",
+     "n_flagged_in_window": 1,
+     "reason": "SALL4 (haploinsufficient) -0.5%"
+    },
+    "unflagged_collateral_over_tau": [],
+    "rank": 2
+   }
+  ]
+ },
+ {
+  "gene": "LDLR",
+  "mode": "up",
+  "window": "chr19:10110000-12110000",
+  "seconds": 1,
+  "flagged_in_window": [
+   "LDLR",
+   "PRKCSH",
+   "SMARCA4"
+  ],
+  "target_tpm": 44.1,
+  "baseline_T": 373.83,
+  "permitted_anchors": 99,
+  "genes_expressed": 53,
+  "genes": 66,
+  "excluded_flagged": [],
+  "n_scored": 13,
+  "n_meeting_goal": 1,
+  "dropped": {
+   "noop": 0,
+   "no_anchor": 1,
+   "duplicate": 1,
+   "blocked_by_risk": 0,
+   "below_min_effect": 12
+  },
+  "best": {
+   "name": "LDLR <- 10460kb",
+   "mode": "up",
+   "target": "LDLR",
+   "target_tpm": 44.1,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 373.83,
+   "enhancer_kb": 10460,
+   "anchor_a_kb": 10470,
+   "anchor_b_kb": 11080,
+   "separation_kb": 610,
+   "q": 4.378,
+   "delta_target": 0.1014,
+   "sweep": [
+    0.0,
+    0.0,
+    0.0173,
+    0.025,
+    0.0676
+   ],
+   "delta_at_p99": 0.0676,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0002,
+    "worst_gene": "SMARCA4",
+    "n_flagged_in_window": 2,
+    "reason": "SMARCA4 (haploinsufficient) -0.0%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 1
+  },
+  "best_below_floor": null,
+  "ranked_top5": [
+   {
+    "name": "LDLR <- 10460kb",
+    "mode": "up",
+    "target": "LDLR",
+    "target_tpm": 44.1,
+    "target_flag": "haploinsufficient",
+    "baseline_T": 373.83,
+    "enhancer_kb": 10460,
+    "anchor_a_kb": 10470,
+    "anchor_b_kb": 11080,
+    "separation_kb": 610,
+    "q": 4.378,
+    "delta_target": 0.1014,
+    "sweep": [
+     0.0,
+     0.0,
+     0.0173,
+     0.025,
+     0.0676
+    ],
+    "delta_at_p99": 0.0676,
+    "sign_stable": false,
+    "confidence": "TENTATIVE",
+    "risk": {
+     "tier": "LOW",
+     "score": 0.0002,
+     "worst_gene": "SMARCA4",
+     "n_flagged_in_window": 2,
+     "reason": "SMARCA4 (haploinsufficient) -0.0%"
+    },
+    "unflagged_collateral_over_tau": [],
+    "rank": 1
+   }
+  ]
+ },
+ {
+  "gene": "MSH6",
+  "mode": "up",
+  "window": "chr2:46795000-48795000",
+  "seconds": 520,
+  "flagged_in_window": [
+   "MSH2",
+   "MSH6"
+  ],
+  "target_tpm": 57.85,
+  "baseline_T": 429.23,
+  "permitted_anchors": 138,
+  "genes_expressed": 9,
+  "genes": 15,
+  "excluded_flagged": [],
+  "n_scored": 12,
+  "n_meeting_goal": 0,
+  "dropped": {
+   "noop": 0,
+   "no_anchor": 3,
+   "duplicate": 0,
+   "blocked_by_risk": 0,
+   "below_min_effect": 12
+  },
+  "best": null,
+  "best_below_floor": {
+   "name": "MSH6 <- 47335kb",
+   "mode": "up",
+   "target": "MSH6",
+   "target_tpm": 57.85,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 429.23,
+   "enhancer_kb": 47335,
+   "anchor_a_kb": 47330,
+   "anchor_b_kb": 47760,
+   "separation_kb": 430,
+   "q": 17.741,
+   "delta_target": 0.0252,
+   "sweep": null,
+   "delta_at_p99": null,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0048,
+    "worst_gene": "MSH2",
+    "n_flagged_in_window": 1,
+    "reason": "MSH2 (haploinsufficient) -0.5%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": null
+  },
+  "ranked_top5": []
+ },
+ {
+  "gene": "PQBP1",
+  "mode": "up",
+  "window": "chrX:47900000-49900000",
+  "seconds": 405,
+  "flagged_in_window": [
+   "EBP",
+   "PORCN",
+   "PQBP1",
+   "SLC35A2",
+   "WAS",
+   "WDR45"
+  ],
+  "target_tpm": 127.25,
+  "baseline_T": 649.75,
+  "permitted_anchors": 99,
+  "genes_expressed": 37,
+  "genes": 48,
+  "excluded_flagged": [],
+  "n_scored": 10,
+  "n_meeting_goal": 1,
+  "dropped": {
+   "noop": 0,
+   "no_anchor": 2,
+   "duplicate": 3,
+   "blocked_by_risk": 3,
+   "below_min_effect": 5
+  },
+  "best": {
+   "name": "PQBP1 <- 48735kb",
+   "mode": "up",
+   "target": "PQBP1",
+   "target_tpm": 127.25,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 649.75,
+   "enhancer_kb": 48735,
+   "anchor_a_kb": 48730,
+   "anchor_b_kb": 48885,
+   "separation_kb": 155,
+   "q": 64.809,
+   "delta_target": 0.1102,
+   "sweep": [
+    0.0,
+    0.0002,
+    -0.0011,
+    -0.0036,
+    0.0155
+   ],
+   "delta_at_p99": 0.0155,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "ELEVATED",
+    "score": 0.0755,
+    "worst_gene": "SLC35A2",
+    "n_flagged_in_window": 5,
+    "reason": "SLC35A2 (haploinsufficient) +7.5%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "GAGE2A",
+     "delta": -0.1504
+    },
+    {
+     "gene": "TIMM17B",
+     "delta": 0.1102
+    }
+   ],
+   "rank": 1
+  },
+  "best_below_floor": null,
+  "ranked_top5": [
+   {
+    "name": "PQBP1 <- 48735kb",
+    "mode": "up",
+    "target": "PQBP1",
+    "target_tpm": 127.25,
+    "target_flag": "haploinsufficient",
+    "baseline_T": 649.75,
+    "enhancer_kb": 48735,
+    "anchor_a_kb": 48730,
+    "anchor_b_kb": 48885,
+    "separation_kb": 155,
+    "q": 64.809,
+    "delta_target": 0.1102,
+    "sweep": [
+     0.0,
+     0.0002,
+     -0.0011,
+     -0.0036,
+     0.0155
+    ],
+    "delta_at_p99": 0.0155,
+    "sign_stable": false,
+    "confidence": "TENTATIVE",
+    "risk": {
+     "tier": "ELEVATED",
+     "score": 0.0755,
+     "worst_gene": "SLC35A2",
+     "n_flagged_in_window": 5,
+     "reason": "SLC35A2 (haploinsufficient) +7.5%"
+    },
+    "unflagged_collateral_over_tau": [
+     {
+      "gene": "GAGE2A",
+      "delta": -0.1504
+     },
+     {
+      "gene": "TIMM17B",
+      "delta": 0.1102
+     }
+    ],
+    "rank": 1
+   }
+  ]
+ }
+]

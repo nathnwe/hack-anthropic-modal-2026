@@ -4,7 +4,7 @@ Two bands. The top band builds one contact map from whatever evidence the
 cell type has. The bottom band uses that map: place anchors, force a contact,
 re-score the window, grade it on four axes, rank.
 
-Node fill marks who owns the module: teal for `pipeline/`, amber for
+Node fill marks who owns the module: blue for `pipeline/`, amber for
 `scoring/`. Thumbnails (sequence, ATAC, Hi-C, the dose-response curve, the
 window bars) are drawn from synthetic data with realistic statistics --
 polymer distance decay, TAD blocks, CTCF-anchored corner dots, peaky ATAC
@@ -36,7 +36,7 @@ from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Rectangle
 BG = "#fffefb"
 PANEL = "#f4f1e9"
 INK = "#14201e"
-TEAL = "#0f7a6e"
+TEAL = "#1e9ae0"  # light blue (deck accent)
 AMBER = "#9a6410"
 ROSE = "#a33a3a"
 GREY = "#8a8275"

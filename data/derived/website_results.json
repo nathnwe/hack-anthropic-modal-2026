@@ -1,0 +1,1051 @@
+{
+ "cell_line": "K562 (only cell type with Hi-C here)",
+ "assembly": "GRCh38",
+ "status": "in silico, unvalidated; real K562 data; windows for the demo chosen post hoc",
+ "demo": [
+  {
+   "gene": "LDLR",
+   "disease": "Familial hypercholesterolaemia",
+   "goal": "raise",
+   "window": "chr19:10110000-12110000",
+   "target_tpm_k562": 44.1,
+   "flagged_genes_in_window": {
+    "SMARCA4": "haploinsufficient",
+    "LDLR": "haploinsufficient",
+    "PRKCSH": "haploinsufficient"
+   },
+   "n_designs_scored": 13,
+   "n_meeting_dose_goal": 1,
+   "designs": [
+    {
+     "rank": 1,
+     "enhancer_kb": 10460,
+     "anchor_a_kb": 10470,
+     "anchor_b_kb": 11080,
+     "separation_kb": 610,
+     "delta_target": 0.1014,
+     "delta_at_p99": 0.0676,
+     "sweep": [
+      0.0,
+      0.0,
+      0.0173,
+      0.025,
+      0.0676
+     ],
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "LOW",
+      "score": 0.0002,
+      "worst_gene": "SMARCA4",
+      "n_flagged_in_window": 2,
+      "reason": "SMARCA4 (haploinsufficient) -0.0%"
+     },
+     "unflagged_collateral_over_tau": [],
+     "q": 4.378
+    }
+   ],
+   "rejected_by_safety_gate": []
+  },
+  {
+   "gene": "NF1",
+   "disease": "Neurofibromatosis type 1",
+   "goal": "raise",
+   "window": "chr17:30235000-32235000",
+   "target_tpm_k562": 11.42,
+   "flagged_genes_in_window": {
+    "NF1": "haploinsufficient"
+   },
+   "n_designs_scored": 14,
+   "n_meeting_dose_goal": 4,
+   "designs": [
+    {
+     "rank": 1,
+     "enhancer_kb": 31555,
+     "anchor_a_kb": 31550,
+     "anchor_b_kb": 31080,
+     "separation_kb": 470,
+     "delta_target": 0.3223,
+     "delta_at_p99": 0.1086,
+     "sweep": [
+      0.0,
+      0.0204,
+      0.053,
+      0.0679,
+      0.1086
+     ],
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "CLEAR",
+      "score": 0.0,
+      "worst_gene": null,
+      "n_flagged_in_window": 0,
+      "reason": "no other ClinGen dosage-sensitive gene in the window"
+     },
+     "unflagged_collateral_over_tau": [],
+     "q": 10.034
+    },
+    {
+     "rank": 2,
+     "enhancer_kb": 31435,
+     "anchor_a_kb": 31440,
+     "anchor_b_kb": 31080,
+     "separation_kb": 360,
+     "delta_target": 0.1875,
+     "delta_at_p99": 0.0463,
+     "sweep": [
+      0.0,
+      -0.0,
+      0.0012,
+      0.0114,
+      0.0463
+     ],
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "CLEAR",
+      "score": 0.0,
+      "worst_gene": null,
+      "n_flagged_in_window": 0,
+      "reason": "no other ClinGen dosage-sensitive gene in the window"
+     },
+     "unflagged_collateral_over_tau": [],
+     "q": 22.624
+    },
+    {
+     "rank": 3,
+     "enhancer_kb": 31545,
+     "anchor_a_kb": 31540,
+     "anchor_b_kb": 31080,
+     "separation_kb": 460,
+     "delta_target": 0.1457,
+     "delta_at_p99": 0.1166,
+     "sweep": [
+      0.0,
+      0.0202,
+      0.0406,
+      0.0615,
+      0.1166
+     ],
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "CLEAR",
+      "score": 0.0,
+      "worst_gene": null,
+      "n_flagged_in_window": 0,
+      "reason": "no other ClinGen dosage-sensitive gene in the window"
+     },
+     "unflagged_collateral_over_tau": [],
+     "q": 4.81
+    },
+    {
+     "rank": 4,
+     "enhancer_kb": 30705,
+     "anchor_a_kb": 30700,
+     "anchor_b_kb": 31080,
+     "separation_kb": 380,
+     "delta_target": 0.118,
+     "delta_at_p99": 0.0745,
+     "sweep": [
+      0.0,
+      0.0122,
+      0.0299,
+      0.0471,
+      0.0745
+     ],
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "CLEAR",
+      "score": 0.0,
+      "worst_gene": null,
+      "n_flagged_in_window": 0,
+      "reason": "no other ClinGen dosage-sensitive gene in the window"
+     },
+     "unflagged_collateral_over_tau": [],
+     "q": 8.648
+    }
+   ],
+   "rejected_by_safety_gate": []
+  },
+  {
+   "gene": "MECP2",
+   "disease": "Rett syndrome (loss of function)",
+   "goal": "raise",
+   "window": "chrX:153060000-155060000",
+   "target_tpm_k562": 24.23,
+   "flagged_genes_in_window": {
+    "SLC6A8": "haploinsufficient",
+    "BCAP31": "haploinsufficient",
+    "ABCD1": "haploinsufficient",
+    "L1CAM": "haploinsufficient",
+    "AVPR2": "haploinsufficient",
+    "MECP2": "haploinsufficient",
+    "FLNA": "haploinsufficient",
+    "IKBKG": "haploinsufficient",
+    "F8": "haploinsufficient"
+   },
+   "n_designs_scored": 12,
+   "n_meeting_dose_goal": 2,
+   "designs": [
+    {
+     "rank": 1,
+     "enhancer_kb": 154135,
+     "anchor_a_kb": 154130,
+     "anchor_b_kb": 154100,
+     "separation_kb": 30,
+     "delta_target": 0.1956,
+     "delta_at_p99": 0.03,
+     "sweep": [
+      -0.0048,
+      -0.0085,
+      -0.0006,
+      0.0074,
+      0.03
+     ],
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "LOW",
+      "score": 0.0043,
+      "worst_gene": "IKBKG",
+      "n_flagged_in_window": 8,
+      "reason": "IKBKG (haploinsufficient) +0.4%"
+     },
+     "unflagged_collateral_over_tau": [
+      {
+       "gene": "OPN1LW",
+       "delta": -0.2338
+      }
+     ],
+     "q": 112.377
+    },
+    {
+     "rank": 2,
+     "enhancer_kb": 154000,
+     "anchor_a_kb": 153995,
+     "anchor_b_kb": 154100,
+     "separation_kb": 105,
+     "delta_target": 0.1636,
+     "delta_at_p99": 0.0642,
+     "sweep": [
+      0.0003,
+      0.0013,
+      0.0107,
+      0.0291,
+      0.0642
+     ],
+     "sign_stable": true,
+     "confidence": "CONFIDENT",
+     "risk": {
+      "tier": "LOW",
+      "score": 0.0036,
+      "worst_gene": "AVPR2",
+      "n_flagged_in_window": 8,
+      "reason": "AVPR2 (haploinsufficient) -0.4%"
+     },
+     "unflagged_collateral_over_tau": [],
+     "q": 56.501
+    }
+   ],
+   "rejected_by_safety_gate": [
+    {
+     "rank": null,
+     "enhancer_kb": 153895,
+     "anchor_a_kb": 153890,
+     "anchor_b_kb": 154100,
+     "separation_kb": 210,
+     "delta_target": 0.4389,
+     "delta_at_p99": 0.0747,
+     "sweep": [
+      0.0015,
+      0.0094,
+      0.0297,
+      0.04,
+      0.0747
+     ],
+     "sign_stable": true,
+     "confidence": "CONFIDENT",
+     "risk": {
+      "tier": "BLOCKED",
+      "score": 0.2039,
+      "worst_gene": "AVPR2",
+      "n_flagged_in_window": 8,
+      "reason": "AVPR2 (haploinsufficient) -20.4% -- ClinGen dosage sensitivity"
+     },
+     "unflagged_collateral_over_tau": [],
+     "q": 73.877
+    }
+   ]
+  },
+  {
+   "gene": "MECP2",
+   "disease": "MECP2 duplication syndrome (gain)",
+   "goal": "lower",
+   "window": "chrX:153060000-155060000",
+   "target_tpm_k562": 24.23,
+   "flagged_genes_in_window": {
+    "SLC6A8": "haploinsufficient",
+    "BCAP31": "haploinsufficient",
+    "ABCD1": "haploinsufficient",
+    "L1CAM": "haploinsufficient",
+    "AVPR2": "haploinsufficient",
+    "MECP2": "haploinsufficient",
+    "FLNA": "haploinsufficient",
+    "IKBKG": "haploinsufficient",
+    "F8": "haploinsufficient"
+   },
+   "n_designs_scored": 130,
+   "n_meeting_dose_goal": 1,
+   "designs": [
+    {
+     "rank": 1,
+     "enhancer_kb": 154120,
+     "anchor_a_kb": 154115,
+     "anchor_b_kb": 154300,
+     "separation_kb": 185,
+     "delta_target": -0.1097,
+     "delta_at_p99": -0.0068,
+     "sweep": [
+      -0.0001,
+      -0.0003,
+      -0.0011,
+      -0.0021,
+      -0.0068
+     ],
+     "sign_stable": true,
+     "confidence": "CONFIDENT",
+     "risk": {
+      "tier": "ELEVATED",
+      "score": 0.0224,
+      "worst_gene": "FLNA",
+      "n_flagged_in_window": 8,
+      "reason": "FLNA (haploinsufficient) +2.2%"
+     },
+     "unflagged_collateral_over_tau": [
+      {
+       "gene": "TEX28",
+       "delta": 1.0002
+      },
+      {
+       "gene": "TKTL1",
+       "delta": 1.0002
+      },
+      {
+       "gene": "OPN1LW",
+       "delta": -0.1846
+      }
+     ],
+     "q": 381.354
+    }
+   ],
+   "rejected_by_safety_gate": []
+  },
+  {
+   "gene": "MYC",
+   "disease": "Oncogene, overexpressed in cancer",
+   "goal": "lower",
+   "window": "chr8:127000000-129000000",
+   "target_tpm_k562": 140.76,
+   "flagged_genes_in_window": {},
+   "n_designs_scored": 197,
+   "n_meeting_dose_goal": 1,
+   "designs": [
+    {
+     "rank": 1,
+     "enhancer_kb": 127740,
+     "anchor_a_kb": 127745,
+     "anchor_b_kb": 127270,
+     "separation_kb": 475,
+     "delta_target": -0.1036,
+     "delta_at_p99": -0.0177,
+     "sweep": [
+      -0.0016,
+      -0.0037,
+      -0.0072,
+      -0.0093,
+      -0.0177
+     ],
+     "sign_stable": true,
+     "confidence": "CONFIDENT",
+     "risk": {
+      "tier": "CLEAR",
+      "score": 0.0,
+      "worst_gene": null,
+      "n_flagged_in_window": 0,
+      "reason": "no other ClinGen dosage-sensitive gene in the window"
+     },
+     "unflagged_collateral_over_tau": [],
+     "q": 40.54
+    }
+   ],
+   "rejected_by_safety_gate": []
+  },
+  {
+   "gene": "RUNX1",
+   "disease": "Familial platelet disorder with AML predisposition",
+   "goal": "raise",
+   "window": "chr21:33920000-35920000",
+   "target_tpm_k562": 14.93,
+   "flagged_genes_in_window": {
+    "RUNX1": "haploinsufficient"
+   },
+   "n_designs_scored": 10,
+   "n_meeting_dose_goal": 1,
+   "designs": [
+    {
+     "rank": 1,
+     "enhancer_kb": 34615,
+     "anchor_a_kb": 34620,
+     "anchor_b_kb": 34875,
+     "separation_kb": 255,
+     "delta_target": 0.152,
+     "delta_at_p99": 0.0415,
+     "sweep": [
+      0.0015,
+      0.0077,
+      0.0199,
+      0.0262,
+      0.0415
+     ],
+     "sign_stable": true,
+     "confidence": "CONFIDENT",
+     "risk": {
+      "tier": "CLEAR",
+      "score": 0.0,
+      "worst_gene": null,
+      "n_flagged_in_window": 0,
+      "reason": "no other ClinGen dosage-sensitive gene in the window"
+     },
+     "unflagged_collateral_over_tau": [],
+     "q": 24.347
+    }
+   ],
+   "rejected_by_safety_gate": []
+  },
+  {
+   "gene": "NSD1",
+   "disease": "Sotos syndrome",
+   "goal": "raise",
+   "window": "chr5:176215000-178215000",
+   "target_tpm_k562": 11.69,
+   "flagged_genes_in_window": {
+    "NSD1": "haploinsufficient",
+    "DDX41": "haploinsufficient"
+   },
+   "n_designs_scored": 8,
+   "n_meeting_dose_goal": 3,
+   "designs": [
+    {
+     "rank": 1,
+     "enhancer_kb": 177365,
+     "anchor_a_kb": 177345,
+     "anchor_b_kb": 177125,
+     "separation_kb": 220,
+     "delta_target": 0.4002,
+     "delta_at_p99": -0.0052,
+     "sweep": [
+      0.0,
+      -0.0003,
+      -0.0034,
+      -0.0082,
+      -0.0052
+     ],
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "LOW",
+      "score": 0.0188,
+      "worst_gene": "DDX41",
+      "n_flagged_in_window": 1,
+      "reason": "DDX41 (haploinsufficient) -1.9%"
+     },
+     "unflagged_collateral_over_tau": [
+      {
+       "gene": "LMAN2",
+       "delta": 0.1377
+      }
+     ],
+     "q": 255.005
+    },
+    {
+     "rank": 2,
+     "enhancer_kb": 177400,
+     "anchor_a_kb": 177410,
+     "anchor_b_kb": 177125,
+     "separation_kb": 285,
+     "delta_target": 0.3608,
+     "delta_at_p99": -0.0025,
+     "sweep": [
+      -0.0003,
+      -0.0014,
+      -0.0042,
+      -0.0071,
+      -0.0025
+     ],
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "LOW",
+      "score": 0.0195,
+      "worst_gene": "DDX41",
+      "n_flagged_in_window": 1,
+      "reason": "DDX41 (haploinsufficient) -1.9%"
+     },
+     "unflagged_collateral_over_tau": [
+      {
+       "gene": "PFN3",
+       "delta": -0.1869
+      },
+      {
+       "gene": "GRK6",
+       "delta": 0.1097
+      }
+     ],
+     "q": 716.611
+    },
+    {
+     "rank": 3,
+     "enhancer_kb": 176615,
+     "anchor_a_kb": 176600,
+     "anchor_b_kb": 177125,
+     "separation_kb": 525,
+     "delta_target": 0.1751,
+     "delta_at_p99": 0.0251,
+     "sweep": [
+      0.0,
+      -0.0,
+      -0.0011,
+      0.0021,
+      0.0251
+     ],
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "LOW",
+      "score": 0.0048,
+      "worst_gene": "DDX41",
+      "n_flagged_in_window": 1,
+      "reason": "DDX41 (haploinsufficient) -0.5%"
+     },
+     "unflagged_collateral_over_tau": [],
+     "q": 106.088
+    }
+   ],
+   "rejected_by_safety_gate": []
+  }
+ ],
+ "screen": {
+  "complete": false,
+  "note": "stopped early; random order, seed 0 (see docs/results-report.md)",
+  "records": [
+   {
+    "gene": "LMNB1",
+    "mode": "down",
+    "window": "chr5:125800000-127800000",
+    "target_tpm": 74.28,
+    "flagged_in_window": [
+     "LMNB1"
+    ],
+    "n_scored": 159,
+    "n_meeting_goal": 0,
+    "best": null,
+    "best_below_floor": {
+     "name": "LMNB1 v 126780kb->126410kb",
+     "mode": "down",
+     "target": "LMNB1",
+     "target_tpm": 74.28,
+     "target_flag": "triplosensitive",
+     "baseline_T": 658.1,
+     "enhancer_kb": 126780,
+     "enhancer_abc_share": 0.15,
+     "anchor_a_kb": 126785,
+     "anchor_b_kb": 126410,
+     "decoy_kb": 126410,
+     "separation_kb": 375,
+     "q": 29.031,
+     "delta_target": -0.0687,
+     "sweep": null,
+     "delta_at_p99": null,
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "CLEAR",
+      "score": 0.0,
+      "worst_gene": null,
+      "n_flagged_in_window": 0,
+      "reason": "no other ClinGen dosage-sensitive gene in the window"
+     },
+     "unflagged_collateral_over_tau": [],
+     "rank": null
+    },
+    "error": null
+   },
+   {
+    "gene": "MECP2",
+    "mode": "down",
+    "window": "chrX:153060000-155060000",
+    "target_tpm": 24.23,
+    "flagged_in_window": [
+     "ABCD1",
+     "AVPR2",
+     "BCAP31",
+     "F8",
+     "FLNA",
+     "IKBKG",
+     "L1CAM",
+     "MECP2",
+     "SLC6A8"
+    ],
+    "n_scored": 130,
+    "n_meeting_goal": 1,
+    "best": {
+     "name": "MECP2 v 154120kb->154300kb",
+     "mode": "down",
+     "target": "MECP2",
+     "target_tpm": 24.23,
+     "target_flag": "haploinsufficient",
+     "baseline_T": 311.07,
+     "enhancer_kb": 154120,
+     "enhancer_abc_share": 0.204,
+     "anchor_a_kb": 154115,
+     "anchor_b_kb": 154300,
+     "decoy_kb": 154300,
+     "separation_kb": 185,
+     "q": 381.354,
+     "delta_target": -0.1097,
+     "sweep": [
+      -0.0001,
+      -0.0003,
+      -0.0011,
+      -0.0021,
+      -0.0068
+     ],
+     "delta_at_p99": -0.0068,
+     "sign_stable": true,
+     "confidence": "CONFIDENT",
+     "risk": {
+      "tier": "ELEVATED",
+      "score": 0.0224,
+      "worst_gene": "FLNA",
+      "n_flagged_in_window": 8,
+      "reason": "FLNA (haploinsufficient) +2.2%"
+     },
+     "unflagged_collateral_over_tau": [
+      {
+       "gene": "TEX28",
+       "delta": 1.0002
+      },
+      {
+       "gene": "TKTL1",
+       "delta": 1.0002
+      },
+      {
+       "gene": "OPN1LW",
+       "delta": -0.1846
+      }
+     ],
+     "rank": 1
+    },
+    "best_below_floor": null,
+    "error": null
+   },
+   {
+    "gene": "MYC",
+    "mode": "down",
+    "window": "chr8:127000000-129000000",
+    "target_tpm": 140.76,
+    "flagged_in_window": [],
+    "n_scored": 197,
+    "n_meeting_goal": 1,
+    "best": {
+     "name": "MYC v 127740kb->127270kb",
+     "mode": "down",
+     "target": "MYC",
+     "target_tpm": 140.76,
+     "target_flag": null,
+     "baseline_T": 708.71,
+     "enhancer_kb": 127740,
+     "enhancer_abc_share": 0.124,
+     "anchor_a_kb": 127745,
+     "anchor_b_kb": 127270,
+     "decoy_kb": 127270,
+     "separation_kb": 475,
+     "q": 40.54,
+     "delta_target": -0.1036,
+     "sweep": [
+      -0.0016,
+      -0.0037,
+      -0.0072,
+      -0.0093,
+      -0.0177
+     ],
+     "delta_at_p99": -0.0177,
+     "sign_stable": true,
+     "confidence": "CONFIDENT",
+     "risk": {
+      "tier": "CLEAR",
+      "score": 0.0,
+      "worst_gene": null,
+      "n_flagged_in_window": 0,
+      "reason": "no other ClinGen dosage-sensitive gene in the window"
+     },
+     "unflagged_collateral_over_tau": [],
+     "rank": 1
+    },
+    "best_below_floor": null,
+    "error": null
+   },
+   {
+    "gene": "PLP1",
+    "mode": "down",
+    "window": "chrX:102780000-104780000",
+    "target_tpm": 0.0,
+    "flagged_in_window": [
+     "PLP1"
+    ],
+    "n_scored": 198,
+    "n_meeting_goal": 0,
+    "best": null,
+    "best_below_floor": {
+     "name": "PLP1 v 103795kb->103595kb",
+     "mode": "down",
+     "target": "PLP1",
+     "target_tpm": 0.0,
+     "target_flag": "haploinsufficient",
+     "baseline_T": 15.38,
+     "enhancer_kb": 103795,
+     "enhancer_abc_share": 0.182,
+     "anchor_a_kb": 103800,
+     "anchor_b_kb": 103595,
+     "decoy_kb": 103595,
+     "separation_kb": 205,
+     "q": 32.02,
+     "delta_target": -0.0415,
+     "sweep": null,
+     "delta_at_p99": null,
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "CLEAR",
+      "score": 0.0,
+      "worst_gene": null,
+      "n_flagged_in_window": 0,
+      "reason": "no other ClinGen dosage-sensitive gene in the window"
+     },
+     "unflagged_collateral_over_tau": [
+      {
+       "gene": "TCEAL3",
+       "delta": 0.3399
+      },
+      {
+       "gene": "TCEAL4",
+       "delta": 0.1875
+      }
+     ],
+     "rank": null
+    },
+    "error": null
+   },
+   {
+    "gene": "TPSAB1",
+    "mode": "down",
+    "window": "chr16:240000-2240000",
+    "target_tpm": 0.0,
+    "flagged_in_window": [
+     "PKD1",
+     "TPSAB1",
+     "TSC2"
+    ],
+    "n_scored": 196,
+    "n_meeting_goal": 0,
+    "best": null,
+    "best_below_floor": {
+     "name": "TPSAB1 v 1265kb->1010kb",
+     "mode": "down",
+     "target": "TPSAB1",
+     "target_tpm": 0.0,
+     "target_flag": "triplosensitive",
+     "baseline_T": 283.28,
+     "enhancer_kb": 1265,
+     "enhancer_abc_share": 0.224,
+     "anchor_a_kb": 1260,
+     "anchor_b_kb": 1010,
+     "decoy_kb": 1010,
+     "separation_kb": 250,
+     "q": 76.906,
+     "delta_target": -0.0483,
+     "sweep": null,
+     "delta_at_p99": null,
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "LOW",
+      "score": 0.0011,
+      "worst_gene": "PKD1",
+      "n_flagged_in_window": 2,
+      "reason": "PKD1 (haploinsufficient) +0.1%"
+     },
+     "unflagged_collateral_over_tau": [
+      {
+       "gene": "TPSD1",
+       "delta": -0.1441
+      }
+     ],
+     "rank": null
+    },
+    "error": null
+   },
+   {
+    "gene": "AAGAB",
+    "mode": "up",
+    "window": "chr15:66230000-68230000",
+    "target_tpm": 39.47,
+    "flagged_in_window": [
+     "AAGAB",
+     "SMAD3"
+    ],
+    "n_scored": 13,
+    "n_meeting_goal": 4,
+    "best": {
+     "name": "AAGAB <- 66670kb",
+     "mode": "up",
+     "target": "AAGAB",
+     "target_tpm": 39.47,
+     "target_flag": "haploinsufficient",
+     "baseline_T": 244.06,
+     "enhancer_kb": 66670,
+     "anchor_a_kb": 66665,
+     "anchor_b_kb": 67245,
+     "separation_kb": 580,
+     "q": 5.794,
+     "delta_target": 0.2006,
+     "sweep": [
+      0.0,
+      0.0056,
+      0.0213,
+      0.0344,
+      0.0775
+     ],
+     "delta_at_p99": 0.0775,
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "LOW",
+      "score": 0.0001,
+      "worst_gene": "SMAD3",
+      "n_flagged_in_window": 1,
+      "reason": "SMAD3 (haploinsufficient) +0.0%"
+     },
+     "unflagged_collateral_over_tau": [
+      {
+       "gene": "IQCH",
+       "delta": 0.2006
+      }
+     ],
+     "rank": 1
+    },
+    "best_below_floor": null,
+    "error": null
+   },
+   {
+    "gene": "ADNP",
+    "mode": "up",
+    "window": "chr20:49910000-51910000",
+    "target_tpm": 15.53,
+    "flagged_in_window": [
+     "ADNP",
+     "SALL4"
+    ],
+    "n_scored": 12,
+    "n_meeting_goal": 2,
+    "best": {
+     "name": "ADNP <- 50635kb",
+     "mode": "up",
+     "target": "ADNP",
+     "target_tpm": 15.53,
+     "target_flag": "haploinsufficient",
+     "baseline_T": 346.92,
+     "enhancer_kb": 50635,
+     "anchor_a_kb": 50640,
+     "anchor_b_kb": 50920,
+     "separation_kb": 280,
+     "q": 20.622,
+     "delta_target": 0.1048,
+     "sweep": [
+      -0.0004,
+      -0.0014,
+      0.0033,
+      0.0147,
+      0.0279
+     ],
+     "delta_at_p99": 0.0279,
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "LOW",
+      "score": 0.0005,
+      "worst_gene": "SALL4",
+      "n_flagged_in_window": 1,
+      "reason": "SALL4 (haploinsufficient) +0.1%"
+     },
+     "unflagged_collateral_over_tau": [],
+     "rank": 1
+    },
+    "best_below_floor": null,
+    "error": null
+   },
+   {
+    "gene": "LDLR",
+    "mode": "up",
+    "window": "chr19:10110000-12110000",
+    "target_tpm": 44.1,
+    "flagged_in_window": [
+     "LDLR",
+     "PRKCSH",
+     "SMARCA4"
+    ],
+    "n_scored": 13,
+    "n_meeting_goal": 1,
+    "best": {
+     "name": "LDLR <- 10460kb",
+     "mode": "up",
+     "target": "LDLR",
+     "target_tpm": 44.1,
+     "target_flag": "haploinsufficient",
+     "baseline_T": 373.83,
+     "enhancer_kb": 10460,
+     "anchor_a_kb": 10470,
+     "anchor_b_kb": 11080,
+     "separation_kb": 610,
+     "q": 4.378,
+     "delta_target": 0.1014,
+     "sweep": [
+      0.0,
+      0.0,
+      0.0173,
+      0.025,
+      0.0676
+     ],
+     "delta_at_p99": 0.0676,
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "LOW",
+      "score": 0.0002,
+      "worst_gene": "SMARCA4",
+      "n_flagged_in_window": 2,
+      "reason": "SMARCA4 (haploinsufficient) -0.0%"
+     },
+     "unflagged_collateral_over_tau": [],
+     "rank": 1
+    },
+    "best_below_floor": null,
+    "error": null
+   },
+   {
+    "gene": "MSH6",
+    "mode": "up",
+    "window": "chr2:46795000-48795000",
+    "target_tpm": 57.85,
+    "flagged_in_window": [
+     "MSH2",
+     "MSH6"
+    ],
+    "n_scored": 12,
+    "n_meeting_goal": 0,
+    "best": null,
+    "best_below_floor": {
+     "name": "MSH6 <- 47335kb",
+     "mode": "up",
+     "target": "MSH6",
+     "target_tpm": 57.85,
+     "target_flag": "haploinsufficient",
+     "baseline_T": 429.23,
+     "enhancer_kb": 47335,
+     "anchor_a_kb": 47330,
+     "anchor_b_kb": 47760,
+     "separation_kb": 430,
+     "q": 17.741,
+     "delta_target": 0.0252,
+     "sweep": null,
+     "delta_at_p99": null,
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "LOW",
+      "score": 0.0048,
+      "worst_gene": "MSH2",
+      "n_flagged_in_window": 1,
+      "reason": "MSH2 (haploinsufficient) -0.5%"
+     },
+     "unflagged_collateral_over_tau": [],
+     "rank": null
+    },
+    "error": null
+   },
+   {
+    "gene": "PQBP1",
+    "mode": "up",
+    "window": "chrX:47900000-49900000",
+    "target_tpm": 127.25,
+    "flagged_in_window": [
+     "EBP",
+     "PORCN",
+     "PQBP1",
+     "SLC35A2",
+     "WAS",
+     "WDR45"
+    ],
+    "n_scored": 10,
+    "n_meeting_goal": 1,
+    "best": {
+     "name": "PQBP1 <- 48735kb",
+     "mode": "up",
+     "target": "PQBP1",
+     "target_tpm": 127.25,
+     "target_flag": "haploinsufficient",
+     "baseline_T": 649.75,
+     "enhancer_kb": 48735,
+     "anchor_a_kb": 48730,
+     "anchor_b_kb": 48885,
+     "separation_kb": 155,
+     "q": 64.809,
+     "delta_target": 0.1102,
+     "sweep": [
+      0.0,
+      0.0002,
+      -0.0011,
+      -0.0036,
+      0.0155
+     ],
+     "delta_at_p99": 0.0155,
+     "sign_stable": false,
+     "confidence": "TENTATIVE",
+     "risk": {
+      "tier": "ELEVATED",
+      "score": 0.0755,
+      "worst_gene": "SLC35A2",
+      "n_flagged_in_window": 5,
+      "reason": "SLC35A2 (haploinsufficient) +7.5%"
+     },
+     "unflagged_collateral_over_tau": [
+      {
+       "gene": "GAGE2A",
+       "delta": -0.1504
+      },
+      {
+       "gene": "TIMM17B",
+       "delta": 0.1102
+      }
+     ],
+     "rank": 1
+    },
+    "best_below_floor": null,
+    "error": null
+   }
+  ]
+ }
+}

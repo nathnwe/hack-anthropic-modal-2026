@@ -1,0 +1,218 @@
+{
+ "gene": "AAGAB",
+ "mode": "up",
+ "window": "chr15:66230000-68230000",
+ "seconds": 477,
+ "flagged_in_window": [
+  "AAGAB",
+  "SMAD3"
+ ],
+ "target_tpm": 39.47,
+ "baseline_T": 244.06,
+ "permitted_anchors": 153,
+ "genes_expressed": 15,
+ "genes": 18,
+ "excluded_flagged": [],
+ "n_scored": 13,
+ "n_meeting_goal": 4,
+ "dropped": {
+  "noop": 0,
+  "no_anchor": 0,
+  "duplicate": 2,
+  "blocked_by_risk": 0,
+  "below_min_effect": 9
+ },
+ "best": {
+  "name": "AAGAB <- 66670kb",
+  "mode": "up",
+  "target": "AAGAB",
+  "target_tpm": 39.47,
+  "target_flag": "haploinsufficient",
+  "baseline_T": 244.06,
+  "enhancer_kb": 66670,
+  "anchor_a_kb": 66665,
+  "anchor_b_kb": 67245,
+  "separation_kb": 580,
+  "q": 5.794,
+  "delta_target": 0.2006,
+  "sweep": [
+   0.0,
+   0.0056,
+   0.0213,
+   0.0344,
+   0.0775
+  ],
+  "delta_at_p99": 0.0775,
+  "sign_stable": false,
+  "confidence": "TENTATIVE",
+  "risk": {
+   "tier": "LOW",
+   "score": 0.0001,
+   "worst_gene": "SMAD3",
+   "n_flagged_in_window": 1,
+   "reason": "SMAD3 (haploinsufficient) +0.0%"
+  },
+  "unflagged_collateral_over_tau": [
+   {
+    "gene": "IQCH",
+    "delta": 0.2006
+   }
+  ],
+  "rank": 1
+ },
+ "best_below_floor": null,
+ "ranked_top5": [
+  {
+   "name": "AAGAB <- 66670kb",
+   "mode": "up",
+   "target": "AAGAB",
+   "target_tpm": 39.47,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 244.06,
+   "enhancer_kb": 66670,
+   "anchor_a_kb": 66665,
+   "anchor_b_kb": 67245,
+   "separation_kb": 580,
+   "q": 5.794,
+   "delta_target": 0.2006,
+   "sweep": [
+    0.0,
+    0.0056,
+    0.0213,
+    0.0344,
+    0.0775
+   ],
+   "delta_at_p99": 0.0775,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0001,
+    "worst_gene": "SMAD3",
+    "n_flagged_in_window": 1,
+    "reason": "SMAD3 (haploinsufficient) +0.0%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "IQCH",
+     "delta": 0.2006
+    }
+   ],
+   "rank": 1
+  },
+  {
+   "name": "AAGAB <- 66800kb",
+   "mode": "up",
+   "target": "AAGAB",
+   "target_tpm": 39.47,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 244.06,
+   "enhancer_kb": 66800,
+   "anchor_a_kb": 66795,
+   "anchor_b_kb": 67245,
+   "separation_kb": 450,
+   "q": 9.919,
+   "delta_target": 0.1701,
+   "sweep": [
+    0.013,
+    0.0196,
+    0.045,
+    0.0616,
+    0.1025
+   ],
+   "delta_at_p99": 0.1025,
+   "sign_stable": true,
+   "confidence": "CONFIDENT",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0005,
+    "worst_gene": "SMAD3",
+    "n_flagged_in_window": 1,
+    "reason": "SMAD3 (haploinsufficient) +0.0%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "IQCH",
+     "delta": 0.1701
+    }
+   ],
+   "rank": 2
+  },
+  {
+   "name": "AAGAB <- 66850kb",
+   "mode": "up",
+   "target": "AAGAB",
+   "target_tpm": 39.47,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 244.06,
+   "enhancer_kb": 66850,
+   "anchor_a_kb": 66845,
+   "anchor_b_kb": 67245,
+   "separation_kb": 400,
+   "q": 12.463,
+   "delta_target": 0.1683,
+   "sweep": [
+    0.0012,
+    0.0027,
+    0.0204,
+    0.0304,
+    0.0893
+   ],
+   "delta_at_p99": 0.0893,
+   "sign_stable": true,
+   "confidence": "CONFIDENT",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0011,
+    "worst_gene": "SMAD3",
+    "n_flagged_in_window": 1,
+    "reason": "SMAD3 (haploinsufficient) +0.1%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "IQCH",
+     "delta": 0.1683
+    }
+   ],
+   "rank": 3
+  },
+  {
+   "name": "AAGAB <- 66630kb",
+   "mode": "up",
+   "target": "AAGAB",
+   "target_tpm": 39.47,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 244.06,
+   "enhancer_kb": 66630,
+   "anchor_a_kb": 66625,
+   "anchor_b_kb": 67245,
+   "separation_kb": 620,
+   "q": 5.927,
+   "delta_target": 0.1289,
+   "sweep": [
+    0.0,
+    0.0103,
+    0.0256,
+    0.0362,
+    0.0606
+   ],
+   "delta_at_p99": 0.0606,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0005,
+    "worst_gene": "SMAD3",
+    "n_flagged_in_window": 1,
+    "reason": "SMAD3 (haploinsufficient) +0.0%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "IQCH",
+     "delta": 0.1289
+    }
+   ],
+   "rank": 4
+  }
+ ]
+}

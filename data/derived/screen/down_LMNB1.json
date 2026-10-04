@@ -1,0 +1,55 @@
+{
+ "gene": "LMNB1",
+ "mode": "down",
+ "window": "chr5:125800000-127800000",
+ "seconds": 5,
+ "flagged_in_window": [
+  "LMNB1"
+ ],
+ "target_tpm": 74.28,
+ "baseline_T": 658.1,
+ "permitted_anchors": 106,
+ "genes_expressed": 6,
+ "genes": 11,
+ "excluded_flagged": [],
+ "n_scored": 159,
+ "n_meeting_goal": 0,
+ "dropped": {
+  "noop": 1,
+  "no_anchor": 0,
+  "duplicate": 40,
+  "blocked_by_risk": 0,
+  "below_min_effect": 159
+ },
+ "best": null,
+ "best_below_floor": {
+  "name": "LMNB1 v 126780kb->126410kb",
+  "mode": "down",
+  "target": "LMNB1",
+  "target_tpm": 74.28,
+  "target_flag": "triplosensitive",
+  "baseline_T": 658.1,
+  "enhancer_kb": 126780,
+  "enhancer_abc_share": 0.15,
+  "anchor_a_kb": 126785,
+  "anchor_b_kb": 126410,
+  "decoy_kb": 126410,
+  "separation_kb": 375,
+  "q": 29.031,
+  "delta_target": -0.0687,
+  "sweep": null,
+  "delta_at_p99": null,
+  "sign_stable": false,
+  "confidence": "TENTATIVE",
+  "risk": {
+   "tier": "CLEAR",
+   "score": 0.0,
+   "worst_gene": null,
+   "n_flagged_in_window": 0,
+   "reason": "no other ClinGen dosage-sensitive gene in the window"
+  },
+  "unflagged_collateral_over_tau": [],
+  "rank": null
+ },
+ "ranked_top5": []
+}
