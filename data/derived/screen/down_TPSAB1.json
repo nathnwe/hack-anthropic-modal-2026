@@ -1,0 +1,62 @@
+{
+ "gene": "TPSAB1",
+ "mode": "down",
+ "window": "chr16:240000-2240000",
+ "seconds": 6,
+ "flagged_in_window": [
+  "PKD1",
+  "TPSAB1",
+  "TSC2"
+ ],
+ "target_tpm": 0.0,
+ "baseline_T": 283.28,
+ "permitted_anchors": 82,
+ "genes_expressed": 69,
+ "genes": 93,
+ "excluded_flagged": [],
+ "n_scored": 196,
+ "n_meeting_goal": 0,
+ "dropped": {
+  "noop": 4,
+  "no_anchor": 0,
+  "duplicate": 0,
+  "blocked_by_risk": 0,
+  "below_min_effect": 182
+ },
+ "best": null,
+ "best_below_floor": {
+  "name": "TPSAB1 v 1265kb->1010kb",
+  "mode": "down",
+  "target": "TPSAB1",
+  "target_tpm": 0.0,
+  "target_flag": "triplosensitive",
+  "baseline_T": 283.28,
+  "enhancer_kb": 1265,
+  "enhancer_abc_share": 0.224,
+  "anchor_a_kb": 1260,
+  "anchor_b_kb": 1010,
+  "decoy_kb": 1010,
+  "separation_kb": 250,
+  "q": 76.906,
+  "delta_target": -0.0483,
+  "sweep": null,
+  "delta_at_p99": null,
+  "sign_stable": false,
+  "confidence": "TENTATIVE",
+  "risk": {
+   "tier": "LOW",
+   "score": 0.0011,
+   "worst_gene": "PKD1",
+   "n_flagged_in_window": 2,
+   "reason": "PKD1 (haploinsufficient) +0.1%"
+  },
+  "unflagged_collateral_over_tau": [
+   {
+    "gene": "TPSD1",
+    "delta": -0.1441
+   }
+  ],
+  "rank": null
+ },
+ "ranked_top5": []
+}

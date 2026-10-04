@@ -1,0 +1,133 @@
+{
+ "gene": "MECP2",
+ "mode": "down",
+ "window": "chrX:153060000-155060000",
+ "seconds": 4,
+ "flagged_in_window": [
+  "ABCD1",
+  "AVPR2",
+  "BCAP31",
+  "F8",
+  "FLNA",
+  "IKBKG",
+  "L1CAM",
+  "MECP2",
+  "SLC6A8"
+ ],
+ "target_tpm": 24.23,
+ "baseline_T": 311.07,
+ "permitted_anchors": 80,
+ "genes_expressed": 41,
+ "genes": 58,
+ "excluded_flagged": [
+  "F8"
+ ],
+ "n_scored": 130,
+ "n_meeting_goal": 1,
+ "dropped": {
+  "noop": 1,
+  "no_anchor": 0,
+  "duplicate": 0,
+  "blocked_by_risk": 0,
+  "below_min_effect": 67
+ },
+ "best": {
+  "name": "MECP2 v 154120kb->154300kb",
+  "mode": "down",
+  "target": "MECP2",
+  "target_tpm": 24.23,
+  "target_flag": "haploinsufficient",
+  "baseline_T": 311.07,
+  "enhancer_kb": 154120,
+  "enhancer_abc_share": 0.204,
+  "anchor_a_kb": 154115,
+  "anchor_b_kb": 154300,
+  "decoy_kb": 154300,
+  "separation_kb": 185,
+  "q": 381.354,
+  "delta_target": -0.1097,
+  "sweep": [
+   -0.0001,
+   -0.0003,
+   -0.0011,
+   -0.0021,
+   -0.0068
+  ],
+  "delta_at_p99": -0.0068,
+  "sign_stable": true,
+  "confidence": "CONFIDENT",
+  "risk": {
+   "tier": "ELEVATED",
+   "score": 0.0224,
+   "worst_gene": "FLNA",
+   "n_flagged_in_window": 8,
+   "reason": "FLNA (haploinsufficient) +2.2%"
+  },
+  "unflagged_collateral_over_tau": [
+   {
+    "gene": "TEX28",
+    "delta": 1.0002
+   },
+   {
+    "gene": "TKTL1",
+    "delta": 1.0002
+   },
+   {
+    "gene": "OPN1LW",
+    "delta": -0.1846
+   }
+  ],
+  "rank": 1
+ },
+ "best_below_floor": null,
+ "ranked_top5": [
+  {
+   "name": "MECP2 v 154120kb->154300kb",
+   "mode": "down",
+   "target": "MECP2",
+   "target_tpm": 24.23,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 311.07,
+   "enhancer_kb": 154120,
+   "enhancer_abc_share": 0.204,
+   "anchor_a_kb": 154115,
+   "anchor_b_kb": 154300,
+   "decoy_kb": 154300,
+   "separation_kb": 185,
+   "q": 381.354,
+   "delta_target": -0.1097,
+   "sweep": [
+    -0.0001,
+    -0.0003,
+    -0.0011,
+    -0.0021,
+    -0.0068
+   ],
+   "delta_at_p99": -0.0068,
+   "sign_stable": true,
+   "confidence": "CONFIDENT",
+   "risk": {
+    "tier": "ELEVATED",
+    "score": 0.0224,
+    "worst_gene": "FLNA",
+    "n_flagged_in_window": 8,
+    "reason": "FLNA (haploinsufficient) +2.2%"
+   },
+   "unflagged_collateral_over_tau": [
+    {
+     "gene": "TEX28",
+     "delta": 1.0002
+    },
+    {
+     "gene": "TKTL1",
+     "delta": 1.0002
+    },
+    {
+     "gene": "OPN1LW",
+     "delta": -0.1846
+    }
+   ],
+   "rank": 1
+  }
+ ]
+}

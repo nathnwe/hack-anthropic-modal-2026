@@ -59,6 +59,8 @@ CONFIG = {
     "MAX_CONFIDENT_DISTANCE_KB": MAX_CONFIDENT_DISTANCE_KB,
     "SIGMA_BINS": sweep_mod.SIGMA_BINS,
     "RENORM_ITERS": sweep_mod.RENORM_ITERS,
+    "DOWN": {"DECOY_REACH_BINS": 100, "DECOY_KEEP_OUT_BINS": 12,
+             "N_DECOYS": 40, "DOWN_ENHANCERS": 5},
 }
 TESTS_EVALUATED = {
     "abstention": "NOT RUN: UniversalEPI not used, constant False",
@@ -108,12 +110,13 @@ class Scorer:
         m = sweep_mod.apply_staple(self.loc.contact, a, b, q, sigma)
         return {g: (v - self.t0[g]) / self.t0[g] for g, v in self.totals(m).items()}
 
-    def effect(self, a, b, target, sigma=sweep_mod.SIGMA_BINS, sweep_if_over=None):
-        """Headline effect, and the q-sweep unless the headline is below `sweep_if_over`."""
+    def effect(self, a, b, target, sigma=sweep_mod.SIGMA_BINS, sweep_if_over=None, direction=1):
+        """Headline effect, and the q-sweep unless the headline is below `sweep_if_over`.
+        `direction` is +1 to raise the target's dose, -1 to lower it."""
         q, noop = sweep_mod.staple_strength(self.loc.contact, a, b)
         delta = self.delta(a, b, q, sigma)
         sweep = None
-        if sweep_if_over is None or delta[target] >= sweep_if_over:
+        if sweep_if_over is None or direction * delta[target] >= sweep_if_over:
             sweep = [
                 self.delta(a, b, qi, sigma)[target]
                 for qi in sweep_mod.q_grid(self.loc.contact, abs(a - b))
@@ -123,7 +126,7 @@ class Scorer:
             "q": q,
             "noop": noop,
             "sweep": sweep,
-            "sign_stable": bool(sweep is not None and all(s > 0 for s in sweep)),
+            "sign_stable": bool(sweep is not None and all(direction * s > 0 for s in sweep)),
         }
 
 
@@ -207,6 +210,7 @@ def search(win, sc, forbidden, open_mask, targets=None):
             rows.append(
                 {
                     "name": cand.name,
+                    "mode": "up",
                     "target": g,
                     "target_tpm": round(loc.expression.get(g, 0.0), 2),
                     "target_flag": loc.flags.get(g),
@@ -220,6 +224,7 @@ def search(win, sc, forbidden, open_mask, targets=None):
                     "sweep": None
                     if r["sweep"] is None
                     else [round(x, 4) for x in r["sweep"]],
+                    "delta_at_p99": None if r["sweep"] is None else round(r["sweep"][-1], 4),
                     "sign_stable": r["sign_stable"],
                     "confidence": cand.tier,
                     "risk": {
@@ -238,14 +243,103 @@ def search(win, sc, forbidden, open_mask, targets=None):
     place = {c.name: i + 1 for i, c in enumerate(ranked)}
     for r in rows:
         r["rank"] = place.get(r["name"])
-    dropped["blocked_by_risk"] = int(sum(not c.safe for c in cands))
+    dropped["blocked_by_risk"] = int(sum(not c.safe and c.delta_t >= MIN_EFFECT for c in cands))   # would have met the dose goal
     dropped["below_min_effect"] = int(
         sum(c.safe and c.delta_t < MIN_EFFECT for c in cands)
     )
     return ranked, rows, dropped
 
 
-def show(win, loc, ranked, rows, dropped, space, limit=10):
+DECOY_REACH = 100          # decoy anchor at most +/-500 kb from the enhancer anchor (the confident-distance limit)
+DECOY_KEEP_OUT = 12        # ... and at least 60 kb from the target's own promoter, or it would raise the target
+N_DECOYS = 40              # evenly subsample the permitted decoys per enhancer
+DOWN_ENHANCERS = 5         # the target's five strongest enhancers by ABC share
+
+
+def search_down(win, sc, forbidden, open_mask, targets, share):
+    """Rank staple designs that LOWER a target's dose (sequestration).
+
+    The mechanism is the same one that lets a point edit move nothing: the contact
+    matrix is conserved, so pulling an enhancer into a new contact elsewhere (a
+    "decoy" anchor) takes contact away from its existing partners, the target among
+    them. Everything downstream (risk score, gate, floor, sign stability) is the
+    up-regulation machinery with the sign flipped. This rests on the row-sum
+    conservation assumption, the least tested step in the model (docs/method.md).
+    """
+    loc = sc.loc
+    n = len(loc.contact)
+    cands, rows, dropped = [], [], {"noop": 0, "no_anchor": 0, "duplicate": 0}
+    seen = set()
+    permitted = np.where(open_mask & ~forbidden)[0]
+    for g in targets:
+        gi = sc.order.index(g)
+        t_bin = loc.genes[g]
+        top = np.argsort(-share[:, gi])[:DOWN_ENHANCERS]
+        for ei in top:
+            e_bin = int(loc.elements[ei])
+            a = nearest_permitted(open_mask, forbidden, e_bin)
+            if a is None:
+                dropped["no_anchor"] += 1
+                continue
+            pool = [int(b) for b in permitted
+                    if MIN_SEPARATION_BINS <= abs(b - a) <= DECOY_REACH and abs(b - t_bin) >= DECOY_KEEP_OUT]
+            if len(pool) > N_DECOYS:
+                pool = [pool[i] for i in np.linspace(0, len(pool) - 1, N_DECOYS).astype(int)]
+            for b in pool:
+                if (a, b, g) in seen:
+                    dropped["duplicate"] += 1
+                    continue
+                seen.add((a, b, g))
+                r = sc.effect(a, b, g, sweep_if_over=MIN_EFFECT, direction=-1)
+                if r["noop"]:
+                    dropped["noop"] += 1
+                    continue
+                risk = risk_score(r["delta"], loc.flags, TAU, target=g)
+                cand = Candidate(
+                    name=f"{g} v {win.kb(e_bin)}kb->{win.kb(b)}kb",
+                    delta_t=-r["delta"][g],                      # dose REDUCTION, so rank() can be reused
+                    provenance="hic",
+                    distance_kb=abs(a - b) * BIN_KB,
+                    abstained=False,
+                    sign_stable=r["sign_stable"],
+                    safe=risk.tier != "BLOCKED",
+                )
+                unflagged = sorted(
+                    ((x, d) for x, d in r["delta"].items()
+                     if x != g and x not in loc.flags and abs(d) > TAU),
+                    key=lambda kv: -abs(kv[1]),
+                )
+                cands.append(cand)
+                rows.append({
+                    "name": cand.name, "mode": "down", "target": g,
+                    "target_tpm": round(loc.expression.get(g, 0.0), 2),
+                    "target_flag": loc.flags.get(g),
+                    "baseline_T": round(sc.t0[g], 2),
+                    "enhancer_kb": win.kb(e_bin),
+                    "enhancer_abc_share": round(float(share[ei, gi]), 3),
+                    "anchor_a_kb": win.kb(a), "anchor_b_kb": win.kb(b),
+                    "decoy_kb": win.kb(b),
+                    "separation_kb": abs(a - b) * BIN_KB,
+                    "q": round(r["q"], 3),
+                    "delta_target": round(r["delta"][g], 4),
+                    "sweep": None if r["sweep"] is None else [round(x, 4) for x in r["sweep"]],
+                    "delta_at_p99": None if r["sweep"] is None else round(r["sweep"][-1], 4),
+                    "sign_stable": r["sign_stable"],
+                    "confidence": cand.tier,
+                    "risk": {"tier": risk.tier, "score": round(risk.score, 4), "worst_gene": risk.worst_gene,
+                             "n_flagged_in_window": risk.n_flagged_in_window, "reason": risk.reason},
+                    "unflagged_collateral_over_tau": [{"gene": x, "delta": round(d, 4)} for x, d in unflagged[:6]],
+                })
+    ranked = rank(cands)
+    place = {c.name: i + 1 for i, c in enumerate(ranked)}
+    for r in rows:
+        r["rank"] = place.get(r["name"])
+    dropped["blocked_by_risk"] = int(sum(not c.safe and c.delta_t >= MIN_EFFECT for c in cands))   # would have met the dose goal
+    dropped["below_min_effect"] = int(sum(c.safe and c.delta_t < MIN_EFFECT for c in cands))
+    return ranked, rows, dropped
+
+
+def show(win, loc, ranked, rows, dropped, space, limit=10, direction="up"):
     print(
         f"\n{'=' * 100}\n{win.label}  ·  {win.chrom}:{win.start:,}-{win.end:,}  ·  K562\n{'=' * 100}"
     )
@@ -262,9 +356,11 @@ def show(win, loc, ranked, rows, dropped, space, limit=10):
     )
     print(f"ClinGen dosage-sensitive genes in window ({len(loc.flags)}): {flagged}")
     print(
-        f"{len(rows)} staples scored · {len(ranked)} reach dose >= {MIN_EFFECT:.0%} · dropped {dropped}\n"
+        f"{len(rows)} staples scored · {len(ranked)} reach dose {'rise' if direction == 'up' else 'fall'} >= {MIN_EFFECT:.0%} · dropped {dropped}\n"
     )
-    blocked = sorted((r for r in rows if r["risk"]["tier"] == "BLOCKED"), key=lambda r: -r["risk"]["score"])
+    sign = 1 if direction == "up" else -1
+    blocked = sorted((r for r in rows if r["risk"]["tier"] == "BLOCKED" and sign * r["delta_target"] >= MIN_EFFECT),
+                     key=lambda r: -r["risk"]["score"])
     if blocked:
         print(f"  REJECTED BY THE SAFETY GATE ({len(blocked)}):")
         for r in blocked[:4]:
@@ -272,7 +368,8 @@ def show(win, loc, ranked, rows, dropped, space, limit=10):
         print()
     if not ranked:
         print("  no staple reaches the dose goal in this window")
-        best = max(rows, key=lambda r: r["delta_target"], default=None)
+        pick = max if direction == "up" else min
+        best = pick(rows, key=lambda r: r["delta_target"], default=None)
         if best:
             print(f"  best available: {best['name']} {best['delta_target']:+.1%}")
         return
@@ -295,18 +392,24 @@ def show(win, loc, ranked, rows, dropped, space, limit=10):
         )
 
 
-def run_window(win: Window, name: str, targets=None, write: bool = True) -> dict:
+def run_window(win: Window, name: str, targets=None, write: bool = True, direction: str = "up",
+               verbose: bool = True) -> dict:
     loc, prov = load_k562_locus(win.chrom, win.start, win.end)
     sc = Scorer(loc)
     share = abc_mod.abc_share(loc.activities, loc.contact, loc.elements, sc.gidx)
     forbidden, open_mask, space = anchor_space(loc, share, sc.order)
     space["excluded_genes"], space["excluded_flagged"] = sc.excluded, sc.excluded_flagged
-    ranked, rows, dropped = search(win, sc, forbidden, open_mask, targets)
-    show(win, loc, ranked, rows, dropped, space)
+    if direction == "down":
+        ranked, rows, dropped = search_down(win, sc, forbidden, open_mask, targets, share)
+    else:
+        ranked, rows, dropped = search(win, sc, forbidden, open_mask, targets)
+    if verbose:
+        show(win, loc, ranked, rows, dropped, space, direction=direction)
     out = {
         "label": win.label,
         "window": prov["window"],
         "targets": targets,
+        "direction": direction,
         "provenance": prov,
         "config": CONFIG,
         "tests_evaluated": TESTS_EVALUATED,
@@ -319,7 +422,8 @@ def run_window(win: Window, name: str, targets=None, write: bool = True) -> dict
             r for r in sorted((r for r in rows if r["rank"]), key=lambda r: r["rank"])
         ],
         "best_below_floor": sorted(
-            (r for r in rows if not r["rank"]), key=lambda r: -r["delta_target"]
+            (r for r in rows if not r["rank"]),
+            key=lambda r: -r["delta_target"] if direction == "up" else r["delta_target"],   # closest to the goal first
         )[:5],
     }
     if write:

@@ -198,6 +198,27 @@ yardstick also lies above the sweep's p99, so the headline is the top of the ran
 > **Figures 4, 5, 6** — `fig4_point_vs_kernel.png`, `fig5_before_after_diff.png`,
 > `fig6_dose_response.png`
 
+### 4d. Lowering a gene: the decoy staple
+
+Triplosensitive genes (*MECP2* duplication) and overexpressed oncogenes (*MYC*) need their dose
+**lowered**. The tool has no insulator or repressor step; it uses the same conservation rule as 4b in
+reverse. Pull one of the target's strongest enhancers (top five by ABC share) into a new contact with
+a **decoy** anchor elsewhere (any permitted anchor 30-500 kb from the enhancer anchor, at least 60 kb
+from the target's own promoter). Contact is conserved, so the enhancer's new contact is paid for by
+its old ones, the target among them, and the target's dose T falls. Everything downstream (the
+all-gene re-score, the risk gate, the 10% floor, the sign-stability test) is the up-regulation
+machinery with the sign flipped; a design is kept if the target falls by at least `MIN_EFFECT`.
+
+Two cautions, both visible in the results:
+
+- **It is the weakest mechanism in the method.** It rests entirely on row-sum conservation (an
+  assumption, not a measurement), and the effects it predicts are small: at the yardstick strength
+  the best lowering designs reach about -10% to -11%, and at p99 strength under -2%. Raising a
+  dose is much easier than lowering it in this model.
+- **Collateral is shown, not gated, for unflagged genes.** A decoy that lands beside an unflagged gene
+  can move it a lot (one MECP2 design doubles TEX28 and TKTL1, neither expressed in K562). Only
+  ClinGen-flagged genes feed the risk tier; the others are listed in `unflagged_collateral_over_tau`.
+
 ---
 
 ## 5. Re-score every gene in the window
@@ -360,31 +381,32 @@ break it; the defects they found are fixed or listed below.
 
 ## Demo: top staple designs with a risk score, on live K562 data
 
-`pipeline/demo.py` ranks staple designs for four curated target genes from `docs/targets.md`
-(goal: raise dose), two with dosage-sensitive neighbours and two without. Output:
-`data/derived/demo_*.json`, `data/derived/demo_summary.md`.
+`pipeline/demo.py` ranks staple designs for five curated target genes (LDLR, NF1, MECP2, RUNX1, NSD1: goal
+raise dose; MECP2 and MYC: goal lower dose). Output: `data/derived/demo_*.json`, `demo_summary.md`. The
+full write-up for the website, with conservative (p99) numbers, caveats and a file dictionary, is
+[results-report.md](results-report.md).
 
-| target | window | best design (enhancer → promoter) | ΔT/T | risk | score | confidence | rejected by gate |
-|---|---|---|---|---|---|---|---|
-| **LDLR** | chr19:10.11–12.11 Mb | 10,460 kb → 11,080 kb (610 kb) | +10.1% | LOW | 0.0% | TENTATIVE | 0 |
-| **NSD1** | chr5:176.2–178.2 Mb | 177,365 kb → 177,125 kb (220 kb) | +40.0% | LOW | 1.9% | TENTATIVE | 1 |
-| **RUNX1** | chr21:33.9–35.9 Mb | 34,615 kb → 34,875 kb (255 kb) | +15.2% | CLEAR | 0.0% | CONFIDENT | 0 |
-| **NF1** | chr17:30.2–32.2 Mb | 31,555 kb → 31,080 kb (470 kb) | +32.2% | CLEAR | 0.0% | TENTATIVE | 0 |
+| target | goal | best design (enhancer → anchor) | ΔT/T (yardstick) | at p99 | risk | confidence |
+|---|---|---|---|---|---|---|
+| **LDLR** | raise | 10,460 → 11,080 kb (610 kb) | +10.1% | +6.8% | LOW | TENTATIVE |
+| **NSD1** | raise | 177,365 → 177,125 kb (220 kb) | +40.0% | −0.5% | LOW (1.9%) | TENTATIVE |
+| **RUNX1** | raise | 34,615 → 34,875 kb (255 kb) | +15.2% | +4.2% | CLEAR | CONFIDENT |
+| **NF1** | raise | 31,555 → 31,080 kb (470 kb) | +32.2% | +10.9% | CLEAR | TENTATIVE |
+| **MECP2** | raise | 154,135 → 154,100 kb (30 kb) | +19.6% | +3.0% | LOW | TENTATIVE |
+| **MECP2** | lower | 154,120 → decoy 154,300 kb (185 kb) | −11.0% | −0.7% | ELEVATED (2.2%) | CONFIDENT |
+| **MYC** | lower | 127,740 → decoy 127,270 kb (475 kb) | −10.4% | −1.8% | CLEAR | CONFIDENT |
 
-- **Flagged windows** (LDLR: SMARCA4, PRKCSH; NSD1: DDX41) give the risk score real genes to
-  measure. **Null windows** (RUNX1, NF1) report `CLEAR`: to the knowledge of ClinGen, no other
-  dosage-sensitive gene is nearby.
-- **The gate fired once on real data.** At NSD1, one design would *lower* NSD1 by 4.8% while
-  raising the haploinsufficient gene **DDX41 by 12.4%**, which is the enhancer-hijack case the
-  method exists to catch. It is rejected.
-- **How the windows were chosen.** Targets are from the curated list; windows were selected by
-  scanning all 422 ClinGen-flagged genes for a flagged gene expressed in K562 with a lively
-  neighbourhood (`data/derived/demo_window_scan.json`). That is a post-hoc selection of demonstration
-  cases, not a sample, so the table says nothing about how typical these results are.
-- **Why "confidence" is mostly TENTATIVE.** Only distance and sign stability are live. LDLR's
-  design is 610 kb (over the 500 kb limit) and only just clears the 10% floor; NF1's designs are
-  sign-unstable across the q sweep. These are predictions in silico, unvalidated.
-- **LDLR is the weak case:** a single design at +10.1%, barely above the floor.
+- **Flagged windows** (LDLR, NSD1, MECP2) give the risk score real genes to measure. **Null windows**
+  (RUNX1, NF1, MYC) report `CLEAR`: to the knowledge of ClinGen, no other dosage-sensitive gene is nearby.
+- **The gate fires on real data.** At MECP2 the largest raising design (+43.9%) would cut the
+  haploinsufficient gene **AVPR2 by 20.4%** and is rejected.
+- **The headline is the ceiling.** The yardstick column assumes the strongest natural contact at that
+  separation; the p99 column is the conservative figure. Only NF1 stays above the 10% floor at p99.
+- **How the windows were chosen.** Windows were selected by scanning all 422 ClinGen-flagged genes
+  (`data/derived/demo_window_scan.json`). That is a post-hoc selection of demonstration cases, not a
+  sample.
+- **Why "confidence" is mostly TENTATIVE.** Only distance and sign stability are live. These are
+  predictions in silico, unvalidated.
 
 ## Assumptions, stated plainly
 

@@ -1,0 +1,127 @@
+{
+ "gene": "ADNP",
+ "mode": "up",
+ "window": "chr20:49910000-51910000",
+ "seconds": 382,
+ "flagged_in_window": [
+  "ADNP",
+  "SALL4"
+ ],
+ "target_tpm": 15.53,
+ "baseline_T": 346.92,
+ "permitted_anchors": 182,
+ "genes_expressed": 15,
+ "genes": 18,
+ "excluded_flagged": [],
+ "n_scored": 12,
+ "n_meeting_goal": 2,
+ "dropped": {
+  "noop": 0,
+  "no_anchor": 2,
+  "duplicate": 1,
+  "blocked_by_risk": 0,
+  "below_min_effect": 9
+ },
+ "best": {
+  "name": "ADNP <- 50635kb",
+  "mode": "up",
+  "target": "ADNP",
+  "target_tpm": 15.53,
+  "target_flag": "haploinsufficient",
+  "baseline_T": 346.92,
+  "enhancer_kb": 50635,
+  "anchor_a_kb": 50640,
+  "anchor_b_kb": 50920,
+  "separation_kb": 280,
+  "q": 20.622,
+  "delta_target": 0.1048,
+  "sweep": [
+   -0.0004,
+   -0.0014,
+   0.0033,
+   0.0147,
+   0.0279
+  ],
+  "delta_at_p99": 0.0279,
+  "sign_stable": false,
+  "confidence": "TENTATIVE",
+  "risk": {
+   "tier": "LOW",
+   "score": 0.0005,
+   "worst_gene": "SALL4",
+   "n_flagged_in_window": 1,
+   "reason": "SALL4 (haploinsufficient) +0.1%"
+  },
+  "unflagged_collateral_over_tau": [],
+  "rank": 1
+ },
+ "best_below_floor": null,
+ "ranked_top5": [
+  {
+   "name": "ADNP <- 50635kb",
+   "mode": "up",
+   "target": "ADNP",
+   "target_tpm": 15.53,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 346.92,
+   "enhancer_kb": 50635,
+   "anchor_a_kb": 50640,
+   "anchor_b_kb": 50920,
+   "separation_kb": 280,
+   "q": 20.622,
+   "delta_target": 0.1048,
+   "sweep": [
+    -0.0004,
+    -0.0014,
+    0.0033,
+    0.0147,
+    0.0279
+   ],
+   "delta_at_p99": 0.0279,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0005,
+    "worst_gene": "SALL4",
+    "n_flagged_in_window": 1,
+    "reason": "SALL4 (haploinsufficient) +0.1%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 1
+  },
+  {
+   "name": "ADNP <- 50990kb",
+   "mode": "up",
+   "target": "ADNP",
+   "target_tpm": 15.53,
+   "target_flag": "haploinsufficient",
+   "baseline_T": 346.92,
+   "enhancer_kb": 50990,
+   "anchor_a_kb": 50995,
+   "anchor_b_kb": 50920,
+   "separation_kb": 75,
+   "q": 21.65,
+   "delta_target": 0.1047,
+   "sweep": [
+    -0.0022,
+    0.0103,
+    0.023,
+    0.0374,
+    0.0771
+   ],
+   "delta_at_p99": 0.0771,
+   "sign_stable": false,
+   "confidence": "TENTATIVE",
+   "risk": {
+    "tier": "LOW",
+    "score": 0.0047,
+    "worst_gene": "SALL4",
+    "n_flagged_in_window": 1,
+    "reason": "SALL4 (haploinsufficient) -0.5%"
+   },
+   "unflagged_collateral_over_tau": [],
+   "rank": 2
+  }
+ ]
+}

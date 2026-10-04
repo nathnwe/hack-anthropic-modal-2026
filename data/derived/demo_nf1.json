@@ -4,6 +4,7 @@
  "targets": [
   "NF1"
  ],
+ "direction": "up",
  "provenance": {
   "retrieved": "2026-10-04",
   "window": "chr17:30235000-32235000",
@@ -49,7 +50,13 @@
   "TSS_PAD_BINS": 0,
   "MAX_CONFIDENT_DISTANCE_KB": 500,
   "SIGMA_BINS": 3.0,
-  "RENORM_ITERS": 100
+  "RENORM_ITERS": 100,
+  "DOWN": {
+   "DECOY_REACH_BINS": 100,
+   "DECOY_KEEP_OUT_BINS": 12,
+   "N_DECOYS": 40,
+   "DOWN_ENHANCERS": 5
+  }
  },
  "tests_evaluated": {
   "abstention": "NOT RUN: UniversalEPI not used, constant False",
@@ -85,6 +92,7 @@
  "ranked": [
   {
    "name": "NF1 <- 31555kb",
+   "mode": "up",
    "target": "NF1",
    "target_tpm": 11.42,
    "target_flag": "haploinsufficient",
@@ -102,6 +110,7 @@
     0.0679,
     0.1086
    ],
+   "delta_at_p99": 0.1086,
    "sign_stable": false,
    "confidence": "TENTATIVE",
    "risk": {
@@ -116,6 +125,7 @@
   },
   {
    "name": "NF1 <- 31435kb",
+   "mode": "up",
    "target": "NF1",
    "target_tpm": 11.42,
    "target_flag": "haploinsufficient",
@@ -133,6 +143,7 @@
     0.0114,
     0.0463
    ],
+   "delta_at_p99": 0.0463,
    "sign_stable": false,
    "confidence": "TENTATIVE",
    "risk": {
@@ -147,6 +158,7 @@
   },
   {
    "name": "NF1 <- 31545kb",
+   "mode": "up",
    "target": "NF1",
    "target_tpm": 11.42,
    "target_flag": "haploinsufficient",
@@ -164,6 +176,7 @@
     0.0615,
     0.1166
    ],
+   "delta_at_p99": 0.1166,
    "sign_stable": false,
    "confidence": "TENTATIVE",
    "risk": {
@@ -178,6 +191,7 @@
   },
   {
    "name": "NF1 <- 30705kb",
+   "mode": "up",
    "target": "NF1",
    "target_tpm": 11.42,
    "target_flag": "haploinsufficient",
@@ -195,6 +209,7 @@
     0.0471,
     0.0745
    ],
+   "delta_at_p99": 0.0745,
    "sign_stable": false,
    "confidence": "TENTATIVE",
    "risk": {
@@ -211,6 +226,7 @@
  "best_below_floor": [
   {
    "name": "NF1 <- 31525kb",
+   "mode": "up",
    "target": "NF1",
    "target_tpm": 11.42,
    "target_flag": "haploinsufficient",
@@ -222,6 +238,7 @@
    "q": 6.025,
    "delta_target": 0.0557,
    "sweep": null,
+   "delta_at_p99": null,
    "sign_stable": false,
    "confidence": "TENTATIVE",
    "risk": {
@@ -236,6 +253,7 @@
   },
   {
    "name": "NF1 <- 31505kb",
+   "mode": "up",
    "target": "NF1",
    "target_tpm": 11.42,
    "target_flag": "haploinsufficient",
@@ -247,6 +265,7 @@
    "q": 6.978,
    "delta_target": 0.0435,
    "sweep": null,
+   "delta_at_p99": null,
    "sign_stable": false,
    "confidence": "TENTATIVE",
    "risk": {
@@ -261,6 +280,7 @@
   },
   {
    "name": "NF1 <- 31455kb",
+   "mode": "up",
    "target": "NF1",
    "target_tpm": 11.42,
    "target_flag": "haploinsufficient",
@@ -272,6 +292,7 @@
    "q": 8.648,
    "delta_target": 0.0189,
    "sweep": null,
+   "delta_at_p99": null,
    "sign_stable": false,
    "confidence": "TENTATIVE",
    "risk": {
@@ -286,6 +307,7 @@
   },
   {
    "name": "NF1 <- 31385kb",
+   "mode": "up",
    "target": "NF1",
    "target_tpm": 11.42,
    "target_flag": "haploinsufficient",
@@ -297,6 +319,7 @@
    "q": 8.492,
    "delta_target": 0.0127,
    "sweep": null,
+   "delta_at_p99": null,
    "sign_stable": false,
    "confidence": "TENTATIVE",
    "risk": {
@@ -311,6 +334,7 @@
   },
   {
    "name": "NF1 <- 32135kb",
+   "mode": "up",
    "target": "NF1",
    "target_tpm": 11.42,
    "target_flag": "haploinsufficient",
@@ -322,6 +346,7 @@
    "q": 2.443,
    "delta_target": 0.0043,
    "sweep": null,
+   "delta_at_p99": null,
    "sign_stable": false,
    "confidence": "TENTATIVE",
    "risk": {
