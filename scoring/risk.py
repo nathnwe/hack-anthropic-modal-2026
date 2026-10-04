@@ -83,3 +83,41 @@ def is_safe(deltas: dict[str, float], flags: dict[str, str], tau: float = TAU,
     concern. A gate cannot. Pass `target` so the relative test runs too.
     """
     return not concerns(deltas, flags, tau, target)
+
+
+ELEVATED_AT = 0.02   # a flagged gene moving 2-10% is worth a look before it breaches tau
+
+
+@dataclass(frozen=True)
+class Risk:
+    tier: str                 # CLEAR | LOW | ELEVATED | BLOCKED
+    score: float              # largest |dT/T| on any flagged gene, 0 when none move
+    worst_gene: str | None
+    n_flagged_in_window: int
+    reason: str
+
+
+def risk_score(deltas: dict[str, float], flags: dict[str, str], tau: float = TAU,
+               target: str | None = None) -> Risk:
+    """One auditable number and a tier per candidate. No model, no weights.
+
+    CLEAR     no OTHER dosage-sensitive gene (ClinGen score 3) lies in the window. This
+              is a result, not an absence of one: to the knowledge of the curated
+              list, nothing here is dangerous to disturb.
+    LOW       flagged genes exist but none moves by ELEVATED_AT or more.
+    ELEVATED  a flagged gene moves between ELEVATED_AT and tau.
+    BLOCKED   the safety gate trips (absolute or relative test, or undefined change).
+    """
+    here = {g: d for g, d in deltas.items() if g in flags and g != target}
+    neighbours = {g: f for g, f in flags.items() if g != target}    # the target is not its own neighbour
+    if not neighbours:
+        return Risk("CLEAR", 0.0, None, 0, "no other ClinGen dosage-sensitive gene in the window")
+    if concerns(deltas, flags, tau, target):
+        worst = concerns(deltas, flags, tau, target)[0]
+        return Risk("BLOCKED", abs(worst.delta) if math.isfinite(worst.delta) else float("inf"),
+                    worst.gene, len(neighbours), str(worst))
+    worst_g = max(here, key=lambda g: abs(here[g]), default=None)
+    score = abs(here[worst_g]) if worst_g else 0.0
+    tier = "ELEVATED" if score >= ELEVATED_AT else "LOW"
+    return Risk(tier, score, worst_g, len(neighbours),
+                f"{worst_g} ({flags[worst_g]}) {here[worst_g]:+.1%}" if worst_g else "no flagged gene moves")

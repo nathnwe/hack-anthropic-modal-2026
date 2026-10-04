@@ -18,7 +18,7 @@ Activity times contact, element by element. The bars sum to T, the gene's total 
 
 ![Step 3 — filter the physical conflicts](fig3_anchor_filter.png)
 
-An anchor has to be open chromatin the machinery can bind, minus everything we would break by parking a protein on it: the enhancer itself, the promoter and 5 kb either side, the transcribed body, and CTCF boundary sites. This is a filter, not a score — it removes the impossible rather than ranking the possible, which is why 'tractable' does not need to be an axis in the ranking.
+An anchor has to be open chromatin the machinery can bind, minus everything we would break by parking a protein on it: the enhancer itself, the promoter bin, the transcribed body, and CTCF boundary sites. This is a filter, not a score — it removes the impossible rather than ranking the possible, which is why 'tractable' does not need to be an axis in the ranking.
 
 ## Step 4a — the intervention has to be a blob
 

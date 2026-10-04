@@ -112,20 +112,33 @@ changes a gene's expression — its score against measured effect size is only `
 
 ## 3. Filter the physical conflicts
 
-$$\mathcal{F} \;=\; \{e\} \,\cup\, \{\mathrm{TSS} \pm 5\,\mathrm{kb}\} \,\cup\, \{\text{gene bodies}\} \,\cup\, \{\text{CTCF motif hits}\}$$
+$$\mathcal{F} \;=\; \{e : \exists\, g\ \text{expressed},\ \mathrm{ABC}_{e,g} \ge 0.02\} \,\cup\, \{\mathrm{TSS\ bin}\} \,\cup\, \{\text{exons}\} \,\cup\, \{\text{every CTCF motif hit}\}$$
 
-$$\mathcal{A} \;=\; \{\,b \;:\; \mathrm{ATAC}(b) \;\wedge\; b \notin \mathcal{F} \,\}$$
+$$\mathcal{A} \;=\; \{\,b \;:\; \mathrm{dist}(b, \text{nearest ATAC peak}) \le 2\ \text{bins} \;\wedge\; b \notin \mathcal{F} \,\}$$
 
-**In plain terms.** The staple has to grab something, and it grabs open chromatin. But parking a
-large protein on a working part of the genome breaks that part. So we subtract everything we would
-damage — the enhancer itself, the promoter and 5 kb either side, the transcribed body of any gene,
-and CTCF boundary sites — and what is left is where a staple may land.
+**In plain terms.** The staple has to grab something, and it grabs near open chromatin. But
+parking a large protein on a working part of the genome breaks that part. So we subtract what we
+would damage — the enhancers of genes that are actually switched on, the promoter bin, the exons
+of any gene, and CTCF boundary sites — and what is left is where a staple may land.
+
+**Four rules, and why each is what it is.** The first draft was stricter and left only 4 permitted
+anchors of 81 at the β-globin locus, which made the search empty. Each relaxation is a choice
+traded against coverage, not a correction of an error:
+
+| rule | first draft | now | reason |
+|---|---|---|---|
+| on-peak | anchor must be *on* an ATAC peak | within 2 bins (10 kb) of one | in a gene-dense locus nearly every peak is an enhancer or promoter, so "on a peak, not an enhancer" is almost empty |
+| promoter | TSS ± 1 bin (15 kb) | TSS bin only | 5 kb bins are already coarser than a real promoter; the wider pad also forbade the published LCR→promoter design |
+| gene body | whole transcript | exons | two genes (287 kb and 165 kb, the latter unexpressed with a 1 kb CDS) forbade 465 kb alone; an intronic anchor is not obviously harmful |
+| CTCF | motif hits in accessible bins | every motif hit | fidelity to the spec; costs nothing |
+| dose floor | 10% | 10% (unchanged, a stated knob) | arbitrary; set equal to τ for scale |
 
 This is a filter, not a score. It removes the impossible rather than ranking the possible, which
 is why "tractable" does not need to be an axis in the ranking.
 
-**Data.** ATAC/DNase peaks for the cell type · GENCODE v29 gene models · CTCF motif hits from
-JASPAR **MA0139.1**.
+**Data.** ATAC/DNase peaks for the cell type · RefSeq exon models · CTCF motif hits from JASPAR
+(2022 track via UCSC; `MA0139.1` is the CTCF matrix in the 2018 release) · RNA-seq for "expressed"
+(TPM ≥ 1).
 
 > **Figure 3** — `docs/figures/method/fig3_anchor_filter.png`
 
@@ -231,6 +244,20 @@ without. Two separate tests, because they fail for different reasons. The first 
 gene that moved a lot. The second catches a staple that does more to an oncogene than it does to
 its own target — which should kill a candidate however small both numbers are.
 
+**The risk score.** Each candidate carries one auditable number and a tier, with no model and no
+weights: the score is the largest $|\Delta T/T|$ on any flagged gene other than the target.
+
+| tier | meaning |
+|---|---|
+| `CLEAR` | no *other* ClinGen dosage-sensitive gene lies in the window. This is a result, not an absence of one: to the knowledge of the curated list, nothing nearby is dangerous to disturb |
+| `LOW` | flagged genes exist, none moves by 2% or more |
+| `ELEVATED` | a flagged gene moves between 2% and τ |
+| `BLOCKED` | the gate trips (absolute test, relative test, or an undefined change) |
+
+The list is ClinGen only. COSMIC (oncogenes, tumour suppressors) and DepMap (essential genes)
+could not be obtained, so a `CLEAR` here means clear *of ClinGen*, and the oncogene and
+essential-gene parts of the design remain untested on real data.
+
 **Fail closed.** A flagged gene whose change is undefined (`NaN`, e.g. from a zero baseline) is
 reported as a concern, not waved through, and a target missing from the deltas is an error rather
 than a silently disabled relative test. A null staple (target change exactly 0) does not trip the
@@ -310,12 +337,11 @@ break it; the defects they found are fixed or listed below.
 
 **What did not work, stated plainly**
 
-- **The search found nothing.** Under the strict step-3 rule only 4 of 81 accessible sites are
-  permitted anchors (gene density: bodies, TSS padding and enhancers of expressed genes remove 75%
-  of the window), so 604 of 608 candidate staples had no valid anchor. None of the 4 reaches the
-  10% dose floor. Honest headline: **no staple in this window meets the dose goal under the strict
-  rule.** This is a finding about step 3, not about the data.
-- **The safety gate was never exercised.** No ClinGen-flagged gene lies in this window (of 76
+- **The first search found nothing, and that was the rules, not the data.** Under the original
+  strict step 3 only 4 of 81 accessible sites at the globin locus were permitted anchors. After
+  relaxing four rules (step 3) there are 91, and the demo below runs. The relaxation is a trade of
+  strictness for coverage, not a correction.
+- **At the globin locus the safety gate was never exercised.** No ClinGen-flagged gene lies in that window (of 76
   coding genes only DCHS1 appears in ClinGen at all, with insufficient evidence), and COSMIC and
   DepMap could not be obtained. Both gate tests are vacuous here, so `safe = True` carries no
   information. The gate's logic is tested on synthetic data and by property tests only.
@@ -331,6 +357,34 @@ break it; the defects they found are fixed or listed below.
   T = 746, comparable to HBG2 (758; 8,201 TPM). T measures regional activity, not on/off state.
 - **Low-coverage bins** (bin 102 at 5,210 kb, two bins upstream of HBB; bin 168) have row sums
   ~0.5× the median even after balancing, so contacts involving them are biased low. Not masked.
+
+## Demo: top staple designs with a risk score, on live K562 data
+
+`pipeline/demo.py` ranks staple designs for four curated target genes from `docs/targets.md`
+(goal: raise dose), two with dosage-sensitive neighbours and two without. Output:
+`data/derived/demo_*.json`, `data/derived/demo_summary.md`.
+
+| target | window | best design (enhancer → promoter) | ΔT/T | risk | score | confidence | rejected by gate |
+|---|---|---|---|---|---|---|---|
+| **LDLR** | chr19:10.11–12.11 Mb | 10,460 kb → 11,080 kb (610 kb) | +10.1% | LOW | 0.0% | TENTATIVE | 0 |
+| **NSD1** | chr5:176.2–178.2 Mb | 177,365 kb → 177,125 kb (220 kb) | +40.0% | LOW | 1.9% | TENTATIVE | 1 |
+| **RUNX1** | chr21:33.9–35.9 Mb | 34,615 kb → 34,875 kb (255 kb) | +15.2% | CLEAR | 0.0% | CONFIDENT | 0 |
+| **NF1** | chr17:30.2–32.2 Mb | 31,555 kb → 31,080 kb (470 kb) | +32.2% | CLEAR | 0.0% | TENTATIVE | 0 |
+
+- **Flagged windows** (LDLR: SMARCA4, PRKCSH; NSD1: DDX41) give the risk score real genes to
+  measure. **Null windows** (RUNX1, NF1) report `CLEAR`: to the knowledge of ClinGen, no other
+  dosage-sensitive gene is nearby.
+- **The gate fired once on real data.** At NSD1, one design would *lower* NSD1 by 4.8% while
+  raising the haploinsufficient gene **DDX41 by 12.4%**, which is the enhancer-hijack case the
+  method exists to catch. It is rejected.
+- **How the windows were chosen.** Targets are from the curated list; windows were selected by
+  scanning all 422 ClinGen-flagged genes for a flagged gene expressed in K562 with a lively
+  neighbourhood (`data/derived/demo_window_scan.json`). That is a post-hoc selection of demonstration
+  cases, not a sample, so the table says nothing about how typical these results are.
+- **Why "confidence" is mostly TENTATIVE.** Only distance and sign stability are live. LDLR's
+  design is 610 kb (over the 500 kb limit) and only just clears the 10% floor; NF1's designs are
+  sign-unstable across the q sweep. These are predictions in silico, unvalidated.
+- **LDLR is the weak case:** a single design at +10.1%, barely above the floor.
 
 ## Assumptions, stated plainly
 
@@ -406,7 +460,9 @@ uv run --with matplotlib --with numpy python animation/figures/method_figures.py
 
 # real K562 data (hic-straw needs an older macOS SDK on recent Xcode command-line tools)
 SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk \
-  uv run --with hic-straw --with pybigtools --with numpy python -m pipeline.real_run
+  uv run --with hic-straw --with pybigtools --with numpy python -m pipeline.demo            # the shortlist
+#                                                              ... -m pipeline.globin_validation  # known-biology checks
+#                                                              ... -m pipeline.validate_expression
 ```
 
 The demo locus (`pipeline/locus.py`) is **synthetic and marked `illustrative`** — element

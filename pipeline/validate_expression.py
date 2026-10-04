@@ -20,7 +20,9 @@ import numpy as np
 
 from pipeline import abc as abc_mod
 from pipeline.real_data import load_k562_locus
-from pipeline.real_run import CHROM, DERIVED, END, START
+from pipeline.real_run import DERIVED
+
+CHROM, START, END = "chr11", 4_700_000, 6_700_000
 
 
 def ranks(x: np.ndarray) -> np.ndarray:

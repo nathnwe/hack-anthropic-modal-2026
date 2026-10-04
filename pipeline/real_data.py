@@ -104,7 +104,9 @@ def fetch_genes(chrom: str, start: int, end: int) -> dict[str, dict]:
     for sym, ts in by_gene.items():
         tss_of = lambda t: t["txStart"] if t["strand"] == "+" else t["txEnd"]
         tss = collections.Counter(tss_of(t) for t in ts).most_common(1)[0][0]
-        out[sym] = {"tss": tss, "strand": ts[0]["strand"],
+        exons = sorted({(int(a), int(b)) for t in ts if t["name"].startswith("NM_")
+                        for a, b in zip(t["exonStarts"].strip(",").split(","), t["exonEnds"].strip(",").split(","))})
+        out[sym] = {"tss": tss, "strand": ts[0]["strand"], "exons": exons,
                     "start": min(t["txStart"] for t in ts),
                     "end": max(t["txEnd"] for t in ts),
                     "coding": any(t["name"].startswith("NM_") for t in ts)}
@@ -249,10 +251,12 @@ def load_k562_locus(chrom: str, start: int, end: int) -> tuple[Locus, dict]:
     flags = {g: dosage[g] for g in gene_bins if g in dosage}
 
     bodies = {g: (to_bin(v["start"]), to_bin(v["end"])) for g, v in genes_all.items() if g in gene_bins}
+    exon_spans = sorted({(to_bin(a), to_bin(b)) for g in gene_bins for a, b in genes_all[g]["exons"]
+                         if b > start and a < end})
     loc = Locus(contact=contact, elements=elements, activities=activities,
                 genes=gene_bins, gene_bodies=bodies, ctcf=ctcf, tad_edges=[0, n],
                 accessible=accessible, flags=flags, illustrative=False,
-                expression={g: expression[g] for g in gene_bins})
+                expression={g: expression[g] for g in gene_bins}, exons=exon_spans)
     prov = {
         "retrieved": dt.date.today().isoformat(),
         "window": f"{chrom}:{start}-{end}", "bins": n, "bin_bp": BIN,
