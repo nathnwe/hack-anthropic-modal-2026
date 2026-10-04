@@ -641,12 +641,6 @@ b {
   fill: var(--muted);
   letter-spacing: 0.08em;
 }
-.mini-loop > span {
-  display: block;
-  text-align: center;
-  font-size: 10px;
-  margin-top: 4px;
-}
 .query-panel {
   background: var(--panel);
   padding: 38px;

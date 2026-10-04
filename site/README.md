@@ -69,7 +69,8 @@ MYC uses sourced K562 rE2G predictions; the other examples remain labelled fixtu
   Candidate staples and method tradeoffs expand on demand.
 - `/api/`: static JSON endpoints and contract documentation.
 
-All paths above are under `/hack-anthropic-modal-2026` in development and production.
+All paths above are under `/hack-anthropic-modal-2026` locally and
+`/rewire-bio-site` on the public deployment linked above.
 
 ## Data and scientific boundaries
 
