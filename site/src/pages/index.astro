@@ -1,0 +1,166 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Mark from "../components/Mark.astro";
+import LoopPanel from "../components/LoopPanel.astro";
+import Thread from "../components/Thread.astro";
+import { team } from "../data/team";
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<Layout
+  title="Rewire Bio — 3D genome engineering"
+  description="A research workbench for prioritising regulatory contacts and candidate interventions in 3D genome engineering."
+  page="home"
+>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-topline eyebrow">
+      <span class="status-dot"></span> Exploring the architecture of expression
+    </div>
+    <div class="hero-lockup">
+      <Mark class="hero-mark" />
+      <h1 id="hero-title">
+        Rewire Bio<span>.</span>
+      </h1>
+    </div>
+    <p class="hero-description">
+      The next possibility is already in the genome.
+      <br />
+      Let’s find the connection.
+    </p>
+    <a class="button dark" href={`${base}/workbench/`}>
+      Explore the workbench <span aria-hidden="true">↗</span>
+    </a>
+    <div class="hero-bottom">
+      <a href="#loop-film" aria-label="View the genome animation">
+        <span aria-hidden="true">↓</span>
+      </a>
+    </div>
+  </section>
+  <LoopPanel />
+  <div class="story">
+    <Thread />
+    <section
+      id="about"
+      class="story-section science-section"
+      aria-labelledby="about-title"
+    >
+      <p class="eyebrow section-kicker">01 / About</p>
+      <div class="science-copy">
+        <div class="landing-reveal">
+          <h2 id="about-title">A design system for 3D genome engineering</h2>
+          <p>
+            For dosage-sensitive genes, the amount of gene product matters.
+            Rewire Bio is a research workbench for identifying regulatory
+            contacts that could be altered to increase or decrease a target
+            gene’s expression.
+          </p>
+          <p>
+            Enhancers regulate transcription through interactions with gene
+            promoters. Programmable DNA tethering can bring selected genomic
+            regions together without cutting the DNA sequence. The effect on
+            expression, and whether it is reversible, depend on the locus, cell
+            type and tethering method.
+          </p>
+          <p class="science-source">
+            Experimental precedent:{" "}
+            <a
+              href="https://www.nature.com/articles/ncomms15993"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              inducible chromatin looping · Morgan et al., 2017{" "}
+              <span aria-hidden="true">↗</span>
+            </a>
+          </p>
+        </div>
+        <ol class="science-steps">
+          <li class="landing-reveal">
+            <h3>
+              <span class="mono">01</span> Name a gene
+            </h3>
+            <p>
+              A dosage-sensitive target and the desired direction of expression
+              change.
+            </p>
+          </li>
+          <li class="landing-reveal reveal-delay-1">
+            <h3>
+              <span class="mono">02</span> Map the neighbourhood
+            </h3>
+            <p>
+              Inspect regulatory elements, available TAD boundaries and evidence
+              of contacts with the promoter.
+            </p>
+          </li>
+          <li class="landing-reveal">
+            <h3>
+              <span class="mono">03</span> Rank candidate contacts
+            </h3>
+            <p>
+              Compare proposed anchor pairs, evidence tiers and potential
+              effects on other genes.
+            </p>
+          </li>
+          <li class="landing-reveal reveal-delay-1">
+            <h3>
+              <span class="mono">04</span> Choose a method
+            </h3>
+            <p>
+              Compare DNA stapling strategies by experimental evidence,
+              reversibility and practical constraints.
+            </p>
+          </li>
+        </ol>
+        <p class="research-note landing-reveal">
+          Research prototype. Predicted effects are unvalidated; tiers indicate
+          relative evidence, not probabilities. Illustrative records are
+          labelled.
+        </p>
+      </div>
+    </section>
+    <section
+      id="team"
+      class="story-section team-section"
+      aria-labelledby="team-title"
+    >
+      <p class="eyebrow section-kicker">02 / Team</p>
+      <div class="team-content">
+        <div class="story-copy landing-reveal">
+          <h2 id="team-title">The team.</h2>
+          <p>Built for the Anthropic × Modal 2026 hackathon.</p>
+        </div>
+        <div class="team-grid">
+          {team.map((person, index) => (
+            <article
+              class:list={[
+                "team-profile",
+                "landing-reveal",
+                `reveal-delay-${index + 1}`,
+              ]}
+              aria-labelledby={`team-${person.id}`}
+            >
+              <h3 id={`team-${person.id}`}>{person.name}</h3>
+              <a
+                class="team-link"
+                href={person.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${person.name} on LinkedIn`}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"
+                  />
+                </svg>
+              </a>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+    import "../scripts/landing";
+  </script>
+</Layout>

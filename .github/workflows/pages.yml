@@ -1,8 +1,8 @@
-name: Deploy site to GitHub Pages
+name: Validate site and manually deploy original Pages
 on:
   push:
     branches: [main]
-    paths: ["site/**"]
+    paths: ["site/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -13,20 +13,28 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
-    # Skips until operator C adds the Astro project in site/
-    if: ${{ hashFiles('site/package.json') != '' }}
+    # Manual runs must also publish from main, never a work-in-progress branch.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: withastro/action@v3
+      - uses: actions/checkout@v7
+      - name: Check, build and upload the site
+        uses: withastro/action@v6
         with:
           path: site
+          node-version: "24"
+          build-cmd: npm run check && npm test && npm run build
   deploy:
+    # The active website is published by Leandre-Tappenden/rewire-bio-site.
+    # Retain the original destination as an explicit manual option only.
+    if: github.event_name == 'workflow_dispatch'
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

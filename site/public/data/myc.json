@@ -1,0 +1,89 @@
+{
+  "illustrative": true,
+  "gene": {
+    "symbol": "MYC",
+    "chrom": "8",
+    "tss": 1000000,
+    "disease": "MYC-driven cancer (overexpression)",
+    "direction": "too_much",
+    "evidence": [
+      "PLACEHOLDER: replace with ClinGen/PMID before use"
+    ]
+  },
+  "locus": {
+    "cell_type": "PLACEHOLDER_CELL_TYPE",
+    "tad": {
+      "chrom": "8",
+      "start": 900000,
+      "end": 1500000
+    },
+    "cres": [
+      {
+        "id": "MYC_cre1",
+        "start": 1200000,
+        "end": 1201000,
+        "type": "enhancer",
+        "score_rE2G": 0.8
+      },
+      {
+        "id": "MYC_cre2",
+        "start": 1350000,
+        "end": 1351000,
+        "type": "enhancer",
+        "score_rE2G": 0.3
+      }
+    ],
+    "contacts": [
+      {
+        "a": 1000000,
+        "b": 1200000,
+        "strength": 0.7
+      },
+      {
+        "a": 1000000,
+        "b": 1350000,
+        "strength": 0.2
+      }
+    ]
+  },
+  "staples": [
+    {
+      "id": "MYC_s1",
+      "anchor_a": {
+        "chrom": "8",
+        "start": 1000000,
+        "end": 1002000
+      },
+      "anchor_b": {
+        "chrom": "8",
+        "start": 1200000,
+        "end": 1202000
+      },
+      "mode": "down",
+      "predicted_delta": "moderate_down"
+    }
+  ],
+  "risks": [
+    {
+      "staple_id": "MYC_s1",
+      "flags": [
+        {
+          "type": "placeholder",
+          "severity": "low",
+          "detail": "illustrative only"
+        }
+      ]
+    }
+  ],
+  "ranking": [
+    {
+      "staple_id": "MYC_s1",
+      "score": 41,
+      "tier": "C",
+      "rationale": [
+        "placeholder rationale"
+      ],
+      "method_recommendation": "placeholder: dCas9-based reversible linker"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+---
+const points = Array.from({ length: 481 }, (_, i) => {
+  const y = i * 5;
+  const wave = Math.sin((y / 330) * Math.PI * 2);
+  return { y, a: 110 + wave * 76, b: 110 - wave * 76 };
+});
+const path = (strand: "a" | "b") =>
+  points
+    .map((p, i) => `${i ? "L" : "M"}${p[strand].toFixed(2)},${p.y}`)
+    .join(" ");
+---
+
+<svg
+  class="dna-thread"
+  viewBox="0 0 220 2400"
+  fill="none"
+  preserveAspectRatio="none"
+  aria-hidden="true"
+>
+  {points
+    .filter((_, i) => i % 7 === 0)
+    .map((p) => (
+      <path
+        d={`M${p.a},${p.y}H${p.b}`}
+        stroke="currentColor"
+        stroke-width="1"
+        opacity="0.14"
+      />
+    ))}
+  <path d={path("a")} stroke="currentColor" stroke-width="1.4" opacity="0.23" />
+  <path d={path("b")} stroke="currentColor" stroke-width="1.4" opacity="0.23" />
+  <path
+    class="thread-progress"
+    d={path("a")}
+    stroke="var(--accent)"
+    stroke-width="2"
+    pathLength="1"
+  />
+</svg>

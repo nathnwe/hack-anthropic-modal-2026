@@ -1,0 +1,299 @@
+---
+// Adapted from the team's LoopPanel.astro on feat/site (9732ea7).
+// Preserve its scroll-driven expansion, strand curves and contact glow.
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const videoUrl = `${base}/media/rewire-bio-cell.mp4`;
+---
+
+<section class="loop-panel-wrap" id="loop-film" aria-labelledby="loop-title">
+  <div class="loop-panel">
+    <canvas class="loop-canvas" aria-hidden="true"></canvas>
+    <div class="loop-vignette" aria-hidden="true"></div>
+    <div class="loop-panel-copy">
+      <h2 id="loop-title" class="landing-reveal">
+        Rewire the genome
+      </h2>
+      <p class="landing-reveal reveal-delay-1">
+        Rewiring gene dosage without rewriting the genome.
+      </p>
+      <a
+        class="loop-launch landing-reveal reveal-delay-2"
+        href={videoUrl}
+        aria-haspopup="dialog"
+        aria-controls="cell-film-dialog"
+      >
+        visit the cell{" "}
+        <span class="film-play-icon" aria-hidden="true">
+          ▶
+        </span>
+      </a>
+    </div>
+    <p class="sr-only">
+      A schematic chromatin fibre folds into a loop as the selected enhancer and
+      promoter approach one another. This illustrates a proposed contact, not a
+      measured structure or a prediction of its effect on expression.
+    </p>
+  </div>
+</section>
+
+<dialog
+  class="cell-film-dialog"
+  id="cell-film-dialog"
+  aria-label="Visit the cell — Rewire Bio film"
+>
+  <button
+    class="cell-film-close"
+    type="button"
+    aria-label="Close video"
+    autofocus
+  >
+    <span>Close</span>
+    <span aria-hidden="true">×</span>
+  </button>
+  <video
+    class="cell-film-video"
+    data-src={videoUrl}
+    preload="none"
+    controls
+    playsinline
+    aria-label="Rewire Bio animation"
+  >
+    Your browser does not support this video.
+    <a href={videoUrl}>Open the film</a>.
+  </video>
+  <p class="cell-film-loading" role="status">
+    Loading film…
+  </p>
+  <button class="cell-film-play" type="button" hidden>
+    Play film <span aria-hidden="true">▶</span>
+  </button>
+  <div class="cell-film-error" role="alert" hidden>
+    <p>The film could not be loaded.</p>
+    <a href={videoUrl} target="_blank" rel="noopener noreferrer">
+      Open the video file <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+</dialog>
+
+<style>
+  .loop-panel-wrap {
+    padding-top: 64px;
+  }
+  .loop-panel {
+    position: relative;
+    overflow: hidden;
+    min-height: max(640px, 80svh);
+    width: 100%;
+    background:
+      radial-gradient(130% 100% at 50% 118%, #16304a 0%, transparent 58%),
+      radial-gradient(
+        60% 55% at 14% 10%,
+        rgb(165 76 56 / 26%) 0%,
+        transparent 62%
+      ),
+      linear-gradient(176deg, #06090d 0%, #0b1017 50%, #080c12 100%);
+  }
+  .loop-canvas,
+  .loop-vignette {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .loop-vignette {
+    background: radial-gradient(
+      85% 65% at 50% 50%,
+      transparent 25%,
+      rgb(4 6 9 / 72%) 100%
+    );
+  }
+  .loop-panel-copy {
+    position: relative;
+    padding: clamp(72px, 13vh, 130px) 24px 0;
+    text-align: center;
+  }
+  .loop-panel-copy h2 {
+    color: #f5f1e6;
+    font-size: clamp(38px, 4.6vw, 64px);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+  }
+  .loop-panel-copy > p {
+    color: rgb(245 241 230 / 70%);
+    font-size: 19px;
+    line-height: 1.7;
+    margin: 24px auto 0;
+    max-width: 560px;
+  }
+  .loop-launch {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 30px;
+    padding: 12px 21px;
+    border-radius: 8px;
+    background: #f5f1e6;
+    color: #20201d;
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .loop-launch:hover {
+    color: #20201d;
+    background: #ffffff;
+  }
+  .loop-launch:focus-visible {
+    outline-color: #8ebbe0;
+  }
+  .film-play-icon {
+    font-size: 10px;
+  }
+  .loop-canvas,
+  .loop-panel-copy {
+    transition:
+      transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 600ms ease;
+    transform-origin: 50% 78%;
+  }
+  .loop-panel.is-entering .loop-canvas {
+    transform: scale(1.06);
+  }
+  .loop-panel.is-entering .loop-panel-copy {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  .cell-film-dialog {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    background: #06090d;
+    color: #f5f1e6;
+    opacity: 0;
+    transition: opacity 550ms ease;
+  }
+  .cell-film-dialog.is-open {
+    opacity: 1;
+  }
+  .cell-film-dialog::backdrop {
+    background: rgb(4 6 9 / 0%);
+    transition: background-color 550ms ease;
+  }
+  .cell-film-dialog.is-open::backdrop {
+    background: rgb(4 6 9 / 96%);
+  }
+  .cell-film-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(1.018);
+    transition:
+      opacity 750ms ease,
+      transform 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .cell-film-dialog.is-ready .cell-film-video {
+    opacity: 1;
+    transform: none;
+  }
+  .cell-film-close {
+    position: absolute;
+    top: max(20px, env(safe-area-inset-top));
+    right: max(22px, env(safe-area-inset-right));
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 44px;
+    padding: 7px 16px;
+    border: 1px solid rgb(245 241 230 / 25%);
+    border-radius: 40px;
+    background: rgb(6 9 13 / 78%);
+    color: #f5f1e6;
+    font-size: 12px;
+  }
+  .cell-film-close > span:last-child {
+    font-size: 24px;
+    line-height: 1;
+  }
+  .cell-film-close:hover {
+    background: #252a2f;
+  }
+  .cell-film-close:focus-visible,
+  .cell-film-play:focus-visible {
+    outline-color: #8ebbe0;
+  }
+  .cell-film-loading,
+  .cell-film-play,
+  .cell-film-error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    margin: 0;
+  }
+  .cell-film-loading {
+    font-size: 14px;
+    color: #c3c6ca;
+  }
+  .cell-film-play {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    white-space: nowrap;
+    border-radius: 8px;
+    background: #f5f1e6;
+    color: #20201d;
+    padding: 14px 24px;
+  }
+  .cell-film-error {
+    width: min(85%, 440px);
+    font-size: 16px;
+  }
+  .cell-film-error a {
+    display: inline-block;
+    color: #b6c5a4;
+    margin-top: 18px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .loop-panel.is-entering .loop-canvas,
+    .loop-panel.is-entering .loop-panel-copy,
+    .cell-film-video {
+      transform: none;
+    }
+  }
+  @media (max-width: 760px) {
+    .loop-panel-wrap {
+      padding-top: 40px;
+    }
+    .loop-panel {
+      min-height: max(620px, 80svh);
+    }
+    .loop-panel-copy {
+      padding: 66px 25px 0;
+    }
+    .loop-panel-copy > p {
+      font-size: 16px;
+      max-width: 320px;
+      margin-top: 20px;
+    }
+    .loop-launch {
+      font-size: 13px;
+      margin-top: 24px;
+    }
+  }
+</style>
+
+<script>
+  import "../scripts/landing-loop";
+  import "../scripts/landing-video";
+</script>

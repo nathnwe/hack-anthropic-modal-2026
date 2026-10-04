@@ -1,0 +1,202 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Strategies from "../components/Strategies.astro";
+import GenomeViewer from "../components/GenomeViewer.astro";
+import type { GeneRecord } from "../lib/records";
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const files = import.meta.glob<GeneRecord>("../../public/data/*.json", {
+  eager: true,
+  import: "default",
+});
+const manifest = Object.entries(files).map(([path, r]) => ({
+  symbol: r.gene.symbol,
+  file: path.split("/").pop(),
+  direction: r.gene.direction,
+}));
+---
+
+<Layout title="Results — Rewire Bio" page="results">
+  <div
+    class="page-shell results-shell"
+    id="results-app"
+    data-base={base}
+    data-manifest={JSON.stringify(manifest)}
+  >
+    <a class="back-link" href={`${base}/workbench/`}>
+      ← New exploration
+    </a>
+    <div id="loading-state" class="empty-state" role="status">
+      <p class="eyebrow">Opening record</p>
+      <h1>Reading the neighbourhood…</h1>
+    </div>
+    <noscript>
+      <p class="notice">
+        Enable JavaScript to explore results. You can still access every{" "}
+        <a href={`${base}/api/`}>static JSON record</a>.
+      </p>
+    </noscript>
+    <div id="error-state" class="empty-state" role="alert" hidden>
+      <p class="eyebrow">No result</p>
+      <h1 id="error-title">This record isn’t available.</h1>
+      <p id="error-message"></p>
+      <a class="button dark" href={`${base}/workbench/`}>
+        Return to workbench →
+      </a>
+    </div>
+    <article id="record-view" hidden>
+      <header class="result-heading">
+        <div>
+          <p class="eyebrow">Regulatory landscape</p>
+          <h1>
+            <span id="gene-title"></span>
+            <span class="intent-title" id="intent-title"></span>
+          </h1>
+          <p id="disease-line" class="muted"></p>
+        </div>
+        <a id="json-link" class="button outline" href={`${base}/api/`}>
+          View JSON <span aria-hidden="true">↗</span>
+        </a>
+      </header>
+      <div id="record-notice" class="notice"></div>
+      <div class="results-controls">
+        <nav aria-label="Results sections">
+          <a href="#elements">Elements</a>
+          <a href="#landscape">Viewer</a>
+          <a href="#methods">Strategies</a>
+        </nav>
+        <label class="small">
+          Direction{" "}
+          <select id="intent-select" aria-label="Regulation direction">
+            <option value="up">Upregulate</option>
+            <option value="down">Downregulate</option>
+            <option value="off">Silence</option>
+          </select>
+        </label>
+      </div>
+      <div class="exploration-grid">
+        <section id="elements" class="results-section elements-section">
+          <div class="section-heading">
+            <div>
+              <h2>Regulatory elements</h2>
+              <p class="small muted" id="elements-count"></p>
+            </div>
+            <label class="sort-control">
+              Rank by{" "}
+              <select id="rank-select">
+                <option value="contact">Contact strength</option>
+                <option value="re2g">rE2G score</option>
+                <option value="distance">Distance to TSS</option>
+                <option value="composite" disabled>
+                  Composite — staples only
+                </option>
+                <option value="potency" disabled>
+                  Potency — not supplied
+                </option>
+                <option value="achievability" disabled>
+                  Achievability — not supplied
+                </option>
+              </select>
+            </label>
+          </div>
+          <div class="score-colour-key" id="score-colour-key"></div>
+          <div class="element-list" id="element-list"></div>
+          <details class="methodology">
+            <summary>
+              About the ranking <span aria-hidden="true">+</span>
+            </summary>
+            <p id="rank-explanation"></p>
+            <p>
+              Contact strength is the maximum supplied strength for a contact
+              with one endpoint exactly at the gene’s TSS and the other inside
+              the element’s interval (inclusive endpoints). No nearby-contact
+              tolerance is inferred. Missing contact evidence sorts last, and is
+              not treated as zero.
+            </p>
+            <p>
+              rE2G is displayed as the record’s raw enhancer–gene score, not
+              enhancer potency or a probability of successful engineering.
+              Composite scores and tiers belong to staples in this contract.
+              Potency and achievability are not supplied, so those sorts are
+              disabled.
+            </p>
+            <p>
+              Gene-level literature is shown with each element for context. It
+              does not, by itself, validate that element or an engineered
+              contact.
+            </p>
+          </details>
+        </section>
+        <section id="landscape" class="results-section viewer-section">
+          <div class="section-heading">
+            <h2>Rewired genome viewer</h2>
+          </div>
+          <div class="map-panel">
+            <div class="viewer-selection" aria-live="polite">
+              <div>
+                <p class="eyebrow" id="viewer-selection-kind">
+                  Selected element
+                </p>
+                <h3 id="viewer-element"></h3>
+              </div>
+              <span id="map-label" class="tag">
+                Contact schematic
+              </span>
+            </div>
+            <p id="viewer-context" class="small muted"></p>
+            <GenomeViewer>
+              <div
+                class="map-scroll"
+                role="region"
+                aria-label="Selected-element contact diagram"
+                tabindex="0"
+              >
+                <svg
+                  id="contact-map"
+                  viewBox="0 0 880 340"
+                  role="img"
+                  aria-label="Contact diagram"
+                ></svg>
+              </div>
+              <div class="map-legend">
+                <span>
+                  <i class="promoter-key"></i> Promoter
+                </span>
+                <span>
+                  <i class="element-key"></i> Selected element
+                </span>
+                <span>
+                  <i class="line-key"></i> Contact / predicted link
+                </span>
+              </div>
+              <p id="map-note" class="small muted"></p>
+            </GenomeViewer>
+          </div>
+          <details id="staples" class="candidate-disclosure">
+            <summary>
+              <span>Candidate staples</span>
+              <span id="staple-count" class="small muted"></span>
+              <span class="expand-icon" aria-hidden="true">
+                +
+              </span>
+            </summary>
+            <p class="section-description">
+              For the requested direction, ordered by supplied composite score.
+              Tiers express uncertainty.
+            </p>
+            <div id="staples-content"></div>
+          </details>
+        </section>
+      </div>
+      <Strategies />
+      <section class="limitations">
+        <span class="eyebrow">What remains unknown</span>
+        <p>
+          Contact does not establish an expression effect or safety. These in
+          silico proposals require experimental validation.
+        </p>
+      </section>
+    </article>
+    <p id="results-status" class="sr-only" aria-live="polite"></p>
+  </div>
+  <script src="../scripts/results.ts"></script>
+</Layout>

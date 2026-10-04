@@ -1,0 +1,109 @@
+---
+import Mark from "../components/Mark.astro";
+import "../styles/global.css";
+interface Props {
+  title: string;
+  description?: string;
+  page?: string;
+}
+const {
+  title,
+  description = "Explore regulatory connections. Shortlist interventions for 3D genome engineering, with evidence and uncertainty in view.",
+  page = "",
+} = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#F2EEDF" />
+    <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+    <title>{title}</title>
+  </head>
+  <body class:list={[page, { landing: page === "home" }]}>
+    <a class="skip" href="#main">
+      Skip to content
+    </a>
+    <header class="site-header">
+      <a class="brand" href={`${base}/`} aria-label="Rewire Bio home">
+        <Mark />
+        <span>
+          Rewire Bio<span class="brand-dot">.</span>
+        </span>
+      </a>
+      <nav aria-label="Main navigation">
+        {page === "home" ? (
+          <>
+            <a class="desktop-nav" href="#about">
+              About
+            </a>
+            <a class="desktop-nav" href="#team">
+              Team
+            </a>
+            <details class="mobile-nav">
+              <summary>
+                Menu <span aria-hidden="true">+</span>
+              </summary>
+              <div>
+                <a href="#about">About</a>
+                <a href="#team">Team</a>
+              </div>
+            </details>
+          </>
+        ) : (
+          <>
+            <a href={`${base}/`}>About</a>
+            <a
+              href={`${base}/api/`}
+              aria-current={page === "api" ? "page" : undefined}
+            >
+              Data API
+            </a>
+          </>
+        )}
+        <a
+          class="nav-cta"
+          href={`${base}/workbench/`}
+          aria-current={page === "workbench" ? "page" : undefined}
+        >
+          Workbench <span aria-hidden="true">↗</span>
+        </a>
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <a class="brand" href={`${base}/`}>
+        <Mark />
+        <span>Rewire Bio.</span>
+      </a>
+      <p>3D genome engineering · Research prototype</p>
+      <div>
+        <a href={`${base}/api/`}>Data API</a>
+        <a
+          href="https://github.com/nathnwe/hack-anthropic-modal-2026"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub ↗
+        </a>
+        <span class="mono">2026</span>
+      </div>
+    </footer>
+    <script>
+      document
+        .querySelectorAll<HTMLAnchorElement>(".mobile-nav a")
+        .forEach((link) => {
+          link.addEventListener("click", () => {
+            const menu = link.closest("details");
+            if (menu) menu.open = false;
+          });
+        });
+    </script>
+  </body>
+</html>

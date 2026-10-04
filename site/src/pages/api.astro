@@ -1,0 +1,145 @@
+---
+import Layout from "../layouts/Layout.astro";
+import type { GeneRecord } from "../lib/records";
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const files = Object.entries(
+  import.meta.glob<GeneRecord>("../../public/data/*.json", {
+    eager: true,
+    import: "default",
+  }),
+);
+const example = `const response = await fetch('${base}/data/case-studies/myc-k562.json');
+if (!response.ok) throw new Error('Record unavailable');
+const record = await response.json();
+
+// Preserve this flag in any downstream interface.
+if (record.illustrative === true) {
+  console.info('Placeholder data — not a finding');
+}
+
+console.log(record.symbol, record.links);`;
+---
+
+<Layout title="Data API — Rewire Bio" page="api">
+  <div class="page-shell api-shell">
+    <div class="api-intro">
+      <p class="eyebrow">Open by design</p>
+      <h1>
+        The data,
+        <br />
+        <em>in plain sight.</em>
+      </h1>
+      <p class="lead">
+        One gene. One JSON file.
+        <br />
+        Every field available to inspect.
+      </p>
+      <p>
+        These are precomputed static records served with the site. No API key,
+        server-side computation or live prediction is involved.
+      </p>
+      <p>
+        Live gene search separately uses{" "}
+        <a href="https://mygene.info/">MyGene.info</a>
+        and <a href="https://rest.ensembl.org/">Ensembl</a> for human reference
+        annotations. A reference lookup does not generate regulatory
+        predictions.
+      </p>
+      <a
+        class="text-link"
+        href="https://github.com/nathnwe/hack-anthropic-modal-2026/blob/main/contracts/schema.json"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Read the data contract ↗
+      </a>
+    </div>
+    <div class="api-content">
+      <section>
+        <p class="eyebrow">01 / Request</p>
+        <div class="endpoint">
+          <span class="tag">GET</span>
+          <code>{base}/data/&lt;gene&gt;.json</code>
+        </div>
+        <p>
+          Use the lowercase filename listed below. Unknown filenames return a
+          404; there is no fallback prediction.
+        </p>
+        <p>
+          The MYC sample in the workbench uses{" "}
+          <a href={`${base}/data/case-studies/myc-k562.json`}>myc-k562.json</a>:
+          all 56 K562 CSV rows, source accessions, conditions, scores and a
+          sourced reference TSS. This case-study dataset is separate from the
+          pipeline contract below; it supplies no TAD, measured contacts or
+          staple predictions.
+        </p>
+        <div class="data-files">
+          {files.map(([path, r]) => (
+            <a href={`${base}/data/${path.split("/").pop()}`}>
+              <span class="mono">{path.split("/").pop()}</span>
+              <span class="tag">
+                {r.illustrative ? "Placeholder" : "Record"}
+              </span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </div>
+      </section>
+      <section>
+        <p class="eyebrow">02 / Read a record</p>
+        <pre><code>{example}</code></pre>
+        <p class="placeholder-note">
+          <span aria-hidden="true">◇</span>
+          <span>
+            <strong>Keep the label attached.</strong> The fixture records below
+            have <code>illustrative: true</code>. Their annotations, coordinates
+            and scores are placeholders.
+          </span>
+        </p>
+      </section>
+      <section>
+        <p class="eyebrow">03 / Response structure</p>
+        <dl class="schema-fields">
+          <div>
+            <dt>gene</dt>
+            <dd>
+              Symbol, chromosome, TSS, disease annotation, dosage direction and
+              source strings.
+            </dd>
+          </div>
+          <div>
+            <dt>locus</dt>
+            <dd>
+              Cell type, TAD interval, regulatory elements with rE2G scores, and
+              contact endpoints with strengths.
+            </dd>
+          </div>
+          <div>
+            <dt>staples</dt>
+            <dd>
+              Candidate anchor pairs, requested mode and a qualitative predicted
+              change.
+            </dd>
+          </div>
+          <div>
+            <dt>risks</dt>
+            <dd>
+              Flags attached to a staple ID, with severity and a description.
+            </dd>
+          </div>
+          <div>
+            <dt>ranking</dt>
+            <dd>
+              Staple-level composite score, ordinal tier A/B/C, rationale and
+              method recommendation. Scores are not calibrated probabilities.
+            </dd>
+          </div>
+        </dl>
+        <p class="small muted">
+          The contract does not specify genome assembly, coordinate convention,
+          contact resolution, enhancer potency or engineering achievability.
+        </p>
+      </section>
+    </div>
+  </div>
+</Layout>

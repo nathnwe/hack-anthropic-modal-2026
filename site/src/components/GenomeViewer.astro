@@ -1,0 +1,205 @@
+<div class="genome-viewer" id="genome-viewer">
+  <div class="genome-toolbar">
+    <div class="viewer-tabs" role="group" aria-label="Genome view">
+      <button type="button" id="view-3d" aria-pressed="true">
+        3D DNA
+      </button>
+      <button type="button" id="view-contacts" aria-pressed="false">
+        Contact map
+      </button>
+      <button type="button" id="view-browser" aria-pressed="false">
+        Genome browser
+      </button>
+    </div>
+    <div class="genome-actions" id="genome-actions">
+      <button
+        type="button"
+        id="dna-zoom-in"
+        aria-label="Zoom in"
+        title="Zoom in"
+      >
+        +
+      </button>
+      <button
+        type="button"
+        id="dna-zoom-out"
+        aria-label="Zoom out"
+        title="Zoom out"
+      >
+        −
+      </button>
+      <button
+        type="button"
+        id="dna-reset"
+        aria-label="Reset 3D view"
+        title="Reset view"
+      >
+        ↺
+      </button>
+      <button
+        type="button"
+        id="dna-expand"
+        aria-label="Expand viewer"
+        aria-pressed="false"
+        title="Expand viewer"
+      >
+        ⤢
+      </button>
+    </div>
+  </div>
+  <div id="dna-panel">
+    <div class="dna-distance" id="dna-distance" hidden>
+      <div>
+        <strong id="dna-separation"></strong>
+        <span>Along DNA · reference TSS → element midpoint</span>
+      </div>
+      <span class="dna-coordinate-kind" id="dna-coordinate-kind"></span>
+    </div>
+    <div class="dna-stage" id="dna-stage">
+      <div id="dna-loading" class="dna-message" role="status">
+        Preparing DNA model…
+      </div>
+      <div id="dna-fallback" class="dna-message" role="status" hidden>
+        <strong>3D view unavailable</strong>
+        <p id="dna-fallback-message">
+          Open the contact map to explore this record.
+        </p>
+        <button type="button" id="dna-fallback-map" class="text-link">
+          Open contact map →
+        </button>
+      </div>
+      <div class="dna-label dna-label-gene" id="dna-label-gene" hidden></div>
+      <div class="dna-omission" id="dna-omission" hidden>
+        <strong id="dna-omitted-count"></strong>
+      </div>
+      <div class="dna-minimap" id="dna-minimap" hidden></div>
+      <div class="dna-scale">
+        <span id="dna-scale-mode"></span>
+        <span id="dna-scale-line"></span>
+        <strong id="dna-scale-label"></strong>
+      </div>
+      <div
+        class="dna-label dna-label-element"
+        id="dna-label-element"
+        hidden
+      ></div>
+      <div
+        class="dna-region-info"
+        id="dna-region-info"
+        role="status"
+        hidden
+      ></div>
+    </div>
+    <div id="dna-controls" class="dna-controls" hidden>
+      <div class="dna-help">
+        <span>Drag to rotate · scroll to zoom</span>
+        <span>Shift + drag to pan</span>
+      </div>
+      <div class="dna-playback">
+        <button
+          type="button"
+          id="dna-play"
+          aria-label="Preview contact"
+          class="dna-play"
+        >
+          ▷ <span>Preview contact</span>
+        </button>
+        <label class="sr-only" for="dna-progress">
+          Contact preview progress
+        </label>
+        <input
+          type="range"
+          id="dna-progress"
+          min="0"
+          max="100"
+          step="1"
+          value="0"
+          aria-valuetext="Open model"
+        />
+        <output id="dna-progress-label" for="dna-progress">
+          Open model
+        </output>
+      </div>
+    </div>
+    <div class="dna-legend">
+      <span>
+        <i class="promoter-key"></i> Transcription start
+      </span>
+      <span>
+        <i class="element-key"></i> Regulatory element
+      </span>
+    </div>
+  </div>
+  <div id="browser-panel" hidden>
+    <p class="genome-browser-credit">
+      GRCh38 · 1-based ·{" "}
+      <a
+        href="https://www.ensembl.org"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Ensembl annotations
+      </a>{" "}
+      ·{" "}
+      <a
+        href="https://igv.org/doc/igvjs/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        IGV
+      </a>
+    </p>
+    <p id="igv-loading" class="small muted" role="status" hidden>
+      Loading genome annotations…
+    </p>
+    <div id="igv-error" class="notice" role="status" hidden>
+      <p id="igv-error-message"></p>
+      <button id="igv-retry" type="button" class="text-link">
+        Retry
+      </button>
+    </div>
+    <div id="igv-content">
+      <p id="igv-enhancer-empty" class="empty-inline" hidden>
+        No regulatory interval is available for this gene yet.
+      </p>
+      {(["enhancer", "gene"] as const).map((pane) => (
+        <section class="igv-pane" id={`igv-${pane}-pane`}>
+          <header>
+            <h4 id={`igv-${pane}-title`}>
+              {pane === "gene" ? "Target gene" : "Regulatory element"}
+            </h4>
+            <div class="igv-actions">
+              <button
+                type="button"
+                id={`igv-${pane}-in`}
+                aria-label={`Zoom in ${pane} browser`}
+              >
+                +
+              </button>
+              <button
+                type="button"
+                id={`igv-${pane}-out`}
+                aria-label={`Zoom out ${pane} browser`}
+              >
+                −
+              </button>
+              <button type="button" id={`igv-${pane}-fit`}>
+                Fit
+              </button>
+            </div>
+          </header>
+          <p id={`igv-${pane}-locus`} class="mono small muted"></p>
+          <p
+            id={`igv-${pane}-status`}
+            class="small form-error"
+            role="status"
+          ></p>
+          <div id={`igv-${pane}`} class="igv-container"></div>
+        </section>
+      ))}
+    </div>
+  </div>
+  <div id="contact-panel" hidden>
+    <slot />
+  </div>
+</div>

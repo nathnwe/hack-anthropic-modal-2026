@@ -1,0 +1,89 @@
+{
+  "illustrative": true,
+  "gene": {
+    "symbol": "SHANK3",
+    "chrom": "22",
+    "tss": 1000000,
+    "disease": "Phelan-McDermid syndrome (haploinsufficiency)",
+    "direction": "too_little",
+    "evidence": [
+      "PLACEHOLDER: replace with ClinGen/PMID before use"
+    ]
+  },
+  "locus": {
+    "cell_type": "PLACEHOLDER_CELL_TYPE",
+    "tad": {
+      "chrom": "22",
+      "start": 900000,
+      "end": 1500000
+    },
+    "cres": [
+      {
+        "id": "SHANK3_cre1",
+        "start": 1200000,
+        "end": 1201000,
+        "type": "enhancer",
+        "score_rE2G": 0.8
+      },
+      {
+        "id": "SHANK3_cre2",
+        "start": 1350000,
+        "end": 1351000,
+        "type": "enhancer",
+        "score_rE2G": 0.3
+      }
+    ],
+    "contacts": [
+      {
+        "a": 1000000,
+        "b": 1200000,
+        "strength": 0.7
+      },
+      {
+        "a": 1000000,
+        "b": 1350000,
+        "strength": 0.2
+      }
+    ]
+  },
+  "staples": [
+    {
+      "id": "SHANK3_s1",
+      "anchor_a": {
+        "chrom": "22",
+        "start": 1000000,
+        "end": 1002000
+      },
+      "anchor_b": {
+        "chrom": "22",
+        "start": 1200000,
+        "end": 1202000
+      },
+      "mode": "up",
+      "predicted_delta": "moderate_up"
+    }
+  ],
+  "risks": [
+    {
+      "staple_id": "SHANK3_s1",
+      "flags": [
+        {
+          "type": "placeholder",
+          "severity": "low",
+          "detail": "illustrative only"
+        }
+      ]
+    }
+  ],
+  "ranking": [
+    {
+      "staple_id": "SHANK3_s1",
+      "score": 64,
+      "tier": "B",
+      "rationale": [
+        "placeholder rationale"
+      ],
+      "method_recommendation": "placeholder: dCas9-based reversible linker"
+    }
+  ]
+}
