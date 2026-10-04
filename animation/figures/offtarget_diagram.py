@@ -56,7 +56,7 @@ MAP_X0, MAP_X1 = 1.0, 99.0
 
 DIFF_CMAP = LinearSegmentedColormap.from_list(
     "diff",
-    ["#0d5f56", "#4fa89c", "#bcdbd6", "#fffdf7", "#f0cf93", "#c98d2a", "#8a5410"],
+    ["#0b5f96", "#4aa8de", "#c4e3f6", "#fffdf7", "#f0cf93", "#c98d2a", "#8a5410"],
 )
 
 RNG = np.random.default_rng(7)
@@ -249,8 +249,8 @@ def build(ax):
             fontsize=T_TINY, color="#8a5410", ha="center", va="center",
             weight="bold")
     ax.text(gx(96), 25.4, "contact taken from everywhere else",
-            fontsize=T_TINY, color="#0d5f56", ha="center", va="center")
-    for lbl, col, x in [("gained", "#8a5410", 74), ("lost", "#0d5f56", 88)]:
+            fontsize=T_TINY, color="#0b5f96", ha="center", va="center")
+    for lbl, col, x in [("gained", "#8a5410", 74), ("lost", "#0b5f96", 88)]:
         ax.add_patch(Rectangle((x, 36.3), 1.6, 1.2, color=col, zorder=5))
         ax.text(x + 2.4, 36.9, lbl, fontsize=T_TINY, color=MUTE,
                 va="center", zorder=5)
