@@ -19,8 +19,7 @@ function cancel() {
   clearTimeout(timer);
   controller?.abort();
   close();
-  if (status.textContent === "Searching human genes…")
-    status.textContent = "Search human gene symbols or names.";
+  if (status.textContent === "Searching…") status.textContent = "";
 }
 function choose(index: number) {
   input.value = items[index].symbol;
@@ -44,13 +43,13 @@ input.addEventListener("input", () => {
   close();
   const query = input.value.trim();
   if (query.length < 2) {
-    status.textContent = "Search human gene symbols or names.";
+    status.textContent = "";
     return;
   }
   timer = setTimeout(async () => {
     const request = new AbortController();
     controller = request;
-    status.textContent = "Searching human genes…";
+    status.textContent = "Searching…";
     try {
       const result = await suggestGenes(query, request.signal);
       if (request.signal.aborted || input.value.trim() !== query) return;
@@ -65,12 +64,11 @@ input.addEventListener("input", () => {
       list.hidden = !items.length;
       input.setAttribute("aria-expanded", String(items.length > 0));
       status.textContent = items.length
-        ? `${items.length} human genes. Use ↑ ↓ and Enter to choose.`
+        ? `${items.length} matches · ↑ ↓ to select, Enter to confirm.`
         : "No suggestions found. Try another symbol or name.";
     } catch {
       if (!request.signal.aborted)
-        status.textContent =
-          "Live search is temporarily unavailable. You can still open a sample below.";
+        status.textContent = "Gene search unavailable. Try an example dataset.";
     }
   }, 250);
 });
@@ -115,6 +113,9 @@ document.querySelectorAll<HTMLButtonElement>("[data-gene]").forEach((button) =>
     form.querySelector<HTMLInputElement>(
       `input[value="${button.dataset.mode}"]`,
     )!.checked = true;
-    status.textContent = `${input.value} sample selected. Change the direction or explore.`;
+    status.textContent =
+      input.value === "MYC"
+        ? "MYC · rE2G predictions"
+        : `${input.value} · illustrative data`;
   }),
 );

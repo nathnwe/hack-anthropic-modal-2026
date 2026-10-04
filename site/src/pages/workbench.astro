@@ -14,16 +14,16 @@ const records = Object.values(
   <div class="workbench-shell page-shell">
     <div class="workbench-intro">
       <p class="eyebrow">
-        <span class="status-dot"></span> The workbench / Research preview
+        <span class="status-dot"></span> Workbench / Human GRCh38
       </p>
       <h1>
-        Start with a gene.
+        Regulatory
         <br />
-        <em>Explore a possibility.</em>
+        contacts.
       </h1>
       <p class="lead">
-        A closer look at the regulatory connections
-        <br class="desktop-break" /> that could change its expression.
+        Inspect regulatory elements and candidate enhancer–promoter
+        interactions.
       </p>
       <div class="mini-loop" aria-hidden="true">
         <svg viewBox="0 0 440 180" fill="none">
@@ -49,21 +49,10 @@ const records = Object.values(
             REGULATORY ELEMENTS
           </text>
         </svg>
-        <span class="small muted">
-          Conceptual illustration · not genomic data
-        </span>
+        <span class="small muted">Schematic</span>
       </div>
-      <p class="workbench-footnote">
-        Inspect the evidence. Compare the options.
-        <br />
-        Keep the unknowns in view.
-      </p>
     </div>
     <div class="query-panel">
-      <div class="panel-heading">
-        <span class="eyebrow">New exploration</span>
-        <span class="mono muted">01 — 02</span>
-      </div>
       <form
         id="query-form"
         action={`${base}/results/`}
@@ -71,7 +60,7 @@ const records = Object.values(
         data-symbols={JSON.stringify(records.map((r) => r.gene.symbol))}
       >
         <label class="field-label" for="gene">
-          <span class="mono">01</span> Target gene
+          Target gene
         </label>
         <div class="gene-input-wrap">
           <input
@@ -81,14 +70,13 @@ const records = Object.values(
             aria-autocomplete="list"
             aria-expanded="false"
             aria-controls="gene-suggestions"
-            placeholder="Search a gene, e.g. BRCA1"
+            placeholder="Gene symbol or name"
             required
             maxlength="60"
             autocomplete="off"
             spellcheck="false"
-            aria-describedby="gene-help form-error"
+            aria-describedby="gene-help dataset-scope form-error"
           />
-          <span aria-hidden="true">↗</span>
         </div>
         <input id="gene-source" name="source" value="reference" type="hidden" />
         <ul
@@ -98,13 +86,9 @@ const records = Object.values(
           aria-label="Human gene suggestions"
           hidden
         ></ul>
-        <p class="small muted" id="gene-help" aria-live="polite">
-          Search human gene symbols or names.
-        </p>
+        <p class="small muted" id="gene-help" aria-live="polite"></p>
         <fieldset class="direction-fieldset">
-          <legend class="field-label">
-            <span class="mono">02</span> Desired regulation
-          </legend>
+          <legend class="field-label">Desired regulation</legend>
           <div class="direction-options">
             <label>
               <input type="radio" name="intent" value="up" checked />
@@ -122,15 +106,14 @@ const records = Object.values(
         </fieldset>
         <p class="form-error" id="form-error" role="alert" hidden></p>
         <button class="button dark submit-button" type="submit">
-          Explore connections <span aria-hidden="true">→</span>
+          View locus <span aria-hidden="true">→</span>
         </button>
-        <p class="small muted">
-          Live gene search · human GRCh38. Regulatory predictions are available
-          for samples only.
+        <p class="small muted" id="dataset-scope">
+          Gene annotations for human genes. Regulatory data for examples only.
         </p>
       </form>
       <div class="example-picker">
-        <span class="eyebrow">Or open a sample exploration</span>
+        <span class="eyebrow">Example datasets</span>
         <div class="example-buttons">
           {records.map((r) => (
             <button
@@ -145,22 +128,15 @@ const records = Object.values(
                     : "up"
               }
             >
-              {r.gene.symbol}
-              <span aria-hidden="true">↗</span>
+              <strong>{r.gene.symbol}</strong>
+              <span>{r.gene.symbol === "MYC" ? "rE2G" : "Illustrative"}</span>
             </button>
           ))}
         </div>
-        <p id="example-status" class="small muted" aria-live="polite">
-          Sample data for exploring the interface.
+        <p class="small muted">
+          Predicted effects are experimentally unvalidated.
         </p>
       </div>
-      <p class="placeholder-note">
-        <span aria-hidden="true">◇</span>
-        <span>
-          <strong>Know your source.</strong> Sample predictions are unvalidated.
-          Illustrative records remain labelled.
-        </span>
-      </p>
     </div>
   </div>
   <script src="../scripts/workbench.ts"></script>
